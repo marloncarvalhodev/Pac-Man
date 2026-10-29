@@ -50,6 +50,8 @@ class WorldData:
     portal_pairs: List[Tuple[Node, Node]] = field(default_factory=list)
     keys: List[Node] = field(default_factory=list)
     enemy_spawn: Node = (1, 1)
+    enemy_spawn2: Node = (1, 1)
+    power_pellets: List[Node] = field(default_factory=list)
 
 
 class Graph:
@@ -353,9 +355,28 @@ class MazeGenerator:
         if num_keys_to_spawn > 0:
             keys = random.sample(candidate_key_cells, num_keys_to_spawn)
 
-        # Posição de Spawn do Inimigo (Minotauro)
-        # Spawn em célula transitável distante do início
-        reserved_cells = set(keys) | portal_nodes | {start_cell, end_cell}
+        # Orbes de Poder (Power Pellets) em cantos estratégicos (NE e SW)
+        portal_nodes = {p for pair in portal_pairs for p in pair}
+        reserved_for_pellets = set(keys) | portal_nodes | {start_cell, end_cell}
+        corner_ne = (1, self.cols - 2)
+        corner_sw = (self.rows - 2, 1)
+
+        def find_closest_open(target: Node) -> Node:
+            sorted_cells = sorted(
+                [c for c in open_cells if c not in reserved_for_pellets and terrains[c] != TerrainType.LAVA],
+                key=lambda c: abs(c[0] - target[0]) + abs(c[1] - target[1]),
+            )
+            return sorted_cells[0] if sorted_cells else target
+
+        pellet1 = find_closest_open(corner_ne)
+        reserved_for_pellets.add(pellet1)
+        pellet2 = find_closest_open(corner_sw)
+        reserved_for_pellets.add(pellet2)
+        power_pellets = [pellet1, pellet2]
+
+        # Posição de Spawn dos Inimigos (1: Minotauro Vermelho, 2: Fantasma Roxo)
+        # Spawn em células transitáveis distantes do início
+        reserved_cells = set(keys) | portal_nodes | set(power_pellets) | {start_cell, end_cell}
         enemy_candidates = [
             c for c in open_cells
             if c not in reserved_cells
@@ -365,6 +386,8 @@ class MazeGenerator:
             enemy_candidates = [c for c in open_cells if c != start_cell]
 
         enemy_spawn = random.choice(enemy_candidates) if enemy_candidates else end_cell
+        enemy_candidates_2 = [c for c in enemy_candidates if c != enemy_spawn]
+        enemy_spawn2 = random.choice(enemy_candidates_2) if enemy_candidates_2 else end_cell
 
         return WorldData(
             grid=grid,
@@ -375,4 +398,6 @@ class MazeGenerator:
             portal_pairs=portal_pairs,
             keys=keys,
             enemy_spawn=enemy_spawn,
+            enemy_spawn2=enemy_spawn2,
+            power_pellets=power_pellets,
         )
