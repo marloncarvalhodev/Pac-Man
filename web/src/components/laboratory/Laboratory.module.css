@@ -1,0 +1,419 @@
+.inspectorCard,
+.comparisonCard,
+.controlsCard,
+.educationalCard {
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inspectorEmpty,
+.comparisonPlaceholder {
+  background-color: var(--color-surface-card);
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.inspectorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inspectorTag {
+  font-size: 0.68rem;
+  color: var(--color-cyan);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.inspectorCoord {
+  font-family: var(--font-family-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.terrainBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.degreesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.degreeItem {
+  background: var(--color-surface-elevated);
+  padding: 6px;
+  border-radius: 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.degNum {
+  font-family: var(--font-family-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-pacman);
+}
+
+.degLabel {
+  font-size: 0.62rem;
+  color: var(--color-text-secondary);
+}
+
+.neighborsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sectionSub {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.neighborsList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.neighborItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  background: var(--color-surface-elevated);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.nbrCoord {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.nbrArrow {
+  color: var(--color-cyan);
+}
+
+.nbrWeight {
+  color: var(--color-pacman);
+}
+
+.nbrTerrain {
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  margin-left: auto;
+}
+
+/* Comparison */
+.cardHeaderTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.academicSubtitle {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  margin-top: 4px;
+}
+
+.comparisonTable th {
+  text-align: left;
+  padding: 6px 8px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.comparisonTable td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.valEqual {
+  font-weight: 700;
+  color: var(--color-pacman);
+}
+
+.valDijkstra {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.valAstar {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.valTrue {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.reductionBadge {
+  background: rgba(67, 217, 163, 0.12);
+  color: var(--color-success);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.academicNote {
+  font-size: 0.68rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  border-left: 2px solid var(--color-cyan);
+  padding-left: 8px;
+}
+
+/* Controls */
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.algoButtonGroup,
+.modeButtonGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.algoBtn,
+.modeBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.algoBtn:hover,
+.modeBtn:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+}
+
+.algoBtnActive,
+.modeBtnActive {
+  background: var(--color-arcade-blue);
+  color: #fff;
+  border-color: var(--color-arcade-blue);
+  font-weight: 600;
+}
+
+.stepProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stepCounter {
+  font-family: var(--font-family-display);
+  font-size: 0.72rem;
+  color: var(--color-cyan);
+  font-weight: 600;
+}
+
+.playbackRow {
+  display: flex;
+  gap: 6px;
+}
+
+.playBtn {
+  flex: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--color-arcade-blue);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.playBtn:hover {
+  background: #2563eb;
+}
+
+.stepBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: var(--color-text-primary);
+}
+
+.stepBtn:hover {
+  background: var(--color-border);
+}
+
+.speedRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.speedLabel {
+  font-size: 0.68rem;
+  color: var(--color-text-secondary);
+  min-width: 85px;
+}
+
+.speedSlider {
+  flex: 1;
+  accent-color: var(--color-cyan);
+}
+
+.seedInputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.seedField {
+  flex: 1;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.seedField:focus {
+  border-color: var(--color-cyan);
+}
+
+.seedBtn {
+  padding: 6px 12px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: var(--color-text-primary);
+}
+
+.seedBtn:hover {
+  background: var(--color-border);
+}
+
+.randomBtn {
+  padding: 6px 10px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-cyan);
+  display: flex;
+  align-items: center;
+}
+
+.interactivityTip {
+  font-size: 0.68rem;
+  color: var(--color-text-secondary);
+  background: rgba(54, 213, 237, 0.08);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border-left: 2px solid var(--color-cyan);
+  line-height: 1.4;
+}
+
+/* Educational */
+.educationalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: var(--color-text-primary);
+}
+
+.eduTitleLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eduIcon {
+  color: var(--color-cyan);
+}
+
+.eduTitle {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.conceptsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: 0.7rem;
+}
+
+.conceptItem {
+  background: var(--color-surface-elevated);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.conceptTerm {
+  color: var(--color-pacman);
+}
+
+.conceptDef {
+  color: var(--color-text-secondary);
+}
+
+/* Overrides de legibilidade e densidade para o laboratório. */
+.inspectorCard,.comparisonCard,.controlsCard,.educationalCard{background:transparent;border:0;border-radius:0;padding:0;gap:14px}.controlsCard{gap:22px}.controlGroup{gap:9px}.groupLabel,.sectionSub{font-size:.84rem;color:#bfd0e2}.algoButtonGroup,.modeButtonGroup,.playbackRow{flex-wrap:wrap;gap:6px}.algoBtn,.modeBtn,.playBtn,.stepBtn,.seedBtn,.randomBtn{font-size:.8rem;min-height:38px}.algoBtn,.modeBtn{min-width:72px}.seedField{min-width:0;font-size:.88rem;min-height:38px}.speedLabel,.stepCounter{font-size:.8rem}.interactivityTip{font-size:.82rem;line-height:1.5;border-left:0;border-radius:6px;padding:12px;background:#14253b}.cardHeaderTitle{font-size:.95rem}.academicSubtitle,.academicNote{font-size:.82rem;line-height:1.5;color:#b7c8dd}.academicNote{border:0;padding:0}.comparisonTable{font-size:.8rem;table-layout:fixed;font-variant-numeric:tabular-nums}.comparisonTable th,.comparisonTable td{padding:9px 5px;overflow-wrap:anywhere;vertical-align:top}.comparisonTable th:first-child{width:40%}.comparisonTable th{background:transparent}.reductionBadge{font-size:.84rem;text-align:left;color:#8ce4c3;background:#19362f}.inspectorEmpty,.comparisonPlaceholder{font-size:.85rem;color:#b0c1d6;padding:15px;border-radius:8px}.inspectorTag,.degLabel,.nbrTerrain{font-size:.76rem}.neighborItem,.conceptsList{font-size:.82rem}.eduTitle{font-size:.9rem}.neighborsList{max-height:170px}.eduTitleLeft{align-items:flex-start}.conceptsList{max-height:280px}.terrainBadge{font-size:.78rem}.degreeItem{padding:10px 5px}.educationalHeader{border-top:1px solid #30415a;padding-top:15px}

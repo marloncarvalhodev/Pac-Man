@@ -1,0 +1,43 @@
+:root {
+  /* Paleta Modern Arcade x Scientific Lab */
+  --color-background: #090D16;
+  --color-surface: #121826;
+  --color-surface-elevated: #192233;
+  --color-surface-card: #161B22;
+
+  --color-text-primary: #F5F7FB;
+  --color-text-secondary: #A7B4C8;
+  --color-text-muted: #64748B;
+
+  --color-arcade-blue: #3478FF;
+  --color-pacman: #FFD43B;
+  --color-purple: #A66BFF;
+  --color-cyan: #36D5ED;
+  --color-danger: #EF5350;
+  --color-success: #43D9A3;
+  --color-warning: #F59E0B;
+
+  --color-border: #293449;
+  --color-border-hover: #3E4C66;
+
+  /* Terrenos */
+  --terrain-normal: #1E293B;
+  --terrain-boost: #00C3D7;
+  --terrain-mud: #785230;
+  --terrain-lava: #DC3228;
+
+  /* Tipografia */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-display: 'Space Grotesk', var(--font-family-sans);
+
+  /* Sombras e Elevação */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-neon-blue: 0 0 15px rgba(52, 120, 255, 0.35);
+  --shadow-neon-pacman: 0 0 15px rgba(255, 212, 59, 0.35);
+
+  /* Transições */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}

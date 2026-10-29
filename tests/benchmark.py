@@ -31,7 +31,7 @@ def run_benchmark(
 ) -> None:
     """Executa medições sistemáticas em labirintos de múltiplas dimensões."""
     print("=" * 80)
-    print(" BENCHMARK TEORIA DOS GRAFOS: DIJKSTRA vs A* (MANHATTAN HEURISTIC)")
+    print(" BENCHMARK: DIJKSTRA vs A* (MANHATTAN COM ESCALA DO GRAFO)")
     print("=" * 80)
     print(f"Iterações por tamanho: {iterations_per_size}")
     print(f"Tamanhos de grade testados: {sizes}\n")
@@ -111,13 +111,10 @@ def run_benchmark(
     print(separator)
 
     # Conclusões teóricas
-    print("\n Análise Teórica & Conclusões:")
-    print("1. Optimalidade Garantida: A* com heurística de Manhattan é consistente e admissível,")
-    print("   garantindo o mesmo custo de caminho mínimo que o algoritmo de Dijkstra.")
-    print("2. Poda de Espaço de Busca: O algoritmo A* reduz substancialmente a quantidade de nós")
-    print("   expandidos (|V_visitados|), concentrando a busca na direção do objetivo.")
-    print("3. Escalabilidade Assintótica: À medida que a ordem do grafo |V| cresce, a vantagem")
-    print("   prática do A* em tempo e memória torna-se cada vez mais pronunciada.\n")
+    print("\nCustos comparados em grades unitárias sem portais, início -> saída.")
+    print("Redução de expansões pode ser negativa; tempo depende da máquina e da amostra.")
+    print("Os resultados não garantem que A* sempre explore menos ou seja mais rápido.")
+    print("Para validar terrenos, portais e chaves, execute a suíte unittest.\n")
 
     # Geração de gráficos para relatório acadêmico (se matplotlib estiver disponível)
     if save_plot:

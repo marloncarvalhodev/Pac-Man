@@ -8,4 +8,22 @@ env/
 .env
 *.log
 .DS_Store
+.tools/
 
+
+# Node.js / React / Phaser / Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Environment variables
+.env.*
+!.env.example
+!.env.*.example
+
+# Editor and system files
+.vscode/
+.idea/
