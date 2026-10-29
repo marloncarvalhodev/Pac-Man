@@ -117,13 +117,13 @@ web/
 cd web
 
 # 2. Instale as dependências
-npm install
+npm ci
 
 # 3. Inicie o servidor de desenvolvimento Vite
 npm run dev
 ```
 
-Abra seu navegador em `http://localhost:5173`.
+Abra `http://localhost:3000/` (porta configurada no Vite). Durante o desenvolvimento a aplicação usa a raiz `/`; a base `/Pac-Man/` é aplicada ao build e à prévia de produção.
 
 ---
 
@@ -174,15 +174,22 @@ Arraste a pasta `web/dist` no painel do Netlify ou utilize o Netlify CLI:
 npx netlify deploy --dir=web/dist --prod
 ```
 
-### 3. GitHub Pages
-No `web/vite.config.ts`, defina a propriedade `base`:
-```typescript
-export default defineConfig({
-  base: './', // garante caminhos relativos para GitHub Pages
-  // ...
-});
+### 3. GitHub Pages (GitHub Actions)
+
+O workflow [deploy-pages.yml](../.github/workflows/deploy-pages.yml) executa em pushes na branch `main` e também pode ser iniciado manualmente em **Actions → Deploy GitHub Pages → Run workflow**. Ele instala as dependências em `web/` com `npm ci`, executa `npm run build` e publica exclusivamente o conteúdo compilado de `web/dist/` usando as actions oficiais do GitHub Pages. Não é necessário token pessoal.
+
+Antes da primeira publicação, em **Settings → Pages → Build and deployment → Source**, selecione **GitHub Actions**. Após o workflow estar disponível na branch principal, acompanhe sua execução em **Actions**. O endereço esperado é [https://marloncarvalhodev.github.io/Pac-Man/](https://marloncarvalhodev.github.io/Pac-Man/); ele depende de uma execução remota concluída e da configuração do repositório.
+
+O Vite usa `/Pac-Man/` no build para que scripts, estilos e favicon sejam carregados no subcaminho do repositório. Para conferir a versão compilada localmente:
+
+```bash
+cd web
+npm ci
+npm run build
+npm run preview
 ```
-Execute o build e faça o upload da pasta `dist/` para a branch `gh-pages`.
+
+A prévia informa a porta no terminal; acesse `http://localhost:4173/Pac-Man/` quando estiver usando a porta padrão. A navegação entre Início, Arcade, Laboratório e Manual usa estado React, sem rotas no servidor: recarregar retorna ao Início e Voltar/Avançar não percorrem essas abas. Os links de tópicos do Manual usam fragmentos da URL e entram no histórico do navegador.
 
 ---
 
