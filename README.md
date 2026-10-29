@@ -1,5 +1,7 @@
 🟡 Pac-Man: Graph Lab
 Um jogo arcade e laboratório interativo de Teoria dos Grafos
+🌐 ▶ JOGAR ONLINE — ACESSAR GRAPH LAB
+Jogue diretamente no navegador, sem instalação. Acesse o Modo Arcade e o Laboratório de Grafos.
 O Pac-Man: Graph Lab é uma aplicação web interativa inspirada no clássico Pac-Man, desenvolvida para demonstrar a aplicação da Teoria dos Grafos na construção de jogos digitais.
 
 O projeto combina jogabilidade arcade, geração procedural de labirintos, inteligência artificial para inimigos e algoritmos de busca de caminhos mínimos.
@@ -7,10 +9,6 @@ O projeto combina jogabilidade arcade, geração procedural de labirintos, intel
 Além do jogo, a aplicação oferece um Laboratório de Grafos, no qual é possível visualizar estruturas matemáticas, acompanhar a execução de algoritmos e comparar os resultados de Dijkstra e A (A-Star)*.
 
 Desenvolvido como projeto acadêmico da disciplina de Matemática Discreta II, do Instituto Federal da Bahia (IFBA).
-🌐 Jogue online
-Acesse o Pac-Man: Graph Lab diretamente pelo navegador, sem instalar nada:
-🎮 ▶ Jogar Pac-Man: Graph Lab
-A versão web reúne o Modo Arcade e o Laboratório de Grafos, com demonstrações de Dijkstra e A*. Caso prefira executar localmente, consulte as instruções de instalação abaixo.
 🎮 Sobre o projeto
 O objetivo é demonstrar como a Teoria dos Grafos pode ser aplicada à modelagem de ambientes, à movimentação de personagens e à tomada de decisões em jogos digitais.
 
