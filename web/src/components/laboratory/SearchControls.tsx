@@ -64,18 +64,21 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
           <button
             className={`${styles.algoBtn} ${algorithm === 'A*' ? styles.algoBtnActive : ''}`}
             onClick={() => onSelectAlgorithm('A*')}
+            aria-pressed={algorithm === 'A*'}
           >
             A* (Manhattan)
           </button>
           <button
             className={`${styles.algoBtn} ${algorithm === 'Dijkstra' ? styles.algoBtnActive : ''}`}
             onClick={() => onSelectAlgorithm('Dijkstra')}
+            aria-pressed={algorithm === 'Dijkstra'}
           >
             Dijkstra
           </button>
           <button
             className={`${styles.algoBtn} ${algorithm === 'Multi-Goal' ? styles.algoBtnActive : ''}`}
             onClick={() => onSelectAlgorithm('Multi-Goal')}
+            aria-pressed={algorithm === 'Multi-Goal'}
           >
             Multi-Goal (Chaves)
           </button>
@@ -89,6 +92,7 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
           <button
             className={`${styles.modeBtn} ${displayMode === 'OVERLAY' ? styles.modeBtnActive : ''}`}
             onClick={() => onSelectDisplayMode('OVERLAY')}
+            aria-pressed={displayMode === 'OVERLAY'}
             title="Sobreposição de labirinto e grafo"
           >
             <Layers size={14} /> Sobreposição
@@ -96,6 +100,7 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
           <button
             className={`${styles.modeBtn} ${displayMode === 'GRAPH' ? styles.modeBtnActive : ''}`}
             onClick={() => onSelectDisplayMode('GRAPH')}
+            aria-pressed={displayMode === 'GRAPH'}
             title="Apenas rede topológica do grafo"
           >
             <Network size={14} /> Grafo Puro
@@ -103,6 +108,7 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
           <button
             className={`${styles.modeBtn} ${displayMode === 'MAZE' ? styles.modeBtnActive : ''}`}
             onClick={() => onSelectDisplayMode('MAZE')}
+            aria-pressed={displayMode === 'MAZE'}
             title="Apenas labirinto geométrico"
           >
             <Grid size={14} /> Labirinto
@@ -160,6 +166,7 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
           <span className={styles.speedLabel}>Velocidade: {speed}x</span>
           <input
             type="range"
+            aria-label="Velocidade da visualização"
             min="1"
             max="25"
             value={speed}
@@ -171,26 +178,40 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
 
       {/* 4. Semente e Novo Grafo */}
       <div className={styles.controlGroup}>
-        <span className={styles.groupLabel}>Geração Determinística (PRNG Seed):</span>
+        <span className={styles.groupLabel}>
+          Geração Determinística (PRNG Seed):
+        </span>
         <div className={styles.seedInputRow}>
           <input
             type="number"
+            aria-label="Semente do labirinto"
             value={seedInput}
             onChange={(e) => setSeedInput(e.target.value)}
             className={styles.seedField}
             placeholder="Semente..."
           />
-          <button className={styles.seedBtn} onClick={handleGenerateSeed} title="Recriar grafo com esta semente">
+          <button
+            className={styles.seedBtn}
+            onClick={handleGenerateSeed}
+            title="Recriar grafo com esta semente"
+          >
             Carregar
           </button>
-          <button className={styles.randomBtn} onClick={handleRandomSeed} title="Gerar semente aleatória">
+          <button
+            className={styles.randomBtn}
+            onClick={handleRandomSeed}
+            title="Gerar semente aleatória"
+            aria-label="Gerar semente aleatória"
+          >
             <RefreshCw size={14} />
           </button>
         </div>
       </div>
 
       <div className={styles.interactivityTip}>
-        <strong>Interatividade no Mapa:</strong> Clique com o botão esquerdo para alterar a <em>Origem (S)</em>. Pressione <em>Shift + Clique</em> para alterar o <em>Destino (T)</em>!
+        <strong>Interatividade no Mapa:</strong> Clique com o botão esquerdo
+        para alterar a <em>Origem (S)</em>. Pressione <em>Shift + Clique</em>{' '}
+        para alterar o <em>Destino (T)</em>!
       </div>
     </div>
   );

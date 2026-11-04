@@ -1,2 +1,89 @@
-﻿@import './tokens.css';
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body,#root{width:100%;min-height:100%;background:var(--color-background);color:var(--color-text-primary);font-family:var(--font-family-sans);-webkit-font-smoothing:antialiased}html{scroll-behavior:smooth}body{overflow-x:hidden}button{cursor:pointer;border:0;background:none;font:inherit;color:inherit;transition:color 150ms ease,background-color 150ms ease,border-color 150ms ease}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--color-cyan);outline-offset:3px}::selection{background:#315f98;color:#fff}::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#0c1423}::-webkit-scrollbar-thumb{background:#40516b;border-radius:8px}a{color:inherit}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@import './tokens.css';
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+body {
+  min-width: 320px;
+}
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+main:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 4px;
+}
+input {
+  font: inherit;
+  accent-color: var(--color-pacman);
+  caret-color: var(--color-pacman);
+}
+input::placeholder {
+  color: var(--color-text-muted);
+}
+a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+button svg {
+  flex-shrink: 0;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-family-display);
+  text-wrap: balance;
+}
+::selection {
+  background: #ffda55;
+  color: #101722;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #435168 var(--color-background);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,3 +1,226 @@
-﻿.playContainer{width:100%;max-width:1100px;margin:auto;padding:22px 24px 36px;display:flex;flex-direction:column;gap:16px}.canvasWrapper{position:relative;width:min(100%,calc(100vh - 260px),700px);min-width:min(100%,400px);aspect-ratio:1;margin:auto;background:#090d16;border:1px solid #27416a;border-radius:8px;overflow:hidden;box-shadow:0 14px 42px #0006}.overlayModal{position:absolute;inset:0;background:#090d16e8;display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}.modalCardSuccess,.modalCardDanger{background:#142035;border:1px solid #40516a;border-radius:12px;padding:32px;display:flex;flex-direction:column;align-items:center;text-align:center;max-width:440px;gap:14px}.victoryIcon,.modalTitle{color:#ffd43b}.dangerIcon,.modalTitleDanger{color:#f47a79}.modalTitle,.modalTitleDanger{font-size:1.8rem}.modalText{color:#c0cee0;line-height:1.5}.scoreHighlight{font-size:1.1rem}.scoreHighlight strong{color:#ffd43b}.modalBtnSuccess,.modalBtnDanger{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#ffd43b;color:#101622;font-weight:700;border-radius:8px}.modalBtnDanger{background:#f16b6b;color:#101622}.touchControls{display:none}@media(max-width:700px){.playContainer{padding:14px 12px 28px}.canvasWrapper{width:100%;min-width:0}.touchControls{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,44px);gap:5px;justify-content:center;touch-action:none}.touchControls button{border:1px solid #415774;background:#17253a;border-radius:7px;color:#dceaff;display:grid;place-items:center}.touchControls button:active{background:#315d91}.up{grid-column:2}.left{grid-column:1}.down{grid-column:2}.right{grid-column:3}}
-/* O canvas mantém a proporção lógica 700×700; a escala segue a altura útil. */
-.playContainer{max-width:1200px;padding:14px 20px 24px;gap:8px}.canvasWrapper{width:min(100%,max(1px,calc(100vh - 245px)),900px);width:min(100%,max(1px,calc(100dvh - 245px)),900px);min-width:0;border:0;border-radius:0;box-shadow:none;overflow:hidden}.touchControls{gap:4px}@media(max-width:700px){.playContainer{padding:10px 12px 20px;gap:8px}.canvasWrapper{width:min(100%,max(1px,calc(100vh - 315px)));width:min(100%,max(1px,calc(100dvh - 315px)))}}
+.playContainer {
+  width: 100%;
+  max-width: 1240px;
+  margin: auto;
+  padding: 28px 28px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: min(100%, 1000px);
+  margin: 0 auto 10px;
+}
+.pageHeader h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.pageHeader h1 > span {
+  font-family: var(--font-family-sans);
+  font-size: 0.8rem;
+  display: inline-block;
+  margin-left: 18px;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.modeTag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.modeTag > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+.canvasWrapper {
+  position: relative;
+  width: min(100%, max(280px, calc(100dvh - 340px)), 900px);
+  min-width: 0;
+  aspect-ratio: 1;
+  margin: auto;
+  background: #090d16;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.overlayModal {
+  position: absolute;
+  inset: 0;
+  background: #090d16ed;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 10;
+  padding: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.modalCardSuccess,
+.modalCardDanger {
+  margin: auto;
+  flex-shrink: 0;
+  width: min(100%, 440px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 440px;
+  gap: 16px;
+}
+.victoryIcon,
+.modalTitle {
+  color: var(--color-pacman);
+}
+.dangerIcon,
+.modalTitleDanger {
+  color: var(--color-danger);
+}
+.modalTitle,
+.modalTitleDanger {
+  font-size: 1.8rem;
+}
+.modalText {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.scoreHighlight {
+  font-size: 1.1rem;
+}
+.scoreHighlight strong {
+  color: var(--color-pacman);
+}
+.modalBtnSuccess,
+.modalBtnDanger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  min-height: 46px;
+  background: var(--color-pacman);
+  color: #101622;
+  font-weight: 700;
+  border-radius: 8px;
+}
+.modalBtnDanger {
+  background: var(--color-danger);
+}
+.touchControls {
+  display: none;
+}
+@media (max-width: 760px) {
+  .playContainer {
+    padding: 22px 16px 30px;
+    gap: 12px;
+  }
+  .pageHeader {
+    align-items: flex-start;
+    margin: 0 auto 4px;
+  }
+  .pageHeader h1 {
+    font-size: 1.4rem;
+  }
+  .pageHeader h1 > span {
+    display: block;
+    margin: 6px 0 0;
+    font-size: 0.76rem;
+  }
+  .modeTag {
+    margin-top: 6px;
+    font-size: 0.65rem;
+  }
+  .canvasWrapper {
+    width: min(100%, max(260px, calc(100dvh - 430px)));
+  }
+  .touchControls {
+    display: grid;
+    grid-template-columns: repeat(3, 54px);
+    grid-template-rows: repeat(2, 46px);
+    gap: 5px;
+    justify-content: center;
+    touch-action: none;
+  }
+  .touchControls button {
+    border: 1px solid var(--color-border-hover);
+    background: var(--color-surface-elevated);
+    border-radius: 9px;
+    color: var(--color-text-primary);
+    display: grid;
+    place-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .touchControls button:active {
+    background: var(--color-pacman);
+    color: #101622;
+  }
+  .up {
+    grid-column: 2;
+  }
+  .left {
+    grid-column: 1;
+  }
+  .down {
+    grid-column: 2;
+  }
+  .right {
+    grid-column: 3;
+  }
+  .modalCardSuccess,
+  .modalCardDanger {
+    padding: 22px;
+    gap: 12px;
+  }
+  .modalText {
+    font-size: 0.85rem;
+  }
+  .modalCardSuccess > svg,
+  .modalCardDanger > svg {
+    height: 32px;
+  }
+}
+@media (pointer: coarse) {
+  .touchControls {
+    display: grid;
+    grid-template-columns: repeat(3, 54px);
+    grid-template-rows: repeat(2, 46px);
+    gap: 5px;
+    justify-content: center;
+  }
+  .touchControls button {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-hover);
+    border-radius: 9px;
+    touch-action: none;
+  }
+  .up {
+    grid-column: 2;
+  }
+  .left {
+    grid-column: 1;
+  }
+  .down {
+    grid-column: 2;
+  }
+  .right {
+    grid-column: 3;
+  }
+}

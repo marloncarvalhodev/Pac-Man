@@ -1,0 +1,130 @@
+.preview {
+  width: 100%;
+  max-width: 540px;
+  justify-self: end;
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 16px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+.toolbar > span,
+.toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toolbar > span svg {
+  color: var(--color-pacman);
+}
+.toolbar button {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  font-size: 0.72rem;
+}
+.toolbar button:hover {
+  color: var(--color-pacman);
+  border-color: var(--color-border-hover);
+}
+.maze {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 12px;
+  background: #0c111b;
+  border-radius: 14px;
+  border: 1px solid #273349;
+}
+.wall {
+  fill: #121f36;
+  stroke: #395580;
+  stroke-width: 1;
+}
+.dot {
+  fill: #6d7c94;
+}
+.route {
+  stroke: #ffda55;
+  stroke-dasharray: 1800;
+  stroke-dashoffset: 0;
+}
+.metrics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 18px 0;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.metrics > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.metrics i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-pacman);
+}
+.metrics b {
+  font-weight: 500;
+  color: var(--color-pacman);
+  margin-left: 4px;
+}
+.preview figcaption {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+.preview figcaption span {
+  font-size: 0.65rem;
+  letter-spacing: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .route {
+    animation: trace-route 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes trace-route {
+    from {
+      stroke-dashoffset: 1800;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+@media (max-width: 700px) {
+  .preview {
+    justify-self: center;
+    max-width: 460px;
+  }
+  .maze {
+    padding: 8px;
+  }
+  .toolbar {
+    padding-top: 0;
+  }
+  .metrics {
+    padding: 14px 0;
+  }
+  .preview figcaption {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

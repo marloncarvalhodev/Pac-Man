@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-04T00:00:00Z",
+  "title": "Design System: PAC-MAN",
+  "extensions": {
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 3px 8px #0003", "purpose": "Declared small shadow token; not a default card treatment." },
+      { "name": "shadow-md", "value": "0 8px 24px #0004", "purpose": "Declared medium shadow token; not a default card treatment." },
+      { "name": "shadow-lg", "value": "0 18px 48px #0005", "purpose": "Game-details popover." }
+    ],
+    "motion": [
+      { "name": "transition-fast", "value": "150ms ease", "purpose": "Token and global button color, background-color, and border-color transitions." },
+      { "name": "transition-normal", "value": "250ms ease", "purpose": "Declared normal transition token." },
+      { "name": "arrow-transform", "value": "180ms ease", "purpose": "Landing action and experience arrows." },
+      { "name": "title-reveal", "value": "0.75s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Landing headline reveal when reduced motion is not requested." },
+      { "name": "content-reveal", "value": "0.8s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Landing supporting content reveal with 100ms delay when reduced motion is not requested." },
+      { "name": "trace-route", "value": "1.8s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Preview route tracing when reduced motion is not requested." }
+    ],
+    "breakpoints": [
+      { "name": "narrow-navigation-and-hud-max", "value": "370px" },
+      { "name": "stack-landing-actions-max", "value": "380px" },
+      { "name": "manual-terrain-stack-max", "value": "440px" },
+      { "name": "landing-and-preview-stack-max", "value": "700px" },
+      { "name": "workspace-and-navigation-stack-max", "value": "760px" },
+      { "name": "manual-navigation-stack-max", "value": "800px" },
+      { "name": "navigation-compact-max", "value": "1000px" },
+      { "name": "landing-compact-max", "value": "1050px" },
+      { "name": "laboratory-two-columns-max", "value": "1250px" },
+      { "name": "navigation-wide-gutters-min", "value": "1500px" }
+    ]
+  }
+}

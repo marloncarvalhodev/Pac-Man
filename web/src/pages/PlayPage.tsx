@@ -3,7 +3,15 @@ import { PhaserGame } from '../game/PhaserGame';
 import { GameHUD } from '../components/game/GameHUD';
 import { EventBus } from '../game/core/EventBus';
 import { GameStateSnapshot } from '../game/core/GameState';
-import { Trophy, Skull, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Trophy,
+  Skull,
+  RotateCcw,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import styles from './PlayPage.module.css';
 
 export const PlayPage: React.FC = () => {
@@ -30,18 +38,60 @@ export const PlayPage: React.FC = () => {
   };
 
   const sendDirection = (key: string, down: boolean) => {
-    window.dispatchEvent(new KeyboardEvent(down ? 'keydown' : 'keyup', { key, code: key, keyCode: ({ ArrowUp: 38, ArrowLeft: 37, ArrowDown: 40, ArrowRight: 39 } as Record<string, number>)[key], bubbles: true }));
+    window.dispatchEvent(
+      new KeyboardEvent(down ? 'keydown' : 'keyup', {
+        key,
+        code: key,
+        keyCode: (
+          {
+            ArrowUp: 38,
+            ArrowLeft: 37,
+            ArrowDown: 40,
+            ArrowRight: 39,
+          } as Record<string, number>
+        )[key],
+        bubbles: true,
+      }),
+    );
   };
-  const directionButton = (key: string, label: string, className: string, icon: React.ReactNode) => (
-    <button className={className} aria-label={label}
-      onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); sendDirection(key, true); }}
-      onPointerUp={() => sendDirection(key, false)} onPointerCancel={() => sendDirection(key, false)}
-      onLostPointerCapture={() => sendDirection(key, false)}>{icon}</button>
+  const directionButton = (
+    key: string,
+    label: string,
+    className: string,
+    icon: React.ReactNode,
+  ) => (
+    <button
+      className={className}
+      aria-label={label}
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        sendDirection(key, true);
+      }}
+      onPointerUp={() => sendDirection(key, false)}
+      onPointerCancel={() => sendDirection(key, false)}
+      onLostPointerCapture={() => sendDirection(key, false)}
+    >
+      {icon}
+    </button>
   );
 
   return (
     <div className={styles.playContainer}>
-      <GameHUD state={gameState} onNewMaze={handleNewMaze} onRestartMaze={handleRestartMaze} />
+      <header className={styles.pageHeader}>
+        <div>
+          <h1>
+            Modo Arcade<span>Jogue. Explore. Encontre a saída.</span>
+          </h1>
+        </div>
+        <span className={styles.modeTag}>
+          <span /> Partida local
+        </span>
+      </header>
+      <GameHUD
+        state={gameState}
+        onNewMaze={handleNewMaze}
+        onRestartMaze={handleRestartMaze}
+      />
       {/* Área do Labirinto (Canvas Phaser) */}
       <div className={styles.canvasWrapper}>
         <PhaserGame sceneType="GameScene" />
@@ -58,7 +108,10 @@ export const PlayPage: React.FC = () => {
               <div className={styles.scoreHighlight}>
                 Pontuação Final: <strong>{gameState.score} pts</strong>
               </div>
-              <button className={styles.modalBtnSuccess} onClick={handleNewMaze}>
+              <button
+                className={styles.modalBtnSuccess}
+                onClick={handleNewMaze}
+              >
                 <RotateCcw size={16} /> Jogar Novamente
               </button>
             </div>
@@ -79,7 +132,10 @@ export const PlayPage: React.FC = () => {
               <div className={styles.scoreHighlight}>
                 Pontuação: <strong>{gameState.score} pts</strong>
               </div>
-              <button className={styles.modalBtnDanger} onClick={handleRestartMaze}>
+              <button
+                className={styles.modalBtnDanger}
+                onClick={handleRestartMaze}
+              >
                 <RotateCcw size={16} /> Tentar Novamente
               </button>
             </div>
@@ -88,10 +144,30 @@ export const PlayPage: React.FC = () => {
       </div>
 
       <div className={styles.touchControls} aria-label="Controles de movimento">
-        {directionButton('ArrowUp', 'Mover para cima', styles.up, <ChevronUp />)}
-        {directionButton('ArrowLeft', 'Mover para esquerda', styles.left, <ChevronLeft />)}
-        {directionButton('ArrowDown', 'Mover para baixo', styles.down, <ChevronDown />)}
-        {directionButton('ArrowRight', 'Mover para direita', styles.right, <ChevronRight />)}
+        {directionButton(
+          'ArrowUp',
+          'Mover para cima',
+          styles.up,
+          <ChevronUp />,
+        )}
+        {directionButton(
+          'ArrowLeft',
+          'Mover para esquerda',
+          styles.left,
+          <ChevronLeft />,
+        )}
+        {directionButton(
+          'ArrowDown',
+          'Mover para baixo',
+          styles.down,
+          <ChevronDown />,
+        )}
+        {directionButton(
+          'ArrowRight',
+          'Mover para direita',
+          styles.right,
+          <ChevronRight />,
+        )}
       </div>
     </div>
   );

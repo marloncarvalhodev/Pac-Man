@@ -1,3 +1,221 @@
-﻿.hud{width:min(100%,940px);margin:auto}.loading{padding:20px;color:#b7c7db}.topline{display:grid;grid-template-columns:1.1fr 1fr .9fr 1.7fr auto;align-items:center;gap:20px;padding:15px 22px;background:#111b2a;border:1px solid #2a3a51;border-radius:10px}.stat,.objective{display:flex;flex-direction:column;gap:5px;min-width:0}.stat>span,.objective>span{display:flex;align-items:center;gap:5px;color:#a4b7d0;font-weight:700;font-size:.68rem;letter-spacing:.08em}.stat strong{font-size:1.3rem;font-variant-numeric:tabular-nums}.score{color:#ffd43b}.stat strong small{color:#a4b7d0;font-size:.85rem}.health{width:88px;height:4px;border-radius:4px;background:#36445a}.health i{display:block;height:100%;border-radius:4px}.objective strong{font-size:.95rem}.objective small{color:#a7b9d0;font-size:.8rem}.pause{display:flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid #41516a;border-radius:7px;color:#dce7f6;font-size:.85rem}.pause:hover,.toolButtons button:hover,.mapActions button:hover{border-color:#65cbe0;color:#fff}.tools{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;padding:15px 2px;color:#b8c8db;font-size:.83rem}.tools p{line-height:2}.tools kbd{font-size:.72rem;color:#e9f0fb;background:#1c2a3d;border:1px solid #354a65;border-radius:4px;padding:3px 5px}.details{position:relative}.details summary{cursor:pointer;list-style:none;color:#d7e8fb;font-weight:600;padding:6px 0}.details summary::-webkit-details-marker{display:none}.details summary span{margin-left:5px;color:#52cde1}.detailContent{position:absolute;z-index:8;top:36px;left:0;width:min(450px,85vw);padding:18px;background:#142136;border:1px solid #38516e;border-radius:8px;box-shadow:0 12px 30px #0008}.detailContent p{line-height:1.5;margin-bottom:12px}.toolButtons{display:flex;flex-wrap:wrap;gap:7px}.toolButtons button,.mapActions button{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #384c65;border-radius:6px;color:#d9e6f7;font-size:.8rem}.mapActions{margin-left:auto;display:flex;gap:8px}@media(max-width:650px){.topline{grid-template-columns:repeat(3,1fr);gap:15px;padding:14px}.objective{grid-column:span 2}.pause{justify-self:end}.stat strong{font-size:1.1rem}.tools{gap:8px}.mapActions{margin-left:0}.details{order:3;width:100%}}
-.stat>span,.objective>span{font-size:.75rem}
-.tools{padding:8px 2px}
+.hud {
+  width: min(100%, 1000px);
+  margin: auto;
+}
+.loading {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+.topline {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 0.9fr 1.7fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+.stat,
+.objective {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.stat > span,
+.objective > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+.stat strong {
+  font-family: var(--font-family-display);
+  font-size: 1.55rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.score {
+  color: var(--color-pacman);
+}
+.stat strong small {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.health {
+  width: 88px;
+  height: 4px;
+  border-radius: 4px;
+  background: #36445a;
+}
+.health i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+.objective strong {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.objective small {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+.pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 0.82rem;
+}
+.pause:hover,
+.toolButtons button:hover,
+.mapActions button:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-pacman);
+}
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 10px 2px;
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+}
+.tools p {
+  line-height: 2;
+}
+.tools kbd {
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 3px 5px;
+}
+.details {
+  position: relative;
+}
+.details summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+  padding: 10px 0;
+  min-height: 40px;
+}
+.details summary::-webkit-details-marker {
+  display: none;
+}
+.details summary span {
+  margin-left: 5px;
+  color: var(--color-cyan);
+}
+.detailContent {
+  position: absolute;
+  z-index: 8;
+  top: 44px;
+  left: 0;
+  width: min(450px, 85vw);
+  padding: 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-hover);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+}
+.detailContent p {
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.toolButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.toolButtons button,
+.mapActions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  color: var(--color-text-secondary);
+  font-size: 0.76rem;
+}
+.toolButtons button[aria-pressed='true'] {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+.mapActions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+@media (max-width: 760px) {
+  .topline {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 16px;
+  }
+  .objective {
+    grid-column: span 2;
+  }
+  .pause {
+    justify-self: end;
+  }
+  .stat strong {
+    font-size: 1.3rem;
+  }
+  .tools {
+    gap: 4px 12px;
+    padding: 6px 0;
+  }
+  .tools > p {
+    display: none;
+  }
+  .mapActions {
+    margin-left: auto;
+  }
+  .details summary {
+    font-size: 0.72rem;
+  }
+  .mapActions button {
+    font-size: 0.72rem;
+    padding: 8px;
+  }
+  .detailContent {
+    left: 0;
+    width: min(450px, calc(100vw - 40px));
+  }
+}
+@media (max-width: 370px) {
+  .details {
+    width: 100%;
+    order: 2;
+  }
+  .mapActions {
+    margin-left: 0;
+    width: 100%;
+  }
+  .mapActions button {
+    flex: 1;
+  }
+  .objective strong {
+    font-size: 0.82rem;
+  }
+}

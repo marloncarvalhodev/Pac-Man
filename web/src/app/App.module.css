@@ -1,2 +1,190 @@
-﻿.appContainer{min-height:100vh;background:#090f1b;color:var(--color-text-primary)}.navbar{min-height:66px;padding:0 clamp(18px,3vw,44px);display:flex;align-items:center;gap:30px;border-bottom:1px solid #24324a;background:#0b1220;position:sticky;top:0;z-index:100}.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}.brandLogo{width:24px;height:24px;background:#ffd43b;border-radius:50%;clip-path:polygon(0 0,100% 0,55% 50%,100% 100%,0 100%)}.brandTitle{font-size:.96rem;font-weight:800;letter-spacing:.03em;white-space:nowrap}.brandBadge{display:none}.navLinks{display:flex;align-items:stretch;gap:8px;flex:1;height:66px}.navBtn{padding:0 13px;display:flex;align-items:center;gap:8px;color:#aebed3;font-size:.88rem;font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}.navBtn:hover{color:#fff}.navBtn.active{color:#ffd43b;border-bottom-color:#ffd43b}.rightActions{display:flex;align-items:center}.soundBtn{width:40px;height:40px;display:grid;place-items:center;border:1px solid #34445f;border-radius:8px;color:#c6d4e7}.soundBtn:hover{color:#ffd43b;border-color:#ffd43b}.academicTag{display:none}.mainContent{min-width:0}@media(max-width:850px){.navbar{gap:12px}.navLinks{gap:0}.navBtn{padding:0 9px}.brandTitle{font-size:.82rem}}@media(max-width:650px){.navbar{flex-wrap:wrap;gap:0;padding:0 14px}.brand{height:54px;flex:1}.rightActions{height:54px}.navLinks{height:45px;order:3;width:100%;flex-basis:100%;justify-content:space-between}.navBtn{font-size:.75rem;padding:0 5px;gap:4px}.navBtn svg{width:14px}.brandTitle{font-size:.9rem}}
-.navShort{display:none}@media(max-width:450px){.navLinks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%}.navBtn{justify-content:center;min-width:0;font-size:.8rem}.navBtn svg{display:none}.navLong{display:none}.navShort{display:inline}}
+.appContainer {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+.navbar {
+  min-height: 78px;
+  padding: 0 clamp(22px, 5vw, 76px);
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+  min-height: 44px;
+}
+.brandLogo {
+  width: 26px;
+  height: 26px;
+  background: var(--color-pacman);
+  border-radius: 50%;
+  clip-path: polygon(0 0, 100% 0, 55% 50%, 100% 100%, 0 100%);
+}
+.brandTitle {
+  font-family: var(--font-family-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+}
+.brandBadge {
+  display: none;
+}
+.navLinks {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  flex: 1;
+  height: 78px;
+}
+.navBtn {
+  position: relative;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.navBtn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: transparent;
+}
+.navBtn:hover {
+  color: var(--color-text-primary);
+  background: #ffffff03;
+}
+.navBtn.active {
+  color: var(--color-pacman);
+}
+.navBtn.active::after {
+  background: var(--color-pacman);
+}
+.rightActions {
+  display: flex;
+  align-items: center;
+}
+.soundBtn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text-secondary);
+}
+.soundBtn:hover {
+  color: var(--color-pacman);
+  border-color: var(--color-border-hover);
+}
+.academicTag {
+  display: none;
+}
+.mainContent {
+  min-width: 0;
+}
+.navShort {
+  display: none;
+}
+.skipLink {
+  position: fixed;
+  left: 16px;
+  top: -80px;
+  z-index: 110;
+  background: var(--color-pacman);
+  color: #111827;
+  padding: 12px 18px;
+  border-radius: 8px;
+}
+.skipLink:focus {
+  top: 12px;
+}
+@media (min-width: 1500px) {
+  .navbar {
+    padding-left: max(76px, calc((100vw - 1288px) / 2));
+    padding-right: max(76px, calc((100vw - 1288px) / 2));
+  }
+}
+@media (max-width: 1000px) {
+  .navbar {
+    gap: 20px;
+    padding: 0 24px;
+  }
+  .navBtn {
+    padding: 0 10px;
+  }
+  .navLinks {
+    gap: 0;
+  }
+}
+@media (max-width: 760px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 0 18px;
+  }
+  .brand {
+    height: 58px;
+    flex: 1;
+  }
+  .rightActions {
+    height: 58px;
+  }
+  .navLinks {
+    height: 48px;
+    order: 3;
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .navBtn {
+    justify-content: center;
+    font-size: 0.75rem;
+    padding: 0 4px;
+    gap: 5px;
+  }
+  .navBtn::after {
+    left: 5px;
+    right: 5px;
+  }
+  .navBtn svg {
+    width: 15px;
+  }
+  .brandTitle {
+    font-size: 0.95rem;
+  }
+  .navLong {
+    display: none;
+  }
+  .navShort {
+    display: inline;
+  }
+}
+@media (max-width: 370px) {
+  .navbar {
+    padding: 0 12px;
+  }
+  .navBtn {
+    font-size: 0.69rem;
+    gap: 4px;
+  }
+  .navBtn svg {
+    width: 13px;
+  }
+}

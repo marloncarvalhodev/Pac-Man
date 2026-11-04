@@ -1,1 +1,232 @@
-﻿.labLayout{width:100%;max-width:1600px;margin:auto;display:grid;grid-template-columns:minmax(250px,290px) minmax(400px,1fr) minmax(270px,320px);align-items:start;gap:22px;padding:24px clamp(18px,2vw,32px) 50px}.leftPanel,.rightPanel{min-width:0;display:flex;flex-direction:column;gap:16px}.leftPanel{grid-column:1}.rightPanel{grid-column:3}.centerCanvasRegion{grid-column:2;grid-row:1;min-width:0}.panelHeader{padding:7px 0 14px;border-bottom:1px solid #293a52}.panelTitle{font-size:1rem;font-weight:700}.panelSubtitle{font-size:.82rem;color:#aebed3;line-height:1.45;margin-top:5px}.canvasHead{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:14px}.canvasHead h2{font-size:1.2rem}.canvasHead p{font-size:.85rem;color:#aebed3;margin-top:5px}.canvasHead>span{font-size:.8rem;color:#ffd43b;border:1px solid #6e6339;padding:5px 10px;border-radius:5px}.canvasFrame{width:100%;aspect-ratio:1;background:#090d16;border:1px solid #2d4563;border-radius:8px;overflow:hidden}.legend{display:flex;flex-wrap:wrap;gap:10px 16px;padding:17px 0 8px;color:#c5d3e5;font-size:.78rem}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:9px;height:9px;display:inline-block;background:#777;border-radius:50%}.legend .expanded{background:#765b9b}.legend .next{background:transparent;border:2px solid #45d7e8;width:11px;height:11px}.legend .path{background:#ffd43b}.legend .start{background:#55dca9}.legend .goal{background:#ef6666}.legend .portal{background:transparent;border:2px solid #ba8aff;width:11px;height:11px}.frontierNote{font-size:.78rem;color:#aabdd4;line-height:1.5}.context{margin-top:20px;padding-top:18px;border-top:1px solid #2b3b53}.context strong{font-size:.9rem;color:#eaf2ff}.context p{font-size:.86rem;line-height:1.55;color:#b4c5d9;margin-top:7px}@media(max-width:1200px){.labLayout{grid-template-columns:minmax(230px,290px) minmax(350px,1fr)}.rightPanel{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.rightPanel .panelHeader{grid-column:1/-1}.centerCanvasRegion{grid-column:2}}@media(max-width:760px){.labLayout{display:flex;flex-direction:column;padding:20px 15px 40px;gap:22px}.centerCanvasRegion{order:0;width:100%}.leftPanel{order:1;width:100%}.rightPanel{order:2;width:100%;display:flex}.canvasFrame{max-width:700px;margin:auto}.legend{font-size:.8rem}}
+.labLayout {
+  width: 100%;
+  max-width: 1600px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(260px, 290px) minmax(0, 1fr) minmax(
+      260px,
+      300px
+    );
+  align-items: start;
+  gap: 28px;
+  padding: 30px clamp(20px, 3vw, 48px) 50px;
+}
+.pageHeader {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--color-border);
+}
+.pageHeader h1 {
+  font-size: 1.8rem;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+.pageHeader p {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-top: 7px;
+}
+.pageHeader > span {
+  font-family: var(--font-family-display);
+  color: var(--color-cyan);
+  font-size: 0.82rem;
+}
+.leftPanel,
+.rightPanel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.leftPanel {
+  grid-column: 1;
+}
+.rightPanel {
+  grid-column: 3;
+}
+.centerCanvasRegion {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+}
+.panelHeader {
+  padding: 0 0 15px;
+  border-bottom: 1px solid var(--color-border);
+}
+.panelTitle {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.panelSubtitle {
+  font-size: 0.77rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  margin-top: 6px;
+}
+.canvasHead {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.canvasHead h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.canvasHead p {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+}
+.canvasHead > span {
+  font-size: 0.75rem;
+  color: var(--color-pacman);
+  background: #ffda5510;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.canvasFrame {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #090d16;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 20px 0 12px;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.legend i {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}
+.legend .expanded {
+  background: #a38bc5;
+}
+.legend .next {
+  background: transparent;
+  border: 2px solid #7cd9e8;
+  width: 11px;
+  height: 11px;
+}
+.legend .path {
+  background: #ffda55;
+}
+.legend .start {
+  background: #75dfb0;
+}
+.legend .goal {
+  background: #ff8e8e;
+}
+.legend .portal {
+  background: transparent;
+  border: 2px solid #ba8aff;
+  width: 11px;
+  height: 11px;
+}
+.frontierNote {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+.context {
+  margin-top: 20px;
+  padding: 18px;
+  background: var(--color-surface);
+  border-radius: 12px;
+}
+.context strong {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.context p {
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  margin-top: 7px;
+}
+@media (max-width: 1250px) {
+  .labLayout {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 24px;
+  }
+  .rightPanel {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 30px;
+  }
+  .rightPanel .panelHeader {
+    grid-column: 1/-1;
+  }
+  .centerCanvasRegion {
+    grid-column: 2;
+  }
+}
+@media (max-width: 760px) {
+  .labLayout {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 24px 18px 40px;
+    gap: 24px;
+  }
+  .pageHeader {
+    grid-column: 1;
+    gap: 10px;
+    align-items: flex-start;
+    padding-bottom: 20px;
+  }
+  .pageHeader h1 {
+    font-size: 1.5rem;
+  }
+  .pageHeader p {
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .pageHeader > span {
+    display: none;
+  }
+  .centerCanvasRegion {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+  }
+  .leftPanel {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .rightPanel {
+    grid-column: 1;
+    display: flex;
+    width: 100%;
+  }
+  .canvasHead {
+    margin-bottom: 14px;
+  }
+  .legend {
+    font-size: 0.74rem;
+  }
+  .canvasFrame {
+    max-width: 700px;
+    margin: auto;
+  }
+  .panelSubtitle {
+    font-size: 0.8rem;
+  }
+}
