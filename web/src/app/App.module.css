@@ -4,187 +4,379 @@
   color: var(--color-text-primary);
 }
 .navbar {
-  min-height: 78px;
-  padding: 0 clamp(22px, 5vw, 76px);
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-background);
-  position: sticky;
+  position: fixed;
+  left: 0;
   top: 0;
+  bottom: 0;
+  width: 116px;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 28px 12px 18px;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-background);
+  gap: 30px;
 }
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 11px;
-  flex-shrink: 0;
-  min-height: 44px;
+  justify-content: center;
+  gap: 12px;
+  min-height: 95px;
 }
 .brandLogo {
-  width: 26px;
-  height: 26px;
-  background: var(--color-pacman);
+  width: 31px;
+  height: 31px;
   border-radius: 50%;
+  background: var(--color-text-primary);
   clip-path: polygon(0 0, 100% 0, 55% 50%, 100% 100%, 0 100%);
 }
 .brandTitle {
   font-family: var(--font-family-display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.015em;
-  white-space: nowrap;
+  font-weight: 800;
+  line-height: 1.1;
+  font-size: 0.8rem;
+  letter-spacing: -0.02em;
+  white-space: normal;
+  text-align: center;
+}
+.brandTitle > span:first-child {
+  display: block !important;
+  color: var(--color-text-primary) !important;
+  letter-spacing: 0.28em;
+  font-size: 0.66rem;
+  margin-top: 5px;
 }
 .brandBadge {
   display: none;
 }
 .navLinks {
   display: flex;
-  align-items: stretch;
-  gap: 7px;
+  flex-direction: column;
+  gap: 8px;
   flex: 1;
-  height: 78px;
 }
 .navBtn {
-  position: relative;
-  padding: 0 14px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 9px;
+  min-height: 76px;
+  padding: 12px 4px;
+  border-radius: 9px;
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  font-size: 0.82rem;
-  font-weight: 500;
-  white-space: nowrap;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
-.navBtn::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  background: transparent;
+.navBtn svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 1.5;
 }
 .navBtn:hover {
+  background: var(--color-surface-elevated);
   color: var(--color-text-primary);
-  background: #ffffff03;
 }
 .navBtn.active {
-  color: var(--color-pacman);
+  background: var(--color-text-primary);
+  color: var(--color-surface);
 }
-.navBtn.active::after {
-  background: var(--color-pacman);
+.navLong {
+  display: none;
+}
+.navShort {
+  display: inline;
 }
 .rightActions {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 16px;
 }
 .soundBtn {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
 .soundBtn:hover {
-  color: var(--color-pacman);
-  border-color: var(--color-border-hover);
+  background: var(--color-text-primary);
+  color: var(--color-surface);
 }
 .academicTag {
-  display: none;
+  font-size: 0.53rem;
+  text-align: center;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  max-width: 70px;
 }
 .mainContent {
+  margin-left: 116px;
   min-width: 0;
+  min-height: 100dvh;
 }
-.navShort {
-  display: none;
+.mainContent:focus {
+  outline: 0;
 }
 .skipLink {
   position: fixed;
-  left: 16px;
+  left: 128px;
   top: -80px;
-  z-index: 110;
-  background: var(--color-pacman);
-  color: #111827;
+  z-index: 210;
   padding: 12px 18px;
-  border-radius: 8px;
+  background: var(--color-text-primary);
+  color: white;
+  border-radius: 4px;
 }
 .skipLink:focus {
   top: 12px;
 }
-@media (min-width: 1500px) {
-  .navbar {
-    padding-left: max(76px, calc((100vw - 1288px) / 2));
-    padding-right: max(76px, calc((100vw - 1288px) / 2));
+@media (prefers-reduced-motion: no-preference) {
+  .mainContent > div {
+    animation: page-arrive 350ms cubic-bezier(0.16, 1, 0.3, 1);
   }
-}
-@media (max-width: 1000px) {
-  .navbar {
-    gap: 20px;
-    padding: 0 24px;
-  }
-  .navBtn {
-    padding: 0 10px;
-  }
-  .navLinks {
-    gap: 0;
+  @keyframes page-arrive {
+    from {
+      opacity: 0.5;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 @media (max-width: 760px) {
   .navbar {
-    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    bottom: auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: 0;
-    padding: 0 18px;
+    padding: 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
   }
   .brand {
-    height: 58px;
-    flex: 1;
+    min-height: 58px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 9px;
   }
-  .rightActions {
-    height: 58px;
+  .brandLogo {
+    width: 23px;
+    height: 23px;
+  }
+  .brandTitle {
+    font-size: 0.85rem;
+  }
+  .brandTitle > span:first-child {
+    display: inline !important;
+    letter-spacing: 0.02em;
+    font-size: 0.85rem;
+    margin-left: 4px;
   }
   .navLinks {
-    height: 48px;
-    order: 3;
-    flex-basis: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-column: 1/-1;
+    grid-row: 2;
+    flex-direction: row;
+    gap: 2px;
+    padding-bottom: 8px;
   }
   .navBtn {
-    justify-content: center;
-    font-size: 0.75rem;
-    padding: 0 4px;
-    gap: 5px;
-  }
-  .navBtn::after {
-    left: 5px;
-    right: 5px;
+    flex: 1;
+    min-height: 44px;
+    flex-direction: row;
+    gap: 6px;
+    font-size: 0.68rem;
+    padding: 8px 4px;
+    border-radius: 5px;
   }
   .navBtn svg {
     width: 15px;
+    height: 15px;
   }
-  .brandTitle {
-    font-size: 0.95rem;
+  .rightActions {
+    grid-column: 2;
+    grid-row: 1;
   }
-  .navLong {
+  .soundBtn {
+    width: 35px;
+    height: 35px;
+  }
+  .academicTag {
     display: none;
   }
-  .navShort {
-    display: inline;
+  .mainContent {
+    margin-left: 0;
+  }
+  .skipLink {
+    left: 12px;
   }
 }
-@media (max-width: 370px) {
-  .navbar {
-    padding: 0 12px;
+.navBtn.active {
+  color: var(--color-pacman-yellow);
+}
+.soundBtn:hover {
+  color: var(--color-pacman-yellow);
+}
+.navBtn:nth-child(2) > svg {
+  color: #b83c2c;
+}
+.navBtn:nth-child(3) > svg {
+  color: #087f92;
+}
+.navBtn:nth-child(4) > svg {
+  color: #986022;
+}
+.navBtn.active > svg {
+  color: var(--color-pacman-yellow);
+}
+.navbar {
+  background: #090a10;
+  border-color: #5461b4;
+}
+.brandLogo {
+  background: var(--color-pacman-yellow);
+}
+.brandTitle {
+  color: #fff;
+}
+.brandTitle > span:first-child {
+  color: var(--color-pacman-yellow) !important;
+}
+.navBtn {
+  color: #d1d8ff;
+}
+.navBtn:hover {
+  background: #141927;
+  color: white;
+}
+.navBtn.active {
+  background: #06070c;
+  border: 1px solid #6f7bb9;
+  color: var(--color-pacman-yellow);
+}
+.navBtn:nth-child(2) {
+  background: var(--color-pacman-yellow);
+  color: #111b39;
+  font-weight: 800;
+}
+.navBtn:nth-child(2):hover {
+  background: #ffeb78;
+}
+.navBtn:nth-child(2) > svg,
+.navBtn:nth-child(2).active > svg {
+  color: #111b39;
+}
+.navBtn:nth-child(3) > svg {
+  color: #7ee8f7;
+}
+.navBtn:nth-child(4) > svg {
+  color: #ffb66b;
+}
+.navBtn.active > svg {
+  color: var(--color-pacman-yellow);
+}
+.navBtn:nth-child(2).active {
+  color: #111b39;
+  border-color: var(--color-pacman-yellow);
+}
+.soundBtn {
+  color: #fff;
+  border-color: #6f7bb9;
+}
+.soundBtn:hover {
+  background: var(--color-pacman-yellow);
+  color: #111b39;
+}
+.academicTag {
+  color: #c0caf9;
+}
+
+.brandTitle {
+  font-family: var(--font-family-sans);
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+.navBtn {
+  font-size: 0.75rem;
+}
+.navbar {
+  border-color: #263154;
+}
+.skipLink {
+  background: var(--color-pacman-yellow);
+  color: #000;
+}
+@media (max-width: 760px) {
+  .navBtn {
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mainContent > div {
+    animation: none;
+  }
+  .navBtn:hover > svg {
+    transform: translateY(-2px);
+  }
+  .navBtn > svg {
+    transition: transform 160ms ease;
+  }
+}
+.navBtn {
+  line-height: 1.4;
+}
+.navBtn:focus-visible {
+  outline-offset: 2px;
+}
+.academicTag {
+  font-size: 0.62rem;
+  max-width: 90px;
+}
+
+.labShort {
+  display: none;
+}
+.navBtn:last-child > svg {
+  color: #ffb66b;
+}
+@media (max-width: 760px) {
+  .navLinks {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
   }
   .navBtn {
-    font-size: 0.69rem;
-    gap: 4px;
+    flex-direction: column;
+    min-width: 0;
+    gap: 5px;
+    min-height: 54px;
+    font-size: 0.67rem;
+    padding: 8px 2px;
   }
   .navBtn svg {
-    width: 13px;
+    width: 18px;
+    height: 18px;
+  }
+  .labLabel {
+    display: none;
+  }
+  .labShort {
+    display: inline;
   }
 }

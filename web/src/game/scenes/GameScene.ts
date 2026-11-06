@@ -1,3 +1,10 @@
+import {
+  createMovementModel,
+  transitionKey,
+  type MovementModel,
+} from '../ai/MovementModel';
+import { planGhost, projectPlayer } from '../ai/GhostAI';
+import { planPacmanRoute } from '../ai/PacmanPlanner';
 /**
  * Cena Principal do Jogo Pac-Man (Phaser 3).
  * Responsável pelo ciclo de simulação física, renderização contínua e IA.
@@ -20,6 +27,11 @@ import { PathfindingResult } from '../algorithms/PathfindingTypes';
 
 export class GameScene extends Phaser.Scene {
   private world!: WorldData;
+  private movement!: MovementModel;
+  private aiElapsed = 0;
+  private nextUiSnapshot = 0;
+  private autoplayActive = false;
+  private previousPlayerPos: Node | undefined;
   private cellSize = 28;
 
   // Camadas de renderização (Graphics)
@@ -57,6 +69,8 @@ export class GameScene extends Phaser.Scene {
     path: [] as Node[],
     nextMoveTime: 0,
     justTeleported: false,
+    previous: undefined as Node | undefined,
+    respawnUntil: 0,
   };
 
   private purpleEnemy = {
@@ -68,6 +82,8 @@ export class GameScene extends Phaser.Scene {
     path: [] as Node[],
     nextMoveTime: 0,
     justTeleported: false,
+    previous: undefined as Node | undefined,
+    respawnUntil: 0,
   };
 
   // Status e Controles
@@ -96,6 +112,7 @@ export class GameScene extends Phaser.Scene {
   init(data: { seed?: number }): void {
     const generator = new MazeGenerator(25, 25, data.seed);
     this.world = generator.generateWorld(0.1, 1, 2);
+    this.movement = createMovementModel(this.world);
     this.resetState();
   }
 
@@ -113,16 +130,15 @@ export class GameScene extends Phaser.Scene {
       this.world.grid,
       this.world.grid.length,
       this.world.grid[0].length,
-      this.cellSize
+      this.cellSize,
     );
 
     // 3. Configura controles do teclado
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
-      this.keysWASD = this.input.keyboard.addKeys('W,A,S,D,P,R,N,G,T,ESC,ONE,TWO') as Record<
-        string,
-        Phaser.Input.Keyboard.Key
-      >;
+      this.keysWASD = this.input.keyboard.addKeys(
+        'W,A,S,D,P,R,N,G,T,ESC,ONE,TWO',
+      ) as Record<string, Phaser.Input.Keyboard.Key>;
 
       // Ações discretas no keydown
       this.keysWASD.P.on('down', () => this.togglePause());
@@ -137,6 +153,7 @@ export class GameScene extends Phaser.Scene {
     // 4. Conecta eventos React via EventBus
     EventBus.on('ui-start-solver', this.startSolver, this);
     EventBus.on('ui-toggle-pause', this.togglePause, this);
+    EventBus.on('ui-toggle-autoplay', this.toggleAutoplay, this);
     EventBus.on('ui-toggle-xray', this.toggleGraphXRay, this);
     EventBus.on('ui-toggle-ai-path', this.toggleAIPath, this);
     EventBus.on('ui-new-maze', this.generateNewMaze, this);
@@ -145,6 +162,7 @@ export class GameScene extends Phaser.Scene {
     const removeUiListeners = () => {
       EventBus.off('ui-start-solver', this.startSolver, this);
       EventBus.off('ui-toggle-pause', this.togglePause, this);
+      EventBus.off('ui-toggle-autoplay', this.toggleAutoplay, this);
       EventBus.off('ui-toggle-xray', this.toggleGraphXRay, this);
       EventBus.off('ui-toggle-ai-path', this.toggleAIPath, this);
       EventBus.off('ui-new-maze', this.generateNewMaze, this);
@@ -160,7 +178,12 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       const c = Math.floor(pointer.x / this.cellSize);
       const r = Math.floor(pointer.y / this.cellSize);
-      if (r >= 0 && r < this.world.grid.length && c >= 0 && c < this.world.grid[0].length) {
+      if (
+        r >= 0 &&
+        r < this.world.grid.length &&
+        c >= 0 &&
+        c < this.world.grid[0].length
+      ) {
         if (this.world.grid[r][c] === 0) {
           this.emitVertexInspection([r, c]);
         }
@@ -175,6 +198,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private resetState(): void {
+    this.aiElapsed = 0;
+    this.nextUiSnapshot = 0;
+    this.nextPlayerMoveTime = 0;
+    this.isMoving = false;
+    this.autoplayActive = false;
+    this.previousPlayerPos = undefined;
     this.playerPos = [...this.world.start];
     this.playerRenderX = this.playerPos[1] * this.cellSize + this.cellSize / 2;
     this.playerRenderY = this.playerPos[0] * this.cellSize + this.cellSize / 2;
@@ -202,9 +231,9 @@ export class GameScene extends Phaser.Scene {
         .filter(
           (v) =>
             !reserved.has(nodeToKey(v)) &&
-            this.world.terrains.get(nodeToKey(v)) === TerrainType.NORMAL
+            this.world.terrains.get(nodeToKey(v)) === TerrainType.NORMAL,
         )
-        .map(nodeToKey)
+        .map(nodeToKey),
     );
 
     this.collectedKeys.clear();
@@ -213,35 +242,64 @@ export class GameScene extends Phaser.Scene {
     // Inimigos
     this.redEnemy.pos = [...this.world.enemySpawn];
     this.redEnemy.spawn = [...this.world.enemySpawn];
-    this.redEnemy.renderX = this.redEnemy.pos[1] * this.cellSize + this.cellSize / 2;
-    this.redEnemy.renderY = this.redEnemy.pos[0] * this.cellSize + this.cellSize / 2;
+    this.redEnemy.renderX =
+      this.redEnemy.pos[1] * this.cellSize + this.cellSize / 2;
+    this.redEnemy.renderY =
+      this.redEnemy.pos[0] * this.cellSize + this.cellSize / 2;
     this.redEnemy.path = [];
     this.redEnemy.nextMoveTime = 0;
+    this.redEnemy.previous = undefined;
+    this.redEnemy.respawnUntil = 0;
 
     this.purpleEnemy.pos = [...this.world.enemySpawn2];
     this.purpleEnemy.spawn = [...this.world.enemySpawn2];
-    this.purpleEnemy.renderX = this.purpleEnemy.pos[1] * this.cellSize + this.cellSize / 2;
-    this.purpleEnemy.renderY = this.purpleEnemy.pos[0] * this.cellSize + this.cellSize / 2;
+    this.purpleEnemy.renderX =
+      this.purpleEnemy.pos[1] * this.cellSize + this.cellSize / 2;
+    this.purpleEnemy.renderY =
+      this.purpleEnemy.pos[0] * this.cellSize + this.cellSize / 2;
     this.purpleEnemy.path = [];
     this.purpleEnemy.nextMoveTime = 0;
+    this.purpleEnemy.previous = undefined;
+    this.purpleEnemy.respawnUntil = 0;
 
     this.clearSolver();
   }
 
-  update(time: number, delta: number): void {
+  update(_time: number, delta: number): void {
     if (this.gameStatus === 'PLAYING') {
+      this.aiElapsed += Math.min(delta, 100);
       this.handlePlayerInput();
-      this.updatePlayerMovement(time);
-      this.updateEnemies(time);
+      if (this.autoplayActive) this.prepareAutoMove(this.aiElapsed);
+      this.updatePlayerMovement(this.aiElapsed);
+      if (this.gameStatus === 'PLAYING') this.updateEnemies(this.aiElapsed);
       this.updateSolverAnimation();
+      if (this.aiElapsed >= this.nextUiSnapshot) {
+        this.nextUiSnapshot = this.aiElapsed + 100;
+        this.emitGameState();
+      }
     }
-
     this.interpolatePositions(delta);
-    this.renderFrame(time);
+    this.renderFrame(this.aiElapsed);
   }
 
   private handlePlayerInput(): void {
     if (!this.input.keyboard) return;
+    if (
+      this.autoplayActive &&
+      [
+        this.cursors.up,
+        this.cursors.down,
+        this.cursors.left,
+        this.cursors.right,
+        this.keysWASD.W,
+        this.keysWASD.A,
+        this.keysWASD.S,
+        this.keysWASD.D,
+      ].some((key) => key.isDown)
+    ) {
+      this.autoplayActive = false;
+      this.emitGameState();
+    }
 
     if (this.cursors.up.isDown || this.keysWASD.W.isDown) {
       this.nextPlayerFacing = [-1, 0];
@@ -273,6 +331,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.world.graph.hasEdge(this.playerPos, targetPos)) {
+      this.previousPlayerPos = this.playerPos;
       this.playerPos = targetPos;
       this.playerFacing = targetFacing;
       this.isMoving = true;
@@ -287,7 +346,9 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Coleta Chaves Douradas
-      const keyIdx = this.world.keys.findIndex((k) => nodeEquals(k, this.playerPos));
+      const keyIdx = this.world.keys.findIndex((k) =>
+        nodeEquals(k, this.playerPos),
+      );
       if (keyIdx >= 0 && !this.collectedKeys.has(pKey)) {
         this.collectedKeys.add(pKey);
         this.score += 100;
@@ -302,16 +363,10 @@ export class GameScene extends Phaser.Scene {
         soundManager.playPowerPelletSound();
       }
 
-      // Teleporte de Portal
       const portalDest = this.getPortalDestination(this.playerPos);
       if (portalDest) {
-        if (!this.justTeleported) {
-          this.playerPos = portalDest;
-          this.justTeleported = true;
-          soundManager.playTeleportSound();
-        }
-      } else {
-        this.justTeleported = false;
+        this.playerPos = portalDest;
+        soundManager.playTeleportSound();
       }
 
       // Dano de Lava e Cooldown Ponderado de Movimento
@@ -330,7 +385,10 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Condição de Vitória: Destino com todas as chaves
-      if (nodeEquals(this.playerPos, this.world.goal) && this.collectedKeys.size === this.world.keys.length) {
+      if (
+        nodeEquals(this.playerPos, this.world.goal) &&
+        this.collectedKeys.size === this.world.keys.length
+      ) {
         this.triggerVictory();
         return;
       }
@@ -352,87 +410,50 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getAmbushTarget(): Node {
-    const [dr, dc] = this.playerFacing;
-    const target: Node = [this.playerPos[0] + 3 * dr, this.playerPos[1] + 3 * dc];
-
-    if (
-      target[0] >= 0 &&
-      target[0] < this.world.rows &&
-      target[1] >= 0 &&
-      target[1] < this.world.cols &&
-      this.world.grid[target[0]][target[1]] === 0
-    ) {
-      return target;
-    }
-
-    let best = this.playerPos;
-    let minDist = Infinity;
-    for (const v of this.world.graph.vertices) {
-      const d = Math.abs(v[0] - target[0]) + Math.abs(v[1] - target[1]);
-      if (d < minDist) {
-        minDist = d;
-        best = v;
-      }
-    }
-    return best;
+    return projectPlayer(
+      this.movement.graph,
+      this.playerPos,
+      this.playerFacing,
+    );
   }
 
   private updateEnemies(time: number): void {
     if (!this.enemiesActive) return;
-
-    const isFrightened = time < this.frightenedUntilTime;
-    const enemies = [
-      { agent: this.redEnemy, isAmbush: false },
-      { agent: this.purpleEnemy, isAmbush: true },
-    ];
-
-    for (const { agent, isAmbush } of enemies) {
-      if (isFrightened) {
-        // Heurística Invertida: escolhe o vizinho que maximiza a distância do jogador
-        const nbrs = this.world.graph.neighbors(agent.pos);
-        if (nbrs.length > 0) {
-          const best = nbrs.reduce((prev, curr) => {
-            const dPrev = Math.abs(prev.node[0] - this.playerPos[0]) + Math.abs(prev.node[1] - this.playerPos[1]);
-            const dCurr = Math.abs(curr.node[0] - this.playerPos[0]) + Math.abs(curr.node[1] - this.playerPos[1]);
-            return dCurr > dPrev ? curr : prev;
-          });
-          agent.path = [agent.pos, best.node];
-        }
-      } else {
-        const targetNode = isAmbush ? this.getAmbushTarget() : this.playerPos;
-        const res = aStar(this.world.graph, agent.pos, targetNode, {
-          portals: this.world.portalPairs,
-          minWeight: 0.3,
-        });
-        if (res.found) {
-          agent.path = res.path;
-        }
-      }
-
-      if (time >= agent.nextMoveTime && agent.path.length > 1) {
-        const nextCell = agent.path[1];
-        agent.facing = [nextCell[0] - agent.pos[0], nextCell[1] - agent.pos[1]];
-        agent.pos = nextCell;
-
-        // Portal para inimigo
-        const pDest = this.getPortalDestination(agent.pos);
-        if (pDest) {
-          if (!agent.justTeleported) {
-            agent.pos = pDest;
-            agent.justTeleported = true;
-          }
-        } else {
-          agent.justTeleported = false;
-        }
-
-        const terrain = this.world.terrains.get(nodeToKey(agent.pos)) ?? TerrainType.NORMAL;
-        const weight = TERRAIN_COSTS[terrain];
-        const baseSpeed = 340;
-        const speedMod = isFrightened ? 1.3 : 1.0;
-        agent.nextMoveTime = time + Math.floor(baseSpeed * weight * speedMod);
-      }
+    const frightened = time < this.frightenedUntilTime;
+    const enemies = [this.redEnemy, this.purpleEnemy];
+    for (let i = 0; i < enemies.length; i++) {
+      const agent = enemies[i];
+      if (time < agent.nextMoveTime || time < agent.respawnUntil) continue;
+      const decision = planGhost(this.movement.graph, {
+        position: agent.pos,
+        previous: agent.previous,
+        player: this.playerPos,
+        facing: this.playerFacing,
+        teammate: enemies[1 - i].pos,
+        index: i,
+        time,
+        frightened,
+        rows: this.world.rows,
+        cols: this.world.cols,
+      });
+      agent.path = decision.path;
+      const destination = decision.path[1];
+      if (destination) {
+        const entry =
+          this.movement.entries.get(transitionKey(agent.pos, destination)) ??
+          destination;
+        const weight =
+          this.movement.graph.getEdgeWeight(agent.pos, destination) ?? 1;
+        agent.facing = [
+          Math.sign(entry[0] - agent.pos[0]),
+          Math.sign(entry[1] - agent.pos[1]),
+        ];
+        agent.previous = agent.pos;
+        agent.pos = destination;
+        agent.nextMoveTime =
+          time + Math.floor(340 * weight * (frightened ? 1.3 : 1));
+      } else agent.nextMoveTime = time + 340;
     }
-
     this.checkEnemyCollisions(time);
   }
 
@@ -441,9 +462,11 @@ export class GameScene extends Phaser.Scene {
     const enemies = [this.redEnemy, this.purpleEnemy];
 
     for (const enemy of enemies) {
-      if (nodeEquals(enemy.pos, this.playerPos)) {
+      if (time >= enemy.respawnUntil && nodeEquals(enemy.pos, this.playerPos)) {
         if (isFrightened) {
           enemy.pos = [...enemy.spawn];
+          enemy.previous = undefined;
+          enemy.respawnUntil = time + 600;
           enemy.renderX = enemy.pos[1] * this.cellSize + this.cellSize / 2;
           enemy.renderY = enemy.pos[0] * this.cellSize + this.cellSize / 2;
           enemy.path = [];
@@ -518,14 +541,18 @@ export class GameScene extends Phaser.Scene {
               c * this.cellSize + 1,
               r * this.cellSize + 1,
               this.cellSize - 2,
-              this.cellSize - 2
+              this.cellSize - 2,
             );
           }
 
           // Pac-Dots
           if (this.pacDots.has(key)) {
             this.entityGraphics.fillStyle(0xfde68a, 1.0);
-            this.entityGraphics.fillCircle(c * this.cellSize + half, r * this.cellSize + half, 2);
+            this.entityGraphics.fillCircle(
+              c * this.cellSize + half,
+              r * this.cellSize + half,
+              2,
+            );
           }
         }
       }
@@ -535,9 +562,20 @@ export class GameScene extends Phaser.Scene {
     const goalX = this.world.goal[1] * this.cellSize + half;
     const goalY = this.world.goal[0] * this.cellSize + half;
     if (this.collectedKeys.size === this.world.keys.length) {
-      CharacterRenderer.drawExitPortal(this.entityGraphics, goalX, goalY, this.cellSize, pulse);
+      CharacterRenderer.drawExitPortal(
+        this.entityGraphics,
+        goalX,
+        goalY,
+        this.cellSize,
+        pulse,
+      );
     } else {
-      CharacterRenderer.drawLock(this.entityGraphics, goalX, goalY, this.cellSize);
+      CharacterRenderer.drawLock(
+        this.entityGraphics,
+        goalX,
+        goalY,
+        this.cellSize,
+      );
     }
 
     // 4. Início (Start)
@@ -549,7 +587,7 @@ export class GameScene extends Phaser.Scene {
       startY - half + 2,
       this.cellSize - 4,
       this.cellSize - 4,
-      4
+      4,
     );
 
     // 5. Portais de Teleporte
@@ -562,7 +600,7 @@ export class GameScene extends Phaser.Scene {
         p1[0] * this.cellSize + half,
         this.cellSize,
         col,
-        pulse
+        pulse,
       );
       CharacterRenderer.drawPortal(
         this.entityGraphics,
@@ -570,7 +608,7 @@ export class GameScene extends Phaser.Scene {
         p2[0] * this.cellSize + half,
         this.cellSize,
         col,
-        pulse
+        pulse,
       );
     }
 
@@ -582,7 +620,7 @@ export class GameScene extends Phaser.Scene {
           key[1] * this.cellSize + half,
           key[0] * this.cellSize + half,
           this.cellSize,
-          pulse
+          pulse,
         );
       }
     }
@@ -595,7 +633,7 @@ export class GameScene extends Phaser.Scene {
           pellet[1] * this.cellSize + half,
           pellet[0] * this.cellSize + half,
           this.cellSize,
-          pulse
+          pulse,
         );
       }
     }
@@ -605,7 +643,7 @@ export class GameScene extends Phaser.Scene {
       this.pathGraphics,
       this.solverPathList,
       this.cellSize,
-      this.solverVisitedSet
+      this.solverVisitedSet,
     );
 
     // 9. Rotas e Alvos da IA
@@ -616,13 +654,16 @@ export class GameScene extends Phaser.Scene {
         this.redEnemy.path,
         this.purpleEnemy.path,
         ambushTarget,
-        this.cellSize
+        this.cellSize,
       );
     }
 
     // 10. Inimigos
     const isFrightened = time < this.frightenedUntilTime;
-    const remainingFrightSec = Math.max(0, (this.frightenedUntilTime - time) / 1000);
+    const remainingFrightSec = Math.max(
+      0,
+      (this.frightenedUntilTime - time) / 1000,
+    );
 
     CharacterRenderer.drawMinotaur(
       this.entityGraphics,
@@ -632,7 +673,7 @@ export class GameScene extends Phaser.Scene {
       this.redEnemy.facing,
       isFrightened,
       remainingFrightSec,
-      time
+      time,
     );
 
     CharacterRenderer.drawGhost(
@@ -643,7 +684,7 @@ export class GameScene extends Phaser.Scene {
       this.purpleEnemy.facing,
       isFrightened,
       remainingFrightSec,
-      time
+      time,
     );
 
     // 11. Pac-Man
@@ -654,7 +695,7 @@ export class GameScene extends Phaser.Scene {
       Math.floor(this.cellSize * 0.38),
       this.playerFacing,
       time,
-      this.isMoving
+      this.isMoving,
     );
 
     // 12. Modo Raio-X do Grafo (Tecla G)
@@ -663,24 +704,30 @@ export class GameScene extends Phaser.Scene {
         this.xrayGraphics,
         this.world.graph,
         this.world.terrains,
-        this.cellSize
+        this.cellSize,
       );
     }
   }
 
   private updateInstantComparison(): void {
-    const remaining = this.world.keys.filter((k) => !this.collectedKeys.has(nodeToKey(k)));
+    const remaining = this.world.keys.filter(
+      (k) => !this.collectedKeys.has(nodeToKey(k)),
+    );
     const target =
       remaining.length > 0
         ? remaining.reduce((prev, curr) => {
-            const dPrev = Math.abs(prev[0] - this.playerPos[0]) + Math.abs(prev[1] - this.playerPos[1]);
-            const dCurr = Math.abs(curr[0] - this.playerPos[0]) + Math.abs(curr[1] - this.playerPos[1]);
+            const dPrev =
+              Math.abs(prev[0] - this.playerPos[0]) +
+              Math.abs(prev[1] - this.playerPos[1]);
+            const dCurr =
+              Math.abs(curr[0] - this.playerPos[0]) +
+              Math.abs(curr[1] - this.playerPos[1]);
             return dCurr < dPrev ? curr : prev;
           })
         : this.world.goal;
 
-    const resD = dijkstra(this.world.graph, this.playerPos, target);
-    const resA = aStar(this.world.graph, this.playerPos, target, {
+    const resD = dijkstra(this.movement.graph, this.playerPos, target);
+    const resA = aStar(this.movement.graph, this.playerPos, target, {
       portals: this.world.portalPairs,
       minWeight: 0.3,
     });
@@ -689,13 +736,16 @@ export class GameScene extends Phaser.Scene {
     this.aStarRealtimeNodes = resA.nodesExpanded;
     this.heuristicGainPercent =
       resD.nodesExpanded > 0
-        ? ((resD.nodesExpanded - resA.nodesExpanded) / resD.nodesExpanded) * 100.0
+        ? ((resD.nodesExpanded - resA.nodesExpanded) / resD.nodesExpanded) *
+          100.0
         : 0;
   }
 
   private startSolver(algorithm: 'Dijkstra' | 'A*'): void {
     this.clearSolver();
-    const remainingKeys = this.world.keys.filter((k) => !this.collectedKeys.has(nodeToKey(k)));
+    const remainingKeys = this.world.keys.filter(
+      (k) => !this.collectedKeys.has(nodeToKey(k)),
+    );
 
     this.solverResult = solveMultiGoal(
       this.world.graph,
@@ -705,7 +755,7 @@ export class GameScene extends Phaser.Scene {
       {
         algorithm,
         portals: this.world.portalPairs,
-      }
+      },
     );
     this.solverStep = 0;
     this.emitGameState();
@@ -719,6 +769,49 @@ export class GameScene extends Phaser.Scene {
     this.emitGameState();
   }
 
+  private toggleAutoplay(): void {
+    if (this.gameStatus === 'WON' || this.gameStatus === 'LOST') return;
+    this.autoplayActive = !this.autoplayActive;
+    this.emitGameState();
+  }
+  private prepareAutoMove(time: number): void {
+    if (time < this.nextPlayerMoveTime) return;
+    const result = planPacmanRoute(this.world, this.movement, {
+      position: this.playerPos,
+      time,
+      facing: this.playerFacing,
+      previous: this.previousPlayerPos,
+      keys: this.collectedKeys,
+      dots: this.pacDots,
+      pellets: this.powerPellets,
+      enemies: this.enemiesActive
+        ? [this.redEnemy, this.purpleEnemy]
+            .filter((e) => time >= e.respawnUntil)
+            .map((e) => e.pos)
+        : [],
+      health: this.health,
+      powered: time < this.frightenedUntilTime,
+      collectAll: false,
+      tactic: 'safe',
+      algorithm: 'A*',
+    });
+    const destination = result.path[1];
+    if (!destination) {
+      this.autoplayActive = false;
+      this.nextPlayerFacing = [0, 0];
+      this.playerFacing = [0, 0];
+      this.isMoving = false;
+      this.emitGameState();
+      return;
+    }
+    const entry =
+      this.movement.entries.get(transitionKey(this.playerPos, destination)) ??
+      destination;
+    this.nextPlayerFacing = [
+      entry[0] - this.playerPos[0],
+      entry[1] - this.playerPos[1],
+    ];
+  }
   private togglePause(): void {
     if (this.gameStatus === 'PLAYING') {
       this.gameStatus = 'PAUSED';
@@ -748,13 +841,14 @@ export class GameScene extends Phaser.Scene {
   private generateNewMaze(seed?: number): void {
     const generator = new MazeGenerator(25, 25, seed);
     this.world = generator.generateWorld(0.1, 1, 2);
+    this.movement = createMovementModel(this.world);
 
     WallRenderer.renderContinuousWalls(
       this.wallGraphics,
       this.world.grid,
       this.world.grid.length,
       this.world.grid[0].length,
-      this.cellSize
+      this.cellSize,
     );
 
     this.resetState();
@@ -777,11 +871,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   private emitGameState(): void {
-    const now = this.time.now;
+    const now = this.aiElapsed;
     const isFrightened = now < this.frightenedUntilTime;
-    const remainingFright = isFrightened ? Math.max(0, (this.frightenedUntilTime - now) / 1000) : 0;
+    const remainingFright = isFrightened
+      ? Math.max(0, (this.frightenedUntilTime - now) / 1000)
+      : 0;
 
     const snapshot: GameStateSnapshot = {
+      autoplayActive: this.autoplayActive,
+      ghostMode: isFrightened
+        ? 'frightened'
+        : this.aiElapsed % 24000 < 4000
+          ? 'scatter'
+          : 'chase',
       score: this.score,
       health: this.health,
       keysCollected: this.collectedKeys.size,
@@ -793,8 +895,8 @@ export class GameScene extends Phaser.Scene {
       enemiesActive: this.enemiesActive,
       aiPathActive: this.showAIPath,
       graphXRayActive: this.showGraphXRay,
-      graphOrder: this.world.graph.order,
-      graphSize: this.world.graph.size,
+      graphOrder: this.movement.graph.order,
+      graphSize: this.movement.graph.size,
       dijkstraNodesRealtime: this.dijkstraRealtimeNodes,
       aStarNodesRealtime: this.aStarRealtimeNodes,
       heuristicGainPercent: this.heuristicGainPercent,

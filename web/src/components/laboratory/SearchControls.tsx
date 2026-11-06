@@ -12,9 +12,11 @@ import {
   Grid,
   RefreshCw,
 } from 'lucide-react';
+import GlareHover from '../react-bits/GlareHover';
 import styles from './Laboratory.module.css';
 
 interface SearchControlsProps {
+  seed: number;
   algorithm: 'Dijkstra' | 'A*' | 'Multi-Goal';
   displayMode: LabDisplayMode;
   isPlaying: boolean;
@@ -26,6 +28,7 @@ interface SearchControlsProps {
 }
 
 export const SearchControls: React.FC<SearchControlsProps> = ({
+  seed,
   algorithm,
   displayMode,
   isPlaying,
@@ -35,8 +38,9 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
   onSelectDisplayMode,
   onNewGraph,
 }) => {
+  const [mapTarget, setMapTarget] = useState<'start' | 'goal' | 'ghost'>('start');
   const [speed, setSpeed] = useState<number>(5);
-  const [seedInput, setSeedInput] = useState<string>('42');
+  const [seedInput, setSeedInput] = useState<string>(String(seed));
 
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const s = parseInt(e.target.value, 10);
@@ -58,7 +62,11 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
   return (
     <div className={styles.controlsCard}>
       {/* 1. Seleção de Algoritmo */}
-      <div className={styles.controlGroup}>
+      <div
+        className={styles.controlGroup}
+        role="group"
+        aria-label="Algoritmo de busca"
+      >
         <span className={styles.groupLabel}>Algoritmo de Busca:</span>
         <div className={styles.algoButtonGroup}>
           <button
@@ -66,7 +74,7 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
             onClick={() => onSelectAlgorithm('A*')}
             aria-pressed={algorithm === 'A*'}
           >
-            A* (Manhattan)
+            A* (com atalhos)
           </button>
           <button
             className={`${styles.algoBtn} ${algorithm === 'Dijkstra' ? styles.algoBtnActive : ''}`}
@@ -85,8 +93,38 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
         </div>
       </div>
 
+      <div
+        className={styles.controlGroup}
+        role="group"
+        aria-label="Selecionar no mapa"
+      >
+        <span className={styles.groupLabel}>Editar no mapa:</span>
+        <div className={styles.targetButtonGroup}>
+          {(['start', 'goal', 'ghost'] as const).map((target) => (
+            <button
+              key={target}
+              className={styles.algoBtn}
+              aria-pressed={mapTarget === target}
+              onClick={() => {
+                setMapTarget(target);
+                EventBus.emit('lab-set-click-target', target);
+              }}
+            >
+              {target === 'start' ? 'Origem (S)' : target === 'goal' ? 'Destino (T)' : 'Fantasmas'}
+            </button>
+          ))}
+        </div>
+        <p className={styles.academicNote}>
+          Selecione o marcador e toque em uma célula livre. Shift + clique
+          também altera o destino. Em Fantasmas, cada toque reposiciona um dos dois inimigos.
+        </p>
+      </div>
       {/* 2. Modo de Exibição */}
-      <div className={styles.controlGroup}>
+      <div
+        className={styles.controlGroup}
+        role="group"
+        aria-label="Modo de visualização"
+      >
         <span className={styles.groupLabel}>Modo de Renderização:</span>
         <div className={styles.modeButtonGroup}>
           <button
@@ -117,7 +155,11 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
       </div>
 
       {/* 3. Controles Passo-a-Passo */}
-      <div className={styles.controlGroup}>
+      <div
+        className={styles.controlGroup}
+        role="group"
+        aria-label="Execução da busca"
+      >
         <div className={styles.stepProgressHeader}>
           <span className={styles.groupLabel}>Visualização Progressiva:</span>
           <span className={styles.stepCounter}>
@@ -126,24 +168,30 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
         </div>
 
         <div className={styles.playbackRow}>
-          {isPlaying ? (
-            <button
-              className={styles.playBtn}
-              onClick={() => EventBus.emit('lab-pause')}
-              title="Pausar busca"
-            >
-              <Pause size={16} /> Pausar
-            </button>
-          ) : (
-            <button
-              className={styles.playBtn}
-              onClick={() => EventBus.emit('lab-play')}
-              title="Executar busca progressiva"
-            >
-              <Play size={16} /> Executar
-            </button>
-          )}
-
+          <GlareHover
+            borderRadius="8px"
+            glareColor="#ffda55"
+            glareOpacity={0.25}
+            style={{ flex: 1, display: 'block' }}
+          >
+            {isPlaying ? (
+              <button
+                className={styles.playBtn}
+                onClick={() => EventBus.emit('lab-pause')}
+                title="Pausar busca"
+              >
+                <Pause size={16} /> Pausar
+              </button>
+            ) : (
+              <button
+                className={styles.playBtn}
+                onClick={() => EventBus.emit('lab-play')}
+                title="Executar busca progressiva"
+              >
+                <Play size={16} /> Executar
+              </button>
+            )}
+          </GlareHover>
           <button
             className={styles.stepBtn}
             onClick={() => EventBus.emit('lab-step')}
@@ -177,7 +225,11 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
       </div>
 
       {/* 4. Semente e Novo Grafo */}
-      <div className={styles.controlGroup}>
+      <div
+        className={styles.controlGroup}
+        role="group"
+        aria-label="Mapa e semente"
+      >
         <span className={styles.groupLabel}>
           Geração Determinística (PRNG Seed):
         </span>
@@ -209,9 +261,9 @@ export const SearchControls: React.FC<SearchControlsProps> = ({
       </div>
 
       <div className={styles.interactivityTip}>
-        <strong>Interatividade no Mapa:</strong> Clique com o botão esquerdo
-        para alterar a <em>Origem (S)</em>. Pressione <em>Shift + Clique</em>{' '}
-        para alterar o <em>Destino (T)</em>!
+        <strong>Mapa interativo:</strong> Use os botões Origem e Destino acima
+        para editar os marcadores por clique ou toque. Cada alteração recalcula
+        as buscas nos mesmos objetivos.
       </div>
     </div>
   );

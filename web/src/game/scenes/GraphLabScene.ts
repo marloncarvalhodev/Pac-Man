@@ -1,3 +1,7 @@
+import { createMovementModel } from '../ai/MovementModel';
+import { buildThreatModel } from '../ai/ThreatModel';
+import { CharacterRenderer } from '../rendering/CharacterRenderer';
+import type { Graph } from '../graph/Graph';
 /**
  * Cena Interativa do Laboratório de Teoria dos Grafos (Phaser 3).
  * Oferece visualização em 3 modos (Labirinto, Grafo Puro, Sobreposição),
@@ -22,6 +26,8 @@ export type LabDisplayMode = 'MAZE' | 'GRAPH' | 'OVERLAY';
 
 export class GraphLabScene extends Phaser.Scene {
   private world!: WorldData;
+  private navigationGraph!: Graph;
+  private playbackAccumulator = 0;
   private cellSize = 28;
 
   private wallGraphics!: Phaser.GameObjects.Graphics;
@@ -30,6 +36,11 @@ export class GraphLabScene extends Phaser.Scene {
   private searchGraphics!: Phaser.GameObjects.Graphics;
   private hoverGraphics!: Phaser.GameObjects.Graphics;
 
+  private clickTarget: 'start' | 'goal' | 'ghost' = 'start';
+  private considerGhosts = true;
+  private ghosts: Node[] = [];
+  private nextGhost = 0;
+  private threatRisk = new Map<string, number>();
   private displayMode: LabDisplayMode = 'OVERLAY';
   private hoveredNode: Node | null = null;
   private selectedStartNode: Node | null = null;
@@ -50,6 +61,8 @@ export class GraphLabScene extends Phaser.Scene {
   init(data: { seed?: number }): void {
     const generator = new MazeGenerator(25, 25, data.seed ?? 42);
     this.world = generator.generateWorld(0.1, 1, 2);
+    this.ghosts = [this.world.enemySpawn, this.world.enemySpawn2].map(n => [...n] as Node);
+    this.navigationGraph = createMovementModel(this.world).graph;
     this.selectedStartNode = [...this.world.start];
     this.selectedGoalNode = [...this.world.goal];
     this.resetSearch();
@@ -64,41 +77,66 @@ export class GraphLabScene extends Phaser.Scene {
 
     this.rebuildWalls();
 
+    const cleanups: (() => void)[] = [];
+    const listen = (event: string, handler: (...args: any[]) => void) => {
+      EventBus.on(event, handler);
+      cleanups.push(() => EventBus.off(event, handler));
+    };
+    const cleanup = () => {
+      cleanups.forEach((off) => off());
+      cleanups.length = 0;
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
+    this.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
     // Eventos recebidos do React
-    EventBus.on('lab-set-mode', (mode: LabDisplayMode) => {
+    listen('lab-set-click-target', (target: 'start' | 'goal' | 'ghost') => {
+      this.clickTarget = target;
+    });
+    listen('lab-set-ghosts', (enabled: boolean) => {
+      this.considerGhosts = enabled;
+      this.executeAlgorithm();
+    });
+    listen('lab-set-mode', (mode: LabDisplayMode) => {
       this.displayMode = mode;
       this.renderStaticLayers();
     });
 
-    EventBus.on('lab-select-algorithm', (algo: 'Dijkstra' | 'A*' | 'Multi-Goal') => {
+    listen('lab-select-algorithm', (algo: 'Dijkstra' | 'A*' | 'Multi-Goal') => {
       this.currentAlgorithm = algo;
       this.executeAlgorithm();
     });
 
-    EventBus.on('lab-play', () => {
+    listen('lab-play', () => {
+      if (this.currentStep >= (this.searchResult?.visitedOrder.length ?? 0))
+        this.resetSearch();
       this.isPlaying = true;
+      this.emitProgress();
     });
 
-    EventBus.on('lab-pause', () => {
+    listen('lab-pause', () => {
       this.isPlaying = false;
+      this.emitProgress();
     });
 
-    EventBus.on('lab-step', () => {
+    listen('lab-step', () => {
       this.isPlaying = false;
       this.stepForward(1);
     });
 
-    EventBus.on('lab-reset-search', () => {
+    listen('lab-reset-search', () => {
       this.resetSearch();
     });
 
-    EventBus.on('lab-set-speed', (speed: number) => {
+    listen('lab-set-speed', (speed: number) => {
       this.playbackSpeed = speed;
     });
 
-    EventBus.on('lab-new-graph', (seed?: number) => {
+    listen('lab-new-graph', (seed?: number) => {
       const generator = new MazeGenerator(25, 25, seed);
       this.world = generator.generateWorld(0.1, 1, 2);
+      this.ghosts = [this.world.enemySpawn, this.world.enemySpawn2].map(n => [...n] as Node);
+      this.nextGhost = 0;
+      this.navigationGraph = createMovementModel(this.world).graph;
       this.selectedStartNode = [...this.world.start];
       this.selectedGoalNode = [...this.world.goal];
       this.rebuildWalls();
@@ -109,10 +147,18 @@ export class GraphLabScene extends Phaser.Scene {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const c = Math.floor(pointer.x / this.cellSize);
       const r = Math.floor(pointer.y / this.cellSize);
-      if (r >= 0 && r < this.world.grid.length && c >= 0 && c < this.world.grid[0].length) {
+      if (
+        r >= 0 &&
+        r < this.world.grid.length &&
+        c >= 0 &&
+        c < this.world.grid[0].length
+      ) {
         if (this.world.grid[r][c] === 0) {
           const clickedNode: Node = [r, c];
-          if (pointer.event.shiftKey) {
+          if (this.clickTarget === 'ghost' && !pointer.event.shiftKey) {
+            this.ghosts[this.nextGhost] = clickedNode;
+            this.nextGhost = (this.nextGhost + 1) % this.ghosts.length;
+          } else if (pointer.event.shiftKey || this.clickTarget === 'goal') {
             this.selectedGoalNode = clickedNode;
           } else {
             this.selectedStartNode = clickedNode;
@@ -125,7 +171,12 @@ export class GraphLabScene extends Phaser.Scene {
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       const c = Math.floor(pointer.x / this.cellSize);
       const r = Math.floor(pointer.y / this.cellSize);
-      if (r >= 0 && r < this.world.grid.length && c >= 0 && c < this.world.grid[0].length) {
+      if (
+        r >= 0 &&
+        r < this.world.grid.length &&
+        c >= 0 &&
+        c < this.world.grid[0].length
+      ) {
         if (this.world.grid[r][c] === 0) {
           this.hoveredNode = [r, c];
           this.emitInspection(this.hoveredNode);
@@ -147,7 +198,7 @@ export class GraphLabScene extends Phaser.Scene {
       this.world.grid,
       this.world.grid.length,
       this.world.grid[0].length,
-      this.cellSize
+      this.cellSize,
     );
     this.renderStaticLayers();
   }
@@ -177,7 +228,7 @@ export class GraphLabScene extends Phaser.Scene {
               c * this.cellSize + 1,
               r * this.cellSize + 1,
               this.cellSize - 2,
-              this.cellSize - 2
+              this.cellSize - 2,
             );
           }
         }
@@ -187,7 +238,11 @@ export class GraphLabScene extends Phaser.Scene {
       for (const [p1, p2] of this.world.portalPairs) {
         for (const p of [p1, p2]) {
           this.terrainGraphics.lineStyle(2, 0xa66bff, 0.9);
-          this.terrainGraphics.strokeCircle(p[1] * this.cellSize + half, p[0] * this.cellSize + half, 9);
+          this.terrainGraphics.strokeCircle(
+            p[1] * this.cellSize + half,
+            p[0] * this.cellSize + half,
+            9,
+          );
         }
       }
     }
@@ -195,51 +250,62 @@ export class GraphLabScene extends Phaser.Scene {
 
   private executeAlgorithm(): void {
     if (!this.selectedStartNode || !this.selectedGoalNode) return;
-
-    if (this.currentAlgorithm === 'Dijkstra') {
-      this.searchResult = dijkstra(this.world.graph, this.selectedStartNode, this.selectedGoalNode);
-    } else if (this.currentAlgorithm === 'A*') {
-      this.searchResult = aStar(this.world.graph, this.selectedStartNode, this.selectedGoalNode, {
-        portals: this.world.portalPairs,
-        minWeight: 0.3,
-      });
-    } else {
-      this.searchResult = solveMultiGoal(
-        this.world.graph,
-        this.selectedStartNode,
-        this.world.keys,
-        this.selectedGoalNode,
-        {
-          algorithm: 'A*',
-          portals: this.world.portalPairs,
-        }
-      );
-    }
-
-    // Calcula também o comparativo simultâneo
-    const compD = dijkstra(this.world.graph, this.selectedStartNode, this.selectedGoalNode);
-    const compA = aStar(this.world.graph, this.selectedStartNode, this.selectedGoalNode, {
-      portals: this.world.portalPairs,
-      minWeight: 0.3,
-    });
-
+    const movement = createMovementModel(this.world);
+    const threat = buildThreatModel(this.world, movement, this.selectedStartNode,
+      this.considerGhosts ? this.ghosts : [], { caution: 2 });
+    this.navigationGraph = threat.graph;
+    this.threatRisk = threat.risk;
+    const multi = this.currentAlgorithm === 'Multi-Goal';
+    const compD = multi
+      ? solveMultiGoal(
+          this.navigationGraph,
+          this.selectedStartNode,
+          this.world.keys,
+          this.selectedGoalNode,
+          { algorithm: 'Dijkstra', recordFrontier: true },
+        )
+      : dijkstra(
+          this.navigationGraph,
+          this.selectedStartNode,
+          this.selectedGoalNode,
+          { recordFrontier: true },
+        );
+    const compA = multi
+      ? solveMultiGoal(
+          this.navigationGraph,
+          this.selectedStartNode,
+          this.world.keys,
+          this.selectedGoalNode,
+          { algorithm: 'A*', recordFrontier: true },
+        )
+      : aStar(
+          this.navigationGraph,
+          this.selectedStartNode,
+          this.selectedGoalNode,
+          { recordFrontier: true },
+        );
+    this.searchResult = this.currentAlgorithm === 'Dijkstra' ? compD : compA;
     EventBus.emit('lab-comparison-ready', {
       dijkstra: compD,
       astar: compA,
-      gainPercent:
-        compD.nodesExpanded > 0
-          ? ((compD.nodesExpanded - compA.nodesExpanded) / compD.nodesExpanded) * 100.0
-          : 0,
+      gainPercent: compD.nodesExpanded
+        ? ((compD.nodesExpanded - compA.nodesExpanded) / compD.nodesExpanded) *
+          100
+        : 0,
       activeResult: this.searchResult,
       algorithmName: this.currentAlgorithm,
+      considersGhosts: this.considerGhosts,
+      travelCost: this.searchResult.found ? this.searchResult.path.slice(1).reduce(
+        (sum, node, i) => sum + (movement.graph.getEdgeWeight(this.searchResult!.path[i], node) ?? 0), 0) : null,
     });
-
     this.resetSearch();
-    this.isPlaying = true;
+    this.isPlaying = this.searchResult.visitedOrder.length > 0;
+    this.emitProgress();
   }
 
   private resetSearch(): void {
     this.currentStep = 0;
+    this.playbackAccumulator = 0;
     this.visitedKeys.clear();
     this.isPlaying = false;
     this.emitProgress();
@@ -274,7 +340,7 @@ export class GraphLabScene extends Phaser.Scene {
   private emitInspection(node: Node): void {
     const key = nodeToKey(node);
     const terrain = this.world.terrains.get(key) ?? TerrainType.NORMAL;
-    const neighbors = this.world.graph.neighbors(node).map((n) => ({
+    const neighbors = this.navigationGraph.neighbors(node).map((n) => ({
       node: n.node,
       weight: n.weight,
       terrain: this.world.terrains.get(nodeToKey(n.node)) ?? TerrainType.NORMAL,
@@ -285,19 +351,23 @@ export class GraphLabScene extends Phaser.Scene {
       key,
       terrain,
       terrainName: terrain,
-      inDegree: this.world.graph.inDegree(node),
-      outDegree: this.world.graph.outDegree(node),
-      degree: this.world.graph.degree(node),
-      isJunction: this.world.graph.degree(node) >= 3,
+      inDegree: this.navigationGraph.inDegree(node),
+      outDegree: this.navigationGraph.outDegree(node),
+      degree: this.navigationGraph.degree(node),
+      isJunction: this.navigationGraph.degree(node) >= 3,
       neighbors,
     };
 
     EventBus.emit('vertex-inspected', inspection);
   }
 
-  update(): void {
+  update(_time: number, delta: number): void {
     if (this.isPlaying && this.searchResult) {
-      this.stepForward(this.playbackSpeed);
+      this.playbackAccumulator += Math.min(delta, 100);
+      while (this.playbackAccumulator >= 50 && this.isPlaying) {
+        this.playbackAccumulator -= 50;
+        this.stepForward(this.playbackSpeed);
+      }
     }
     this.renderDynamicLayers();
   }
@@ -312,42 +382,79 @@ export class GraphLabScene extends Phaser.Scene {
     if (this.displayMode !== 'MAZE') {
       GraphRenderer.renderGraphXRay(
         this.graphGraphics,
-        this.world.graph,
+        this.navigationGraph,
         this.world.terrains,
         this.cellSize,
-        this.hoveredNode
+        this.hoveredNode,
       );
     }
 
+    if (this.considerGhosts) {
+      for (const [key, risk] of this.threatRisk) {
+        if (risk <= 0) continue;
+        const [r, c] = keyToNode(key);
+        this.searchGraphics.fillStyle(0xff4b59, Math.min(0.38, risk / 180));
+        this.searchGraphics.fillRect(c * this.cellSize + 2, r * this.cellSize + 2,
+          this.cellSize - 4, this.cellSize - 4);
+      }
+      this.ghosts.forEach((ghost, index) => {
+        const draw = index === 0 ? CharacterRenderer.drawMinotaur : CharacterRenderer.drawGhost;
+        draw.call(CharacterRenderer, this.hoverGraphics,
+          ghost[1] * this.cellSize + half, ghost[0] * this.cellSize + half,
+          this.cellSize * 0.37, [0, -1], false, 0, 0);
+      });
+    }
+
     // 2. Nós Expandidos na busca animada
-    this.searchGraphics.fillStyle(0x8061a6, 0.20);
+    this.searchGraphics.fillStyle(0x8061a6, 0.2);
     for (const key of this.visitedKeys) {
       const [r, c] = key.split(',').map(Number);
       this.searchGraphics.fillRect(
         c * this.cellSize + 2,
         r * this.cellSize + 2,
         this.cellSize - 4,
-        this.cellSize - 4
+        this.cellSize - 4,
       );
     }
 
-    // O resultado registra ordem de expansão, não a fronteira completa.
+    const frontier =
+      this.currentStep === 0 && this.selectedStartNode
+        ? [this.selectedStartNode]
+        : (this.searchResult?.frontierOrder?.[this.currentStep - 1] ?? []);
+    this.searchGraphics.lineStyle(2, 0x45d7e8, 0.9);
+    for (const node of frontier)
+      this.searchGraphics.strokeCircle(
+        node[1] * this.cellSize + half,
+        node[0] * this.cellSize + half,
+        8,
+      );
     const nextNode = this.searchResult?.visitedOrder[this.currentStep];
     if (nextNode) {
-      this.searchGraphics.lineStyle(2, 0x45d7e8, 1);
-      this.searchGraphics.strokeCircle(nextNode[1] * this.cellSize + half, nextNode[0] * this.cellSize + half, 10);
+      this.searchGraphics.lineStyle(3, 0xffdf32, 1);
+      this.searchGraphics.strokeCircle(
+        nextNode[1] * this.cellSize + half,
+        nextNode[0] * this.cellSize + half,
+        11,
+      );
     }
 
     // Mantém portais identificáveis também no modo de grafo puro.
     for (const pair of this.world.portalPairs) {
       for (const portal of pair) {
         this.hoverGraphics.lineStyle(2, 0xba8aff, 1);
-        this.hoverGraphics.strokeCircle(portal[1] * this.cellSize + half, portal[0] * this.cellSize + half, 9);
+        this.hoverGraphics.strokeCircle(
+          portal[1] * this.cellSize + half,
+          portal[0] * this.cellSize + half,
+          9,
+        );
       }
     }
 
     // 3. Caminho ótimo quando concluído
-    if (this.searchResult && this.currentStep >= this.searchResult.visitedOrder.length) {
+    if (
+      this.searchResult &&
+      this.currentStep >= this.searchResult.visitedOrder.length
+    ) {
       const path = this.searchResult.path;
       if (path.length > 1) {
         this.searchGraphics.lineStyle(4, 0xffd43b, 1.0);
@@ -359,12 +466,17 @@ export class GraphLabScene extends Phaser.Scene {
               u[1] * this.cellSize + half,
               u[0] * this.cellSize + half,
               v[1] * this.cellSize + half,
-              v[0] * this.cellSize + half
+              v[0] * this.cellSize + half,
             );
           } else {
             // Conexão de portal da rota, com cor própria.
             this.searchGraphics.lineStyle(2, 0xba8aff, 0.75);
-            this.searchGraphics.lineBetween(u[1] * this.cellSize + half, u[0] * this.cellSize + half, v[1] * this.cellSize + half, v[0] * this.cellSize + half);
+            this.searchGraphics.lineBetween(
+              u[1] * this.cellSize + half,
+              u[0] * this.cellSize + half,
+              v[1] * this.cellSize + half,
+              v[0] * this.cellSize + half,
+            );
             this.searchGraphics.lineStyle(4, 0xffd43b, 1.0);
           }
         }
@@ -400,6 +512,6 @@ export class GraphLabScene extends Phaser.Scene {
   }
 
   destroy(): void {
-    EventBus.removeAllListeners();
+    // Only scene-owned handlers are removed by SHUTDOWN/DESTROY cleanup.
   }
 }

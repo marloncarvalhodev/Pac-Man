@@ -13,6 +13,10 @@ export interface NeighborEdge {
 export class Graph {
   // Mapeamento: uKey -> { vKey: weight }
   private _adj: Map<NodeKey, Map<NodeKey, number>> = new Map();
+  private _revision = 0;
+  get revision(): number {
+    return this._revision;
+  }
 
   /**
    * Conjunto de vértices V do grafo.
@@ -36,14 +40,14 @@ export class Graph {
   }
 
   /**
-   * Tamanho do grafo |E| (total de conexões direcionadas ou pares).
+   * Tamanho do grafo |E| (total de arcos direcionados, inclusive os sentidos de uma ligação bidirecional).
    */
   get size(): number {
     let total = 0;
     for (const nbrs of this._adj.values()) {
       total += nbrs.size;
     }
-    return Math.floor(total / 2);
+    return total;
   }
 
   /**
@@ -53,6 +57,7 @@ export class Graph {
     const uKey = nodeToKey(u);
     if (!this._adj.has(uKey)) {
       this._adj.set(uKey, new Map());
+      this._revision++;
     }
   }
 
@@ -60,6 +65,8 @@ export class Graph {
    * Adiciona uma aresta e = (u, v) com peso w(e) ao grafo.
    */
   addEdge(u: Node, v: Node, weight = 1.0, bidirectional = true): void {
+    if (!Number.isFinite(weight) || weight < 0)
+      throw new RangeError('O peso deve ser finito e não negativo.');
     this.addVertex(u);
     this.addVertex(v);
 
@@ -67,6 +74,7 @@ export class Graph {
     const vKey = nodeToKey(v);
 
     this._adj.get(uKey)!.set(vKey, weight);
+    this._revision++;
 
     if (bidirectional) {
       this._adj.get(vKey)!.set(uKey, weight);

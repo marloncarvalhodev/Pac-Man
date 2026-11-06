@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { PhaserGame } from '../game/PhaserGame';
+import { GameResult } from '../components/game/GameResult';
 import { GameHUD } from '../components/game/GameHUD';
 import { EventBus } from '../game/core/EventBus';
 import { GameStateSnapshot } from '../game/core/GameState';
 import {
-  Trophy,
-  Skull,
-  RotateCcw,
   ChevronUp,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { SplitText } from '../components/motion/SplitText';
+import { AnimatedContent } from '../components/motion/AnimatedContent';
 import styles from './PlayPage.module.css';
 
-export const PlayPage: React.FC = () => {
+export const PlayPage: React.FC<{ seed: number; onNewMaze: () => void }> = ({
+  seed,
+  onNewMaze,
+}) => {
   const [gameState, setGameState] = useState<GameStateSnapshot | null>(null);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export const PlayPage: React.FC = () => {
   }, []);
 
   const handleNewMaze = () => {
-    EventBus.emit('ui-new-maze');
+    onNewMaze();
   };
 
   const handleRestartMaze = () => {
@@ -80,68 +83,37 @@ export const PlayPage: React.FC = () => {
       <header className={styles.pageHeader}>
         <div>
           <h1>
-            Modo Arcade<span>Jogue. Explore. Encontre a saída.</span>
+            <SplitText text="Modo Arcade" />
+            <span>Jogue. Explore. Encontre a saída.</span>
           </h1>
         </div>
         <span className={styles.modeTag}>
           <span /> Partida local
         </span>
       </header>
-      <GameHUD
-        state={gameState}
-        onNewMaze={handleNewMaze}
-        onRestartMaze={handleRestartMaze}
-      />
+      <AnimatedContent className={styles.statusPanel}>
+        <GameHUD
+          state={gameState}
+          onNewMaze={handleNewMaze}
+          onRestartMaze={handleRestartMaze}
+        />
+        <p className={styles.seedNote}>
+          Mapa {gameState?.seed ?? seed} · o mesmo no Laboratório
+        </p>
+      </AnimatedContent>
       {/* Área do Labirinto (Canvas Phaser) */}
       <div className={styles.canvasWrapper}>
-        <PhaserGame sceneType="GameScene" />
-
-        {/* Modal de Vitória */}
-        {gameState?.gameStatus === 'WON' && (
-          <div className={styles.overlayModal}>
-            <div className={styles.modalCardSuccess}>
-              <Trophy size={48} className={styles.victoryIcon} />
-              <h2 className={styles.modalTitle}>VITÓRIA!</h2>
-              <p className={styles.modalText}>
-                Você coletou todas as chaves e superou o labirinto ponderado!
-              </p>
-              <div className={styles.scoreHighlight}>
-                Pontuação Final: <strong>{gameState.score} pts</strong>
-              </div>
-              <button
-                className={styles.modalBtnSuccess}
-                onClick={handleNewMaze}
-              >
-                <RotateCcw size={16} /> Jogar Novamente
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de Derrota (Game Over) */}
-        {gameState?.gameStatus === 'LOST' && (
-          <div className={styles.overlayModal}>
-            <div className={styles.modalCardDanger}>
-              <Skull size={48} className={styles.dangerIcon} />
-              <h2 className={styles.modalTitleDanger}>GAME OVER</h2>
-              <p className={styles.modalText}>
-                {gameState.health <= 0
-                  ? 'Você sucumbiu à lava ardente (-10 HP repetidamente)!'
-                  : 'Os inimigos guiados pelo A* te capturaram no labirinto!'}
-              </p>
-              <div className={styles.scoreHighlight}>
-                Pontuação: <strong>{gameState.score} pts</strong>
-              </div>
-              <button
-                className={styles.modalBtnDanger}
-                onClick={handleRestartMaze}
-              >
-                <RotateCcw size={16} /> Tentar Novamente
-              </button>
-            </div>
-          </div>
-        )}
+        <PhaserGame sceneType="GameScene" seed={seed} />
       </div>
+
+      {gameState &&
+        (gameState.gameStatus === 'WON' || gameState.gameStatus === 'LOST') && (
+          <GameResult
+            state={gameState}
+            onRestart={handleRestartMaze}
+            onNewMaze={handleNewMaze}
+          />
+        )}
 
       <div className={styles.touchControls} aria-label="Controles de movimento">
         {directionButton(

@@ -21,6 +21,8 @@ export interface VertexInspectionData {
 }
 
 export interface GameStateSnapshot {
+  autoplayActive?: boolean;
+  ghostMode?: 'scatter' | 'chase' | 'frightened';
   score: number;
   health: number;
   keysCollected: number;

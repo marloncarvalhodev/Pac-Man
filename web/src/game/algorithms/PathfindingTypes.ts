@@ -12,6 +12,10 @@ export interface PathfindingResult {
   executionTimeMs: number;
   algorithmName: string;
   found: boolean;
+  frontierPeak?: number;
+  relaxations?: number;
+  reopened?: number;
+  frontierOrder?: Node[][];
 }
 
 export type HeuristicFunction = (u: Node, v: Node) => number;

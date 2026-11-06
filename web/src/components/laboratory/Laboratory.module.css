@@ -13,13 +13,13 @@
 .controlGroup {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .groupLabel,
 .sectionSub {
   font-size: 0.8rem;
   color: var(--color-text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 .algoButtonGroup,
 .modeButtonGroup,
@@ -41,7 +41,7 @@
   padding: 8px 10px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 3px;
   font-size: 0.76rem;
   color: var(--color-text-secondary);
 }
@@ -64,9 +64,9 @@
 }
 .algoBtnActive,
 .modeBtnActive {
-  background: #ffda5510;
-  color: var(--color-pacman);
-  border-color: #8b7637;
+  background: var(--color-arcade-blue);
+  color: #fffef9;
+  border-color: var(--color-arcade-blue);
   font-weight: 600;
 }
 .stepProgressHeader {
@@ -89,14 +89,14 @@
   flex: 1;
   min-height: 44px;
   padding: 8px 12px;
-  background: var(--color-pacman);
-  color: #121722;
-  border-radius: 8px;
+  background: var(--color-text-primary);
+  color: #fffef9;
+  border-radius: 3px;
   font-size: 0.8rem;
   font-weight: 650;
 }
 .playBtn:hover {
-  background: #ffe681;
+  background: var(--color-arcade-blue);
 }
 .stepBtn {
   flex: 1;
@@ -128,7 +128,7 @@
   width: 100%;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 3px;
   padding: 10px;
   color: var(--color-text-primary);
   font-size: 0.85rem;
@@ -178,14 +178,17 @@
   border-bottom: 1px solid var(--color-border);
   overflow-wrap: anywhere;
   vertical-align: top;
+  background: var(--color-surface-elevated);
 }
 .comparisonTable th {
   color: var(--color-text-secondary);
   font-weight: 500;
   font-size: 0.7rem;
+  background: var(--color-surface-elevated);
 }
 .comparisonTable th:first-child {
   width: 42%;
+  background: var(--color-surface-elevated);
 }
 .valEqual {
   font-weight: 600;
@@ -200,18 +203,18 @@
   font-weight: 600;
 }
 .reductionBadge {
-  background: #75dfb010;
-  color: var(--color-success);
+  background: #deead9;
+  color: #235139;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 3px;
   font-size: 0.78rem;
   line-height: 1.6;
 }
 .inspectorEmpty,
 .comparisonPlaceholder {
   background: var(--color-surface);
-  border: 1px dashed var(--color-border-hover);
-  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
   padding: 22px;
   font-size: 0.8rem;
   line-height: 1.8;
@@ -240,7 +243,7 @@
   font-weight: 600;
   color: #fff;
   padding: 6px 8px;
-  border-radius: 5px;
+  border-radius: 3px;
 }
 .degreesGrid {
   display: grid;
@@ -250,7 +253,7 @@
 .degreeItem {
   background: var(--color-surface-elevated);
   padding: 12px 5px;
-  border-radius: 8px;
+  border-radius: 3px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -366,6 +369,7 @@
   }
   .comparisonTable th {
     font-size: 0.78rem;
+    background: var(--color-surface-elevated);
   }
   .academicSubtitle,
   .academicNote {
@@ -373,5 +377,181 @@
   }
   .inspectorEmpty {
     font-size: 0.85rem;
+    border: 1px solid var(--color-border);
   }
+}
+.playBtn {
+  width: 100%;
+  height: 100%;
+  background: var(--color-text-primary);
+  color: #fffef9;
+}
+.playbackRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.playbackRow > :first-child {
+  grid-column: 1/-1;
+  min-width: 0;
+}
+.playbackRow .stepBtn {
+  min-width: 0;
+  min-height: 42px;
+}
+.playBtn {
+  background: var(--color-pacman-yellow);
+  color: #080a0f;
+}
+.playBtn:hover {
+  background: #f0c925;
+}
+.algoBtnActive,
+.modeBtnActive {
+  background: var(--color-pacman-yellow);
+  color: #111b39;
+  border-color: var(--color-pacman-yellow);
+}
+.playBtn {
+  background: var(--color-pacman-yellow);
+  color: #111b39;
+}
+.reductionBadge {
+  background: #090a10;
+  color: #96e7bd;
+}
+.comparisonTable th {
+  color: #e0e5ff;
+}
+.seedField {
+  background: #090a10;
+  color: #fff;
+  border-color: #8795da;
+}
+.interactivityTip strong {
+  color: #fff;
+}
+
+.controlsCard {
+  gap: 20px;
+}
+.controlGroup + .controlGroup {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+.groupLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.algoButtonGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.algoButtonGroup > button:last-child {
+  grid-column: 1/-1;
+}
+.algoBtn,
+.modeBtn,
+.seedBtn,
+.randomBtn,
+.stepBtn {
+  min-height: 44px;
+  line-height: 1.4;
+}
+.modeButtonGroup {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.modeBtn {
+  justify-content: flex-start;
+  padding: 10px 12px;
+}
+.cardHeaderTitle {
+  font-family: var(--font-family-sans);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.stepProgressHeader {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.stepCounter {
+  font-variant-numeric: tabular-nums;
+}
+.seedInputRow {
+  gap: 6px;
+}
+.seedField {
+  min-width: 0;
+  min-height: 44px;
+}
+.comparisonTable {
+  font-size: 0.85rem;
+}
+.comparisonTable th {
+  font-size: 0.78rem;
+}
+.educationalHeader {
+  min-height: 44px;
+  gap: 12px;
+}
+.eduTitle {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left;
+}
+.conceptItem {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.conceptTerm,
+.conceptDef {
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.interactivityTip {
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+.academicSubtitle,
+.academicNote {
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.playBtn {
+  min-height: 46px;
+}
+.speedSlider {
+  min-height: 32px;
+}
+@media (max-width: 900px) {
+  .modeButtonGroup {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .modeBtn {
+    flex-direction: column;
+    justify-content: center;
+    font-size: 0.78rem;
+  }
+  .comparisonTable {
+    font-size: 0.8rem;
+  }
+}
+
+.targetButtonGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.targetButtonGroup button {
+  min-height: 44px;
+  justify-content: center;
+}
+.targetButtonGroup button[aria-pressed='true'] {
+  background: var(--color-cyan);
+  color: #080a0f;
+  border-color: var(--color-cyan);
 }

@@ -1,10 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { HomePage } from '../pages/HomePage';
 import { PlayPage } from '../pages/PlayPage';
 import { LaboratoryPage } from '../pages/LaboratoryPage';
 import { HowToPlayPage } from '../pages/HowToPlayPage';
 import { soundManager } from '../game/systems/SoundManager';
+import { EventBus } from '../game/core/EventBus';
+import type { GameStateSnapshot } from '../game/core/GameState';
 import {
+  Swords,
   Gamepad2,
   FlaskConical,
   BookOpen,
@@ -14,10 +17,23 @@ import {
 } from 'lucide-react';
 import styles from './App.module.css';
 
-export type PageTab = 'home' | 'play' | 'lab' | 'how-to-play';
+const ArenaPage = lazy(() =>
+  import('../pages/ArenaPage').then((m) => ({ default: m.ArenaPage })),
+);
+export type PageTab = 'home' | 'play' | 'lab' | 'arena' | 'how-to-play';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<PageTab>('home');
+  const [mazeSeed, setMazeSeed] = useState(42);
+  const newMaze = (seed?: number) =>
+    setMazeSeed(seed ?? Math.floor(Math.random() * 900000 + 100000));
+  useEffect(() => {
+    const syncSeed = (state: GameStateSnapshot) => setMazeSeed(state.seed);
+    EventBus.on('game-state-updated', syncSeed);
+    return () => {
+      EventBus.off('game-state-updated', syncSeed);
+    };
+  }, []);
   const [isMuted, setIsMuted] = useState<boolean>(soundManager.isMuted);
   const mainRef = useRef<HTMLElement>(null);
   const previousTab = useRef<PageTab>(activeTab);
@@ -76,9 +92,20 @@ export const App: React.FC = () => {
             className={`${styles.navBtn} ${activeTab === 'lab' ? styles.active : ''}`}
             aria-current={activeTab === 'lab' ? 'page' : undefined}
             onClick={() => setActiveTab('lab')}
+            aria-label="Laboratório"
           >
             <FlaskConical size={16} />
-            <span>Laboratório</span>
+            <span className={styles.labLabel}>Laboratório</span>
+            <span className={styles.labShort}>Lab</span>
+          </button>
+
+          <button
+            className={`${styles.navBtn} ${activeTab === 'arena' ? styles.active : ''}`}
+            aria-current={activeTab === 'arena' ? 'page' : undefined}
+            onClick={() => setActiveTab('arena')}
+          >
+            <Swords size={16} />
+            <span>Arena</span>
           </button>
 
           <button
@@ -113,12 +140,36 @@ export const App: React.FC = () => {
         className={styles.mainContent}
       >
         {activeTab === 'home' && (
-          <HomePage onNavigate={(page) => setActiveTab(page)} />
+          <HomePage seed={mazeSeed} onNavigate={(page) => setActiveTab(page)} />
         )}
-        {activeTab === 'play' && <PlayPage />}
-        {activeTab === 'lab' && <LaboratoryPage />}
+        {activeTab === 'play' && (
+          <PlayPage key={mazeSeed} seed={mazeSeed} onNewMaze={newMaze} />
+        )}
+        {activeTab === 'lab' && (
+          <LaboratoryPage
+            key={mazeSeed}
+            seed={mazeSeed}
+            onNewGraph={newMaze}
+            onOpenArena={() => setActiveTab('arena')}
+          />
+        )}
+        {activeTab === 'arena' && (
+          <Suspense
+            fallback={
+              <div role="status" style={{ padding: 32 }}>
+                Preparando a Arena…
+              </div>
+            }
+          >
+            <ArenaPage seed={mazeSeed} />
+          </Suspense>
+        )}
         {activeTab === 'how-to-play' && (
-          <HowToPlayPage onStartPlaying={() => setActiveTab('play')} />
+          <HowToPlayPage
+            onStartPlaying={() => setActiveTab('play')}
+            onOpenLaboratory={() => setActiveTab('lab')}
+            onOpenArena={() => setActiveTab('arena')}
+          />
         )}
       </main>
     </div>

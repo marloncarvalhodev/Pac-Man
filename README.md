@@ -515,3 +515,26 @@ Projeto acadêmico desenvolvido no **Instituto Federal da Bahia (IFBA)**, no con
   <strong>Pac-Man: Graph Lab</strong><br>
   Aprenda grafos explorando caminhos.
 </p>
+
+## Arena de máquinas e IA
+
+Acesse **Arena** no menu (ou **Máquina × máquina** no card inicial).
+
+1. Escolha **Duelo A × B** e configure algoritmo e tática para cada máquina, ou **Comparar 6 estratégias** para testar Dijkstra e A* com rota rápida, coleta gulosa e rota cautelosa.
+2. Defina a semente inicial e **1 a 100 rodadas**. Cada rodada usa uma semente consecutiva, igual para todas as máquinas.
+3. Escolha **Chaves e saída** ou **Todos os pontos e saída**. Ative fantasmas para avaliar sobrevivência ou desative para isolar o planejamento.
+4. Inicie a competição. O Web Worker executa as partidas sem bloquear a interface; é possível interromper. Apenas rodadas completas alimentam a comparação. Sair da Arena encerra o processamento.
+5. Use o replay sincronizado da primeira rodada, o ranking por tempo ou pontos, o gráfico tempo × pontuação e a tabela paginada. **Exportar CSV** exporta os resultados do objetivo e condição selecionados. O histórico guarda até 2.000 partidas neste navegador; não é um ranking global em servidor.
+
+O critério de tempo prioriza taxa de conclusão, depois tempo médio das partidas concluídas; capturas precoces não contam como boas marcas de velocidade. O tempo de busca mede processamento real das buscas, separado do relógio simulado e da velocidade do replay. Resultados dependem da amostra e do dispositivo; empates são mostrados.
+
+### Melhorias da IA
+
+- **Movimento compartilhado:** Arcade, Arena e Laboratório usam o mesmo grafo de movimentos legais, incluindo teleporte automático ao entrar em portais. O labirinto e a semente continuam compartilhados. A Arena avança em passos determinísticos de 20ms, com limite de 180s por partida.
+- **Fantasmas:** patrulha de 4s e perseguição de 20s por ciclo; vermelho persegue, roxo antecipa até quatro movimentos de corredor. Evitam reversões gratuitas e o próximo destino ocupado pelo companheiro. Sob poder, fogem por distância do grafo. Recuperam-se por 600ms depois de comidos, evitando pontuação repetida no ponto de retorno. Recalculam apenas quando podem se mover.
+- **Pac-Man:** botão **Ativar piloto A*** no Arcade. O piloto cauteloso considera chaves, custo dos terrenos, ameaça atual e previsão de movimentos dos fantasmas, poder e vida. Setas/WASD devolvem o controle manual. O relógio lógico e o poder congelam na pausa. O piloto é heurístico e pode perder.
+- **Buscas:** núcleo comum de Dijkstra/A*, descarte de entradas obsoletas da fila e reabertura de estados melhorados. A heurística considera pesos reais e cadeias de atalhos direcionados, com cache invalidado por revisão do grafo. Pesos negativos e não finitos são rejeitados.
+- **Múltiplos objetivos:** Held–Karp com cache de caminhos dirigidos, exato para até 12 chaves intermediárias distintas; acima disso usa seleção gulosa identificada no resultado, sem prometer ótimo global. A coleta de todos os pontos é gulosa pelo custo de caminho mínimo.
+- **Laboratório:** fronteira real por expansão, máximo da fronteira, relaxamentos e reaberturas. Multi-Goal compara ambos os algoritmos com as mesmas chaves. Origem/destino podem ser escolhidos por toque; Shift + clique continua disponível.
+
+Validação automatizada: execute `npm test --prefix web` e `npm run build --prefix web`. Os testes incluem consistência da heurística, portais encadeados, reaberturas, Held–Karp, decisões de fantasmas, risco de lava, reprodução determinística, empates e exclusão de rodadas incompletas.

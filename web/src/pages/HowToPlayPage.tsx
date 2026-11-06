@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { SplitText } from '../components/motion/SplitText';
+import GlareHover from '../components/react-bits/GlareHover';
 import styles from './HowToPlayPage.module.css';
 interface Props {
   onStartPlaying: () => void;
+  onOpenLaboratory?: () => void;
+  onOpenArena?: () => void;
 }
 const topics = [
   ['objetivo', 'Objetivo'],
@@ -12,8 +16,13 @@ const topics = [
   ['grafos', 'Teoria dos grafos'],
   ['buscas', 'Dijkstra e A*'],
   ['laboratorio', 'Laboratório'],
+  ['arena', 'Arena de máquinas'],
 ];
-export const HowToPlayPage: React.FC<Props> = ({ onStartPlaying }) => {
+export const HowToPlayPage: React.FC<Props> = ({
+  onStartPlaying,
+  onOpenLaboratory,
+  onOpenArena,
+}) => {
   const [activeTopic, setActiveTopic] = useState(topics[0][0]);
 
   useEffect(() => {
@@ -70,16 +79,28 @@ export const HowToPlayPage: React.FC<Props> = ({ onStartPlaying }) => {
         </nav>
       </aside>
       <article className={styles.article}>
-        <header className={styles.header}>
-          <h1>
-            Um guia para
-            <br />
-            <em>encontrar caminhos.</em>
-          </h1>
-          <div>
-            As regras do arcade e os conceitos que dão forma ao labirinto.
-          </div>
-        </header>
+        <GlareHover
+          width="100%"
+          borderRadius="0px"
+          borderColor="transparent"
+          glareColor="#7cd9e8"
+          glareOpacity={0.12}
+          intro
+          style={{ display: 'block' }}
+        >
+          <header className={styles.header}>
+            <h1>
+              <SplitText text="Um guia para" />
+              <br />
+              <em>
+                <SplitText text="encontrar caminhos." delay={100} />
+              </em>
+            </h1>
+            <div>
+              As regras do arcade e os conceitos que dão forma ao labirinto.
+            </div>
+          </header>
+        </GlareHover>
         <section id="objetivo">
           <h2>O objetivo da partida</h2>
           <p>
@@ -240,9 +261,41 @@ export const HowToPlayPage: React.FC<Props> = ({ onStartPlaying }) => {
             e use Shift + clique para o destino; passe o cursor para inspecionar
             seus vizinhos e graus.
           </p>
-          <button className={styles.startBtn} onClick={onStartPlaying}>
-            Ir para o Arcade <ArrowRight size={18} />
+          <button
+            className={styles.startBtn}
+            onClick={onOpenLaboratory ?? onStartPlaying}
+          >
+            {onOpenLaboratory ? 'Abrir laboratório' : 'Ir para o Arcade'}{' '}
+            <ArrowRight size={18} />
           </button>
+        </section>
+        <section id="arena">
+          <h2>Máquina contra máquina</h2>
+          <p>
+            A Arena compara Dijkstra e A* com três táticas: rota rápida, coleta
+            gulosa e rota cautelosa. Configure X rodadas; cada máquina recebe o
+            mesmo mapa por rodada e tenta chegar à saída com as chaves, ou
+            coletar todos os pontos antes de sair.
+          </p>
+          <p>
+            Compare taxa de conclusão, pontuação, tempo simulado e tempo de
+            busca. O ranking pode priorizar tempo ou pontos; o gráfico mostra a
+            relação entre os dois. O histórico é salvo neste navegador, e os
+            resultados podem ser exportados em CSV. O replay usa o mesmo relógio
+            para as duas máquinas.
+          </p>
+          <p>
+            A Arena é um modelo determinístico por arestas do grafo. O tempo
+            simulado não depende da velocidade do replay. Na Arena, portais são
+            transições explícitas; no Arcade, a entrada teleporta
+            automaticamente. Leia a metodologia na Arena para comparar as
+            medidas corretamente.
+          </p>
+          {onOpenArena && (
+            <button className={styles.startBtn} onClick={onOpenArena}>
+              Abrir Arena <ArrowRight size={18} />
+            </button>
+          )}
         </section>
       </article>
     </div>

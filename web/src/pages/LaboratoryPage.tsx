@@ -1,3 +1,4 @@
+import { Swords } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { PhaserGame } from '../game/PhaserGame';
 import { EventBus } from '../game/core/EventBus';
@@ -8,12 +9,19 @@ import { SearchControls } from '../components/laboratory/SearchControls';
 import { AlgorithmComparison } from '../components/laboratory/AlgorithmComparison';
 import { VertexInspector } from '../components/laboratory/VertexInspector';
 import { EducationalPanel } from '../components/laboratory/EducationalPanel';
+import { SplitText } from '../components/motion/SplitText';
+import { AnimatedContent } from '../components/motion/AnimatedContent';
 import styles from './LaboratoryPage.module.css';
 
-export const LaboratoryPage: React.FC = () => {
+export const LaboratoryPage: React.FC<{
+  seed: number;
+  onOpenArena?: () => void;
+  onNewGraph: (seed?: number) => void;
+}> = ({ seed, onNewGraph, onOpenArena }) => {
   const [algorithm, setAlgorithm] = useState<'Dijkstra' | 'A*' | 'Multi-Goal'>(
     'A*',
   );
+  const [considerGhosts, setConsiderGhosts] = useState(true);
   const [displayMode, setDisplayMode] = useState<LabDisplayMode>('OVERLAY');
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -26,6 +34,7 @@ export const LaboratoryPage: React.FC = () => {
   const [activeResult, setActiveResult] = useState<PathfindingResult | null>(
     null,
   );
+  const [travelCost, setTravelCost] = useState<number | null>(null);
   const [gainPercent, setGainPercent] = useState<number>(0);
 
   const [inspectedVertex, setInspectedVertex] =
@@ -38,7 +47,11 @@ export const LaboratoryPage: React.FC = () => {
       gainPercent: number;
       activeResult: PathfindingResult;
       algorithmName: string;
+      considersGhosts: boolean;
+      travelCost: number | null;
     }) => {
+      setConsiderGhosts(data.considersGhosts);
+      setTravelCost(data.travelCost);
       setActiveResult(data.activeResult);
       setDijkstraRes(data.dijkstra);
       setAstarRes(data.astar);
@@ -62,11 +75,17 @@ export const LaboratoryPage: React.FC = () => {
       setInspectedVertex(data);
     };
 
+    const reflectPlay = () => setIsPlaying(true);
+    const reflectPause = () => setIsPlaying(false);
+    EventBus.on('lab-play', reflectPlay);
+    EventBus.on('lab-pause', reflectPause);
     EventBus.on('lab-comparison-ready', handleComparison);
     EventBus.on('lab-search-progress', handleProgress);
     EventBus.on('vertex-inspected', handleVertexInspected);
 
     return () => {
+      EventBus.off('lab-play', reflectPlay);
+      EventBus.off('lab-pause', reflectPause);
       EventBus.off('lab-comparison-ready', handleComparison);
       EventBus.off('lab-search-progress', handleProgress);
       EventBus.off('vertex-inspected', handleVertexInspected);
@@ -83,21 +102,31 @@ export const LaboratoryPage: React.FC = () => {
     EventBus.emit('lab-set-mode', mode);
   };
 
-  const handleNewGraph = (seed?: number) => {
-    EventBus.emit('lab-new-graph', seed);
+  const handleNewGraph = (nextSeed?: number) => {
+    if (nextSeed === seed) EventBus.emit('lab-new-graph', nextSeed);
+    else onNewGraph(nextSeed);
   };
 
   return (
     <div className={styles.labLayout}>
       <header className={styles.pageHeader}>
         <div>
-          <h1>Laboratório de grafos</h1>
+          <h1>
+            <SplitText text="Laboratório de grafos" />
+          </h1>
           <p>Veja como cada algoritmo encontra seu caminho.</p>
         </div>
-        <span>Dijkstra / A*</span>
+        <button
+          className={styles.arenaLink}
+          onClick={onOpenArena}
+          disabled={!onOpenArena}
+        >
+          <Swords size={17} />
+          Comparar máquinas
+        </button>
       </header>
       {/* 1. Painel Esquerdo: Controles & Teoria */}
-      <aside className={styles.leftPanel}>
+      <AnimatedContent className={styles.leftPanel}>
         <div className={styles.panelHeader}>
           <h3 className={styles.panelTitle}>Controles do Laboratório</h3>
           <p className={styles.panelSubtitle}>
@@ -106,6 +135,7 @@ export const LaboratoryPage: React.FC = () => {
         </div>
 
         <SearchControls
+          seed={seed}
           algorithm={algorithm}
           displayMode={displayMode}
           isPlaying={isPlaying}
@@ -116,8 +146,16 @@ export const LaboratoryPage: React.FC = () => {
           onNewGraph={handleNewGraph}
         />
 
+        <div className={styles.threatControls}>
+          <h3>Fantasmas na rota</h3>
+          <button className={styles.arenaLink} aria-pressed={considerGhosts}
+            onClick={() => EventBus.emit('lab-set-ghosts', !considerGhosts)}>
+            {considerGhosts ? 'Risco dos fantasmas: ligado' : 'Risco dos fantasmas: desligado'}
+          </button>
+          <p>O vermelho indica perigo. A busca considera as posições atuais e a previsão dos próximos passos dos fantasmas. Use “Fantasmas” em Editar no mapa para reposicioná-los.</p>
+        </div>
         <EducationalPanel />
-      </aside>
+      </AnimatedContent>
 
       {/* 2. Região Central: Visualização do Grafo (Canvas Phaser) */}
       <section
@@ -125,14 +163,11 @@ export const LaboratoryPage: React.FC = () => {
         aria-label="Visualização do grafo"
       >
         <div className={styles.canvasHead}>
-          <div>
-            <h2>Visualização do grafo</h2>
-            <p>Explore o mapa e acompanhe a busca.</p>
-          </div>
+          <p>Mapa {seed} · o mesmo do Arcade</p>
           <span>{algorithm}</span>
         </div>
         <div className={styles.canvasFrame}>
-          <PhaserGame sceneType="GraphLabScene" />
+          <PhaserGame sceneType="GraphLabScene" seed={seed} />
         </div>
         <div className={styles.legend} aria-label="Legenda da visualização">
           <span>
@@ -141,7 +176,7 @@ export const LaboratoryPage: React.FC = () => {
           </span>
           <span>
             <i className={styles.next} />
-            Próxima expansão
+            Fronteira aberta
           </span>
           <span>
             <i className={styles.path} />
@@ -161,9 +196,16 @@ export const LaboratoryPage: React.FC = () => {
           </span>
         </div>
         <p className={styles.frontierNote}>
-          A fronteira completa não é registrada; o anel ciano indica a próxima
-          expansão disponível na ordem gravada.
+          {considerGhosts && 'Custo = deslocamento + risco dos fantasmas. Esta é uma análise de posições fixas com previsão curta; não é uma partida em movimento. '}
+          Anéis cianos mostram a fronteira real após cada expansão. O anel
+          amarelo marca o próximo nó. Em Multi-Goal, ambos os algoritmos visitam
+          as mesmas chaves antes da saída.
         </p>
+        {considerGhosts && travelCost !== null && activeResult?.found && (
+          <p className={styles.frontierNote}>
+            Deslocamento: {travelCost.toFixed(1)} · Penalidade de risco: {(activeResult.cost - travelCost).toFixed(1)}
+          </p>
+        )}
         <div className={styles.context}>
           <strong>
             {algorithm === 'Dijkstra'
@@ -178,13 +220,15 @@ export const LaboratoryPage: React.FC = () => {
                 ? `Esta execução encontrou custo ${activeResult.cost.toFixed(1)} e registrou ${activeResult.nodesExpanded} expansões.`
                 : 'Não foi encontrado caminho para os objetivos selecionados.'
               : 'Aguardando o resultado da busca.'}{' '}
-            A comparação lateral considera origem e destino selecionados.
+            {algorithm === 'Multi-Goal'
+              ? 'A comparação inclui todas as chaves e o destino, para ambos os algoritmos.'
+              : 'A comparação considera a mesma origem e destino.'}
           </p>
         </div>
       </section>
 
       {/* 3. Painel Direito: Análise Científica & Inspeção */}
-      <aside className={styles.rightPanel}>
+      <AnimatedContent className={styles.rightPanel}>
         <div className={styles.panelHeader}>
           <h3 className={styles.panelTitle}>Análise & Inspeção</h3>
           <p className={styles.panelSubtitle}>
@@ -199,7 +243,7 @@ export const LaboratoryPage: React.FC = () => {
         />
 
         <VertexInspector data={inspectedVertex} />
-      </aside>
+      </AnimatedContent>
     </div>
   );
 };

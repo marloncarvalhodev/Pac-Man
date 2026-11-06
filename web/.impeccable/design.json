@@ -1,32 +1,174 @@
 {
+  "generatedAt": "2026-11-05T17:36:10.619Z",
   "schemaVersion": 2,
-  "generatedAt": "2026-11-04T00:00:00Z",
-  "title": "Design System: PAC-MAN",
+  "components": [
+    {
+      "name": "Primary Action",
+      "html": "<button class=\"ds-primary\">Jogar Arcade ↗</button>",
+      "description": "Yellow play button inside the animated Pac-Man poster; full width on mobile.",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "css": ".ds-primary{background:var(--color-pacman-yellow,#ffdf32);color:#1c211e;min-height:54px;min-width:210px;padding:0 18px;border:0;border-radius:6px;font:750 1rem \"Chakra Petch\",sans-serif;cursor:pointer}.ds-primary:hover{background:#f0c925}.ds-primary:focus-visible{outline:2px solid var(--color-cyan,#7ee8f7);outline-offset:4px}"
+    },
+    {
+      "html": "<button class=\"ds-secondary\">Abrir laboratório →</button>",
+      "kind": "button",
+      "description": "Underlined homepage laboratory link.",
+      "name": "Secondary Action",
+      "css": ".ds-secondary{display:flex;justify-content:space-between;gap:24px;min-height:44px;border:0;border-bottom:1px solid #9ca9eb;background:transparent;color:#fff;font:.85rem \"Chakra Petch\",sans-serif;cursor:pointer}.ds-secondary:hover{color:var(--color-pacman-yellow,#ffdf32)}.ds-secondary:focus-visible{outline:2px solid var(--color-cyan,#7ee8f7);outline-offset:4px}"
+    },
+    {
+      "name": "Seed Field",
+      "html": "<label class=\"ds-label\">Seed <input class=\"ds-seed\" value=\"42\" inputmode=\"numeric\"></label>",
+      "description": "Deep-navy seed input for the shared maze.",
+      "kind": "input",
+      "refersTo": "seed-field",
+      "css": ".ds-label{display:grid;gap:8px;color:var(--color-text-secondary,#d1d8ff);font:600 .8rem \"Chakra Petch\",sans-serif}.ds-seed{min-width:0;min-height:44px;background:#090a10;border:1px solid #8795da;border-radius:3px;padding:10px;color:#fff;font:.85rem \"Chakra Petch\",sans-serif}.ds-seed:hover{border-color:var(--color-border-hover,#4d65a8)}.ds-seed:focus-visible{outline:2px solid var(--color-cyan,#7ee8f7);outline-offset:4px}"
+    },
+    {
+      "html": "<nav><button class=\"ds-nav\" aria-current=\"page\">Jogar</button></nav>",
+      "kind": "nav",
+      "description": "Yellow Arcade launch action remains visible in global navigation.",
+      "name": "Persistent Arcade Action",
+      "css": ".ds-nav{display:flex;align-items:center;justify-content:center;min-height:76px;min-width:92px;padding:12px 4px;border:1px solid var(--color-pacman-yellow,#ffdf32);border-radius:9px;background:var(--color-pacman-yellow,#ffdf32);color:#111b39;font:800 .65rem \"Chakra Petch\",sans-serif;cursor:pointer}.ds-nav:hover{background:#ffeb78}.ds-nav:focus-visible{outline:2px solid var(--color-cyan,#7ee8f7);outline-offset:4px}"
+    },
+    {
+      "html": "<button class=\"ds-algorithm\" aria-pressed=\"true\">Dijkstra</button>",
+      "kind": "chip",
+      "description": "Selected graph algorithm control.",
+      "name": "Algorithm Selection",
+      "css": ".ds-algorithm{min-height:42px;padding:8px 10px;border:1px solid var(--color-pacman-yellow,#ffdf32);border-radius:3px;background:var(--color-pacman-yellow,#ffdf32);color:#111b39;font:600 .76rem \"Chakra Petch\",sans-serif;cursor:pointer}.ds-algorithm:hover{border-color:var(--color-border-hover,#4d65a8);color:var(--color-text-primary,#f6f7ff)}.ds-algorithm:focus-visible{outline:2px solid var(--color-cyan,#7ee8f7);outline-offset:4px}"
+    },
+    {
+      "html": "<section class=\"ds-score\"><span>PONTUAÇÃO</span><strong>1.240</strong></section>",
+      "kind": "card",
+      "description": "Deep-navy scoreboard region with yellow value.",
+      "name": "Score Region",
+      "css": ".ds-score{display:flex;flex-direction:column;gap:7px;padding:20px 22px;background:#090a10;border:1px solid #6573c9;border-radius:4px;font-family:\"Chakra Petch\",sans-serif}.ds-score span{font-size:.62rem;font-weight:600;letter-spacing:.08em;color:var(--color-text-secondary,#d1d8ff)}.ds-score strong{font-size:3rem;font-weight:500;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--color-pacman-yellow,#ffdf32)}"
+    },
+    {
+      "name": "Arcade play action",
+      "kind": "button",
+      "description": "Official React Bits StarBorder primary action. Yellow surface, limited light trail, six-second lap, reduced-motion static fallback.",
+      "html": "<button class=\"ds-star\">Jogar Arcade</button>",
+      "css": ".ds-star{min-height:58px;padding:0 18px;background:#ffdf32;color:#080a0f;border:1px solid #ffdf32;border-radius:6px;font:700 1rem \"Chakra Petch\",monospace}.ds-star:focus-visible{outline:2px solid #7ee8f7;outline-offset:4px}"
+    }
+  ],
   "extensions": {
-    "shadows": [
-      { "name": "shadow-sm", "value": "0 3px 8px #0003", "purpose": "Declared small shadow token; not a default card treatment." },
-      { "name": "shadow-md", "value": "0 8px 24px #0004", "purpose": "Declared medium shadow token; not a default card treatment." },
-      { "name": "shadow-lg", "value": "0 18px 48px #0005", "purpose": "Game-details popover." }
+    "breakpoints": [
+      {
+        "value": "480px",
+        "name": "result-compact-max"
+      },
+      {
+        "value": "760px",
+        "name": "navigation-home-manual-compact-max"
+      },
+      {
+        "value": "900px",
+        "name": "game-laboratory-stack-max"
+      },
+      {
+        "value": "980px",
+        "name": "home-actions-stack-max"
+      },
+      {
+        "value": "1050px",
+        "name": "home-compact-max"
+      },
+      {
+        "value": "1100px",
+        "name": "workspace-manual-compact-max"
+      }
     ],
     "motion": [
-      { "name": "transition-fast", "value": "150ms ease", "purpose": "Token and global button color, background-color, and border-color transitions." },
-      { "name": "transition-normal", "value": "250ms ease", "purpose": "Declared normal transition token." },
-      { "name": "arrow-transform", "value": "180ms ease", "purpose": "Landing action and experience arrows." },
-      { "name": "title-reveal", "value": "0.75s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Landing headline reveal when reduced motion is not requested." },
-      { "name": "content-reveal", "value": "0.8s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Landing supporting content reveal with 100ms delay when reduced motion is not requested." },
-      { "name": "trace-route", "value": "1.8s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Preview route tracing when reduced motion is not requested." }
+      {
+        "value": "150ms ease",
+        "name": "transition-fast",
+        "purpose": "Global button state transitions."
+      },
+      {
+        "value": "250ms ease",
+        "name": "transition-normal",
+        "purpose": "Declared normal transition."
+      },
+      {
+        "value": "350ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "name": "page-arrive",
+        "purpose": "Main content arrival without reduced motion."
+      },
+      {
+        "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "name": "split-arrive",
+        "purpose": "Native SplitText with 24ms letter stagger and optional delay."
+      },
+      {
+        "value": "650ms cubic-bezier(.16,1,.3,1)",
+        "name": "animated-content",
+        "purpose": "Once-in-view native reveal; homepage second row delay 90ms."
+      },
+      {
+        "value": "480ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "name": "result-arrive",
+        "purpose": "Result dialog arrival."
+      },
+      {
+        "value": "700ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "name": "trophy-arrive",
+        "purpose": "Finite victory mark arrival."
+      },
+      {
+        "value": "900ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "name": "final-chomp",
+        "purpose": "Finite defeat mark animation."
+      }
     ],
-    "breakpoints": [
-      { "name": "narrow-navigation-and-hud-max", "value": "370px" },
-      { "name": "stack-landing-actions-max", "value": "380px" },
-      { "name": "manual-terrain-stack-max", "value": "440px" },
-      { "name": "landing-and-preview-stack-max", "value": "700px" },
-      { "name": "workspace-and-navigation-stack-max", "value": "760px" },
-      { "name": "manual-navigation-stack-max", "value": "800px" },
-      { "name": "navigation-compact-max", "value": "1000px" },
-      { "name": "landing-compact-max", "value": "1050px" },
-      { "name": "laboratory-two-columns-max", "value": "1250px" },
-      { "name": "navigation-wide-gutters-min", "value": "1500px" }
+    "shadows": [
+      {
+        "value": "0 4px 12px #1c211e0a",
+        "name": "shadow-sm",
+        "purpose": "Declared subtle ink shadow."
+      },
+      {
+        "value": "0 10px 30px #1c211e12",
+        "name": "shadow-md",
+        "purpose": "Compact game-details popover."
+      },
+      {
+        "value": "0 20px 60px #1c211e1c",
+        "name": "shadow-lg",
+        "purpose": "Declared larger ink shadow."
+      }
+    ]
+  },
+  "title": "Design System: PAC-MAN",
+  "narrative": {
+    "keyCharacteristics": [
+      "Royal-blue page with deep-navy framing and nearly square tool surfaces.",
+      "Press Start 2P headlines paired with Chakra Petch controls and prose.",
+      "Prominent PAC-MAN yellow play actions, selected tools, and yellow-on-navy navigation.",
+      "Native arcade scenes presented as framed interactive content."
+    ],
+    "dos": [
+      "Do use black, deep navy, serif arcade titles, and the PAC-MAN palette across the whole application.",
+      "Do preserve keyboard focus, reduced motion, readable fallback fonts, and responsive workspace ordering.",
+      "Do keep shared maze identity and native game colors intact while changing presentation.",
+      "Do use dividers and spacing to organize tools and prose."
+    ],
+    "overview": "Royal blue fills the application, deep navy structures the navigation and launch regions, and PAC-MAN yellow makes play immediately visible. Large serif headlines and precise sans-serif controls preserve the arcade composition while the background, controls, and characters express the user-requested PAC-MAN theme. The latest palette instruction replaces the interim ivory theme.\n\nArcade content retains its own visual identity: dark native maze scenes, blue walls, yellow Pac-Man, and colored ghosts sit within the black arcade application. The homepage ink poster is a deliberate content region within this arcade world.",
+    "northStar": "The Graph Playground",
+    "donts": [
+      "Don't restore the interim ivory background; the latest user direction explicitly applies the PAC-MAN theme to the background and whole interface.",
+      "Don't obscure play actions among secondary links or recolor native actors using unrelated UI aliases.",
+      "Don't reintroduce the previous split copy/map homepage hero or replace the vertical rail with the original desktop top navigation.",
+      "Don't claim visual QA, algorithm results, or performance metrics without current evidence."
+    ],
+    "rules": [
+      {
+        "body": "Keep play controls visibly yellow with dark text. The Arcade navigation item remains a yellow launch action on every page. Use near-white text and light cyan focus on blue backgrounds; native scene actors retain their canonical colors.",
+        "name": "The Play First Rule",
+        "section": "colors"
+      }
     ]
   }
 }

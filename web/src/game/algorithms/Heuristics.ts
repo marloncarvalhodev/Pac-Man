@@ -22,30 +22,22 @@ export const weightedManhattan = (
   u: Node,
   v: Node,
   minWeight = 0.3,
-  portals?: Array<[Node, Node]>
+  portals?: Array<[Node, Node]>,
 ): number => {
-  const direct = minWeight * (Math.abs(u[0] - v[0]) + Math.abs(u[1] - v[1]));
-  if (!portals || portals.length === 0) {
-    return direct;
+  const weight = Math.max(0, minWeight),
+    nodes = [u, v, ...(portals ?? []).flat()];
+  const d = nodes.map((a) =>
+    nodes.map((b) => weight * manhattanDistance(a, b)),
+  );
+  for (let i = 0; i < (portals?.length ?? 0); i++) {
+    const a = 2 + i * 2,
+      b = a + 1;
+    d[a][b] = Math.min(d[a][b], 1);
+    d[b][a] = Math.min(d[b][a], 1);
   }
-
-  let best = direct;
-  for (const [p1, p2] of portals) {
-    // Cota passando por p1 -> p2
-    const costP1P2 =
-      minWeight * (Math.abs(u[0] - p1[0]) + Math.abs(u[1] - p1[1])) +
-      1.0 +
-      minWeight * (Math.abs(p2[0] - v[0]) + Math.abs(p2[1] - v[1]));
-
-    // Cota passando por p2 -> p1
-    const costP2P1 =
-      minWeight * (Math.abs(u[0] - p2[0]) + Math.abs(u[1] - p2[1])) +
-      1.0 +
-      minWeight * (Math.abs(p1[0] - v[0]) + Math.abs(p1[1] - v[1]));
-
-    if (costP1P2 < best) best = costP1P2;
-    if (costP2P1 < best) best = costP2P1;
-  }
-
-  return best;
+  for (let k = 0; k < nodes.length; k++)
+    for (let i = 0; i < nodes.length; i++)
+      for (let j = 0; j < nodes.length; j++)
+        d[i][j] = Math.min(d[i][j], d[i][k] + d[k][j]);
+  return d[0][1];
 };

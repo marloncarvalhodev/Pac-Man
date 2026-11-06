@@ -23,7 +23,9 @@ export const AlgorithmComparison: React.FC<AlgorithmComparisonProps> = ({
 
   return (
     <div className={styles.comparisonCard}>
-      <h4 className={styles.cardHeaderTitle}>Comparativo Científico: Dijkstra vs. A*</h4>
+      <h4 className={styles.cardHeaderTitle}>
+        Comparativo Científico: Dijkstra vs. A*
+      </h4>
       <p className={styles.academicSubtitle}>
         Ensaios simultâneos sob o mesmo Grafo G = (V, E, w), Origem e Destino.
       </p>
@@ -39,12 +41,18 @@ export const AlgorithmComparison: React.FC<AlgorithmComparisonProps> = ({
         <tbody>
           <tr>
             <td>Custo Mínimo Ponderado</td>
-            <td className={styles.valEqual}>{dijkstraRes.cost.toFixed(1)}</td>
-            <td className={styles.valEqual}>{astarRes.cost.toFixed(1)}</td>
+            <td className={styles.valEqual}>
+              {dijkstraRes.found ? dijkstraRes.cost.toFixed(1) : 'Sem rota'}
+            </td>
+            <td className={styles.valEqual}>
+              {astarRes.found ? astarRes.cost.toFixed(1) : 'Sem rota'}
+            </td>
           </tr>
           <tr>
             <td>Nós Expandidos / Visitados</td>
-            <td className={styles.valDijkstra}>{dijkstraRes.nodesExpanded} nós</td>
+            <td className={styles.valDijkstra}>
+              {dijkstraRes.nodesExpanded} nós
+            </td>
             <td className={styles.valAstar}>{astarRes.nodesExpanded} nós</td>
           </tr>
           <tr>
@@ -57,6 +65,21 @@ export const AlgorithmComparison: React.FC<AlgorithmComparisonProps> = ({
             <td>{dijkstraRes.path.length} vértices</td>
             <td>{astarRes.path.length} vértices</td>
           </tr>
+          <tr>
+            <td>Fronteira máxima</td>
+            <td>{dijkstraRes.frontierPeak ?? '—'}</td>
+            <td>{astarRes.frontierPeak ?? '—'}</td>
+          </tr>
+          <tr>
+            <td>Relaxamentos</td>
+            <td>{dijkstraRes.relaxations ?? '—'}</td>
+            <td>{astarRes.relaxations ?? '—'}</td>
+          </tr>
+          <tr>
+            <td>Reaberturas de nós</td>
+            <td>{dijkstraRes.reopened ?? '—'}</td>
+            <td>{astarRes.reopened ?? '—'}</td>
+          </tr>
         </tbody>
       </table>
 
@@ -66,7 +89,9 @@ export const AlgorithmComparison: React.FC<AlgorithmComparisonProps> = ({
 
       <div className={styles.academicNote}>
         <p>
-          <strong>Comparação:</strong> mesma origem e destino para ambos. O tempo varia entre execuções e menos expansões não garante menor tempo.</p>
+          <strong>Comparação:</strong> mesma origem e destino para ambos. O
+          tempo varia entre execuções e menos expansões não garante menor tempo.
+        </p>
       </div>
     </div>
   );

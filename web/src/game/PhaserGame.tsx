@@ -14,7 +14,11 @@ export interface PhaserGameProps {
   onSceneReady?: (scene: Phaser.Scene) => void;
 }
 
-export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onSceneReady }) => {
+export const PhaserGame: React.FC<PhaserGameProps> = ({
+  sceneType,
+  seed,
+  onSceneReady,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -33,7 +37,7 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
-      scene: [GameScene, GraphLabScene],
+      scene: [],
     };
 
     const game = new Phaser.Game(config);
@@ -41,6 +45,9 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
 
     // Inicia a cena solicitada passando dados iniciais
     game.events.once('ready', () => {
+      // Register without auto-starting GameScene: only the requested view emits state.
+      game.scene.add('GameScene', GameScene, false);
+      game.scene.add('GraphLabScene', GraphLabScene, false);
       game.scene.start(sceneType, { seed });
       const activeScene = game.scene.getScene(sceneType);
       if (activeScene && onSceneReady) {
