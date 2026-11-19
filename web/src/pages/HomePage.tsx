@@ -9,25 +9,24 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => (
 
     <main>
       <section className={styles.hero}>
-        <div className={styles.heroBadge}>
-          <span>Matemática Discreta · IFBA</span>
-        </div>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>
+            <span className={styles.titlePrimary}>Explore o labirinto,</span>
+            <span className={styles.titleAccent}>domine os grafos.</span>
+          </h1>
 
-       <h1>
-        <span className={styles.titleA}>Explore o</span>
-        <span className={styles.titleB}>labirinto,</span>
-        <span className={styles.titleC}>domine os</span>
-        <span className={styles.titleD}>grafos.</span>
-       </h1>
+          <p className={styles.heroSubtitle}>
+            Algoritmos clássicos de busca, inteligência artificial e caminhos ótimos em uma experiência arcade viva e interativa.
+          </p>
 
-
-        <div className={styles.heroActions}>
-          <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => onNavigate('play')}>
-            Jogar Arcade
-          </button>
-          <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => onNavigate('lab')}>
-            Abrir Laboratório
-          </button>
+          <div className={styles.heroActions}>
+            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => onNavigate('play')}>
+              Jogar Arcade
+            </button>
+            <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={() => onNavigate('lab')}>
+              Abrir Laboratório
+            </button>
+          </div>
         </div>
       </section>
 

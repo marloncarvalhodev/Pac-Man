@@ -8,12 +8,18 @@ import { Graph } from '../graph/Graph';
 import { Node, NodeKey, nodeToKey, keyToNode } from '../graph/GraphTypes';
 import { PathfindingResult, HeuristicFunction } from './PathfindingTypes';
 import { PriorityQueue } from './PriorityQueue';
-import { weightedManhattan } from './Heuristics';
+import { graphManhattanScale, consistentManhattan } from './Heuristics';
 
 export interface AStarOptions {
   heuristic?: HeuristicFunction;
   portals?: Array<[Node, Node]>;
   minWeight?: number;
+}
+
+interface AStarHeapItem {
+  key: NodeKey;
+  g: number;
+  f: number;
 }
 
 export function aStar(
@@ -24,40 +30,65 @@ export function aStar(
 ): PathfindingResult {
   const startTime = performance.now();
 
+  if (!graph.hasVertex(start) || !graph.hasVertex(goal)) {
+    return {
+      path: [],
+      cost: Infinity,
+      nodesExpanded: 0,
+      visitedOrder: [],
+      executionTimeMs: performance.now() - startTime,
+      algorithmName: 'A*',
+      found: false,
+      moves: 0,
+    };
+  }
+
   const startKey = nodeToKey(start);
   const goalKey = nodeToKey(goal);
 
-  const minWeight = options.minWeight ?? (options.portals && options.portals.length > 0 ? 0.3 : 1.0);
+  if (startKey === goalKey) {
+    return {
+      path: [start],
+      cost: 0,
+      nodesExpanded: 1,
+      visitedOrder: [start],
+      executionTimeMs: performance.now() - startTime,
+      algorithmName: 'A*',
+      found: true,
+      moves: 0,
+    };
+  }
+
+  const scale = graphManhattanScale(graph, options.minWeight);
   const hFn: HeuristicFunction =
-    options.heuristic ??
-    ((u, v) => weightedManhattan(u, v, minWeight, options.portals));
+    options.heuristic ?? ((u, v) => consistentManhattan(u, v, scale));
 
   const gScore = new Map<NodeKey, number>();
-  const fScore = new Map<NodeKey, number>();
   const cameFrom = new Map<NodeKey, NodeKey>();
-  const settled = new Set<NodeKey>();
   const visitedOrder: Node[] = [];
 
-  const pq = new PriorityQueue<NodeKey>();
+  const pq = new PriorityQueue<AStarHeapItem>();
 
   gScore.set(startKey, 0);
   const initialF = hFn(start, goal);
-  fScore.set(startKey, initialF);
-  pq.enqueue(startKey, initialF);
+  pq.enqueue({ key: startKey, g: 0, f: initialF }, initialF);
 
   while (!pq.isEmpty()) {
-    const currentKey = pq.dequeue()!;
+    const item = pq.dequeue()!;
+    const currentKey = item.key;
+    const currentG = item.g;
 
-    if (settled.has(currentKey)) continue;
-    settled.add(currentKey);
-    visitedOrder.push(keyToNode(currentKey));
+    // Descarta entradas obsoletas do heap e permite reabertura de nós
+    if (currentG !== gScore.get(currentKey)) {
+      continue;
+    }
+
+    const currentNode = keyToNode(currentKey);
+    visitedOrder.push(currentNode);
 
     if (currentKey === goalKey) {
       break;
     }
-
-    const currentNode = keyToNode(currentKey);
-    const currentG = gScore.get(currentKey)!;
 
     for (const { node: neighbor, weight } of graph.neighbors(currentNode)) {
       const neighborKey = nodeToKey(neighbor);
@@ -68,8 +99,7 @@ export function aStar(
         cameFrom.set(neighborKey, currentKey);
         gScore.set(neighborKey, tentativeG);
         const fVal = tentativeG + hFn(neighbor, goal);
-        fScore.set(neighborKey, fVal);
-        pq.enqueue(neighborKey, fVal);
+        pq.enqueue({ key: neighborKey, g: tentativeG, f: fVal }, fVal);
       }
     }
   }
@@ -81,14 +111,11 @@ export function aStar(
   let found = false;
   let totalCost = Infinity;
 
-  if (startKey === goalKey) {
-    path.push(start);
-    found = true;
-    totalCost = 0;
-  } else if (cameFrom.has(goalKey)) {
+  if (cameFrom.has(goalKey)) {
     let curr: NodeKey | undefined = goalKey;
     while (curr) {
       path.push(keyToNode(curr));
+      if (curr === startKey) break;
       curr = cameFrom.get(curr);
     }
     path.reverse();
@@ -104,5 +131,6 @@ export function aStar(
     executionTimeMs: elapsedMs,
     algorithmName: 'A*',
     found,
+    moves: Math.max(0, path.length - 1),
   };
 }

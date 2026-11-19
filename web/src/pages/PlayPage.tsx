@@ -87,12 +87,14 @@ export const PlayPage: React.FC = () => {
         )}
       </div>
 
-      <div className={styles.touchControls} aria-label="Controles de movimento">
-        {directionButton('ArrowUp', 'Mover para cima', styles.up, <ChevronUp />)}
-        {directionButton('ArrowLeft', 'Mover para esquerda', styles.left, <ChevronLeft />)}
-        {directionButton('ArrowDown', 'Mover para baixo', styles.down, <ChevronDown />)}
-        {directionButton('ArrowRight', 'Mover para direita', styles.right, <ChevronRight />)}
-      </div>
+      {gameState?.controlMode !== 'AUTONOMOUS' && (
+        <div className={styles.touchControls} aria-label="Controles de movimento">
+          {directionButton('ArrowUp', 'Mover para cima', styles.up, <ChevronUp />)}
+          {directionButton('ArrowLeft', 'Mover para esquerda', styles.left, <ChevronLeft />)}
+          {directionButton('ArrowDown', 'Mover para baixo', styles.down, <ChevronDown />)}
+          {directionButton('ArrowRight', 'Mover para direita', styles.right, <ChevronRight />)}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { HomePage } from '../pages/HomePage';
 import { PlayPage } from '../pages/PlayPage';
 import { LaboratoryPage } from '../pages/LaboratoryPage';
@@ -87,9 +87,10 @@ export const App: React.FC = () => {
         {activeTab === 'play' && <PlayPage />}
         {activeTab === 'lab' && <LaboratoryPage />}
         {activeTab === 'how-to-play' && (
-          <HowToPlayPage onStartPlaying={() => setActiveTab('play')} />
+          <HowToPlayPage onStartPlaying={() => setActiveTab('play')} onOpenLaboratory={() => setActiveTab('lab')} />
         )}
       </main>
     </div>
   );
 };
+

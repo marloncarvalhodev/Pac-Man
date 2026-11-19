@@ -1,8 +1,9 @@
 import { Node } from '../graph/GraphTypes';
 import { TerrainType } from '../graph/Terrain';
 import { PathfindingResult } from '../algorithms/PathfindingTypes';
+import { ControlMode, AgentStatusReport } from '../agents/AgentTypes';
 
-export type GameStatus = 'READY' | 'PLAYING' | 'PAUSED' | 'WON' | 'LOST';
+export type GameStatus = 'READY' | 'COUNTDOWN' | 'PLAYING' | 'PAUSED' | 'WON' | 'LOST';
 
 export interface VertexInspectionData {
   node: Node;
@@ -39,4 +40,11 @@ export interface GameStateSnapshot {
   heuristicGainPercent: number;
   solverResult: PathfindingResult | null;
   seed: number;
+  controlMode: ControlMode;
+  agentStatus: AgentStatusReport | null;
+  showAgentVisuals: boolean;
+  simulationSpeed?: number;
+  countdownRemainingSec?: number;
+  ghostGraceRemainingSec?: number;
+  isGhostWaiting?: boolean;
 }

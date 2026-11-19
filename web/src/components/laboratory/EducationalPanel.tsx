@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import styles from './Laboratory.module.css';
 
@@ -51,7 +51,7 @@ export const EducationalPanel: React.FC = () => {
 
   return (
     <div className={styles.educationalCard}>
-      <button className={styles.educationalHeader} onClick={() => setIsOpen(!isOpen)}>
+      <button className={styles.educationalHeader} aria-expanded={isOpen} onClick={() => setIsOpen(!isOpen)}>
         <div className={styles.eduTitleLeft}>
           <BookOpen size={16} className={styles.eduIcon} />
           <h4 className={styles.eduTitle}>Fundamentação Teórica em Grafos</h4>
@@ -72,3 +72,4 @@ export const EducationalPanel: React.FC = () => {
     </div>
   );
 };
+

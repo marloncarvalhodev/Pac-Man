@@ -11,7 +11,6 @@ import { MazeGenerator, WorldData } from '../graph/MazeGenerator';
 import { Node, nodeToKey, keyToNode, nodeEquals } from '../graph/GraphTypes';
 import { TerrainType, TERRAIN_COSTS } from '../graph/Terrain';
 import { WallRenderer } from '../rendering/WallRenderer';
-import { GraphRenderer } from '../rendering/GraphRenderer';
 import { dijkstra } from '../algorithms/Dijkstra';
 import { aStar } from '../algorithms/AStar';
 import { solveMultiGoal } from '../algorithms/MultiGoalSolver';
@@ -30,7 +29,8 @@ export class GraphLabScene extends Phaser.Scene {
   private searchGraphics!: Phaser.GameObjects.Graphics;
   private hoverGraphics!: Phaser.GameObjects.Graphics;
 
-  private displayMode: LabDisplayMode = 'OVERLAY';
+  private displayMode: LabDisplayMode = 'MAZE';
+  private pointerAction: 'start' | 'goal' | 'inspect' = 'start';
   private hoveredNode: Node | null = null;
   private selectedStartNode: Node | null = null;
   private selectedGoalNode: Node | null = null;
@@ -105,6 +105,13 @@ export class GraphLabScene extends Phaser.Scene {
       this.executeAlgorithm();
     });
 
+    EventBus.on('lab-pointer-action', (action: 'start' | 'goal' | 'inspect') => { this.pointerAction = action; });
+    EventBus.on('lab-select-coordinate', (data: { row: number; column: number; action: 'start' | 'goal' | 'inspect' }) => {
+      const valid = Number.isInteger(data.row) && Number.isInteger(data.column) && this.world.grid[data.row]?.[data.column] === 0;
+      if (valid) this.selectCell([data.row, data.column], data.action);
+      EventBus.emit('lab-coordinate-status', valid);
+    });
+
     // Interatividade do mouse: clique para mudar Origem (botão esquerdo) ou Destino (Shift+clique)
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const c = Math.floor(pointer.x / this.cellSize);
@@ -112,12 +119,7 @@ export class GraphLabScene extends Phaser.Scene {
       if (r >= 0 && r < this.world.grid.length && c >= 0 && c < this.world.grid[0].length) {
         if (this.world.grid[r][c] === 0) {
           const clickedNode: Node = [r, c];
-          if (pointer.event.shiftKey) {
-            this.selectedGoalNode = clickedNode;
-          } else {
-            this.selectedStartNode = clickedNode;
-          }
-          this.executeAlgorithm();
+          this.selectCell(clickedNode, pointer.event.shiftKey ? 'goal' : this.pointerAction);
         }
       }
     });
@@ -141,13 +143,24 @@ export class GraphLabScene extends Phaser.Scene {
     EventBus.emit('current-scene-ready', this);
   }
 
+  private selectCell(node: Node, action: 'start' | 'goal' | 'inspect'): void {
+    this.hoveredNode = node;
+    this.emitInspection(node);
+    if (action === 'inspect') return;
+    if (action === 'goal') this.selectedGoalNode = node;
+    else this.selectedStartNode = node;
+    this.executeAlgorithm();
+  }
+
   private rebuildWalls(): void {
     WallRenderer.renderContinuousWalls(
       this.wallGraphics,
       this.world.grid,
       this.world.grid.length,
       this.world.grid[0].length,
-      this.cellSize
+      this.cellSize,
+      0x070d18,
+      0x2563eb
     );
     this.renderStaticLayers();
   }
@@ -310,17 +323,28 @@ export class GraphLabScene extends Phaser.Scene {
 
     // 1. Topologia do Grafo (se GRAPH ou OVERLAY)
     if (this.displayMode !== 'MAZE') {
-      GraphRenderer.renderGraphXRay(
-        this.graphGraphics,
-        this.world.graph,
-        this.world.terrains,
-        this.cellSize,
-        this.hoveredNode
-      );
+      const opacity = this.displayMode === 'OVERLAY' ? 0.3 : 0.55;
+      this.graphGraphics.lineStyle(1, 0x64748b, opacity);
+      for (const u of this.world.graph.vertices) {
+        const x = u[1] * this.cellSize + half, y = u[0] * this.cellSize + half;
+        for (const { node: v } of this.world.graph.neighbors(u)) {
+          if (Math.abs(u[0] - v[0]) + Math.abs(u[1] - v[1]) !== 1) continue;
+          const vx = v[1] * this.cellSize + half, vy = v[0] * this.cellSize + half;
+          this.graphGraphics.lineBetween(x, y, vx, vy);
+          if (!this.world.graph.hasEdge(v, u)) {
+            const dx = (vx - x) / this.cellSize, dy = (vy - y) / this.cellSize;
+            const ax = x + dx * 18, ay = y + dy * 18;
+            this.graphGraphics.lineBetween(ax, ay, ax - dx * 5 - dy * 3, ay - dy * 5 + dx * 3);
+            this.graphGraphics.lineBetween(ax, ay, ax - dx * 5 + dy * 3, ay - dy * 5 - dx * 3);
+          }
+        }
+      }
+      this.graphGraphics.fillStyle(0x38bdf8, this.displayMode === 'OVERLAY' ? 0.55 : 0.8);
+      for (const node of this.world.graph.vertices) this.graphGraphics.fillCircle(node[1] * this.cellSize + half, node[0] * this.cellSize + half, 3);
     }
 
     // 2. Nós Expandidos na busca animada
-    this.searchGraphics.fillStyle(0x8061a6, 0.20);
+    this.searchGraphics.fillStyle(0xa78bfa, 0.32);
     for (const key of this.visitedKeys) {
       const [r, c] = key.split(',').map(Number);
       this.searchGraphics.fillRect(
@@ -348,7 +372,7 @@ export class GraphLabScene extends Phaser.Scene {
 
     // 3. Caminho ótimo quando concluído
     if (this.searchResult && this.currentStep >= this.searchResult.visitedOrder.length) {
-      const path = this.searchResult.path;
+      const path = this.world.graph.transitionPoints(this.searchResult.path);
       if (path.length > 1) {
         this.searchGraphics.lineStyle(4, 0xffd43b, 1.0);
         for (let i = 0; i < path.length - 1; i++) {
@@ -375,7 +399,7 @@ export class GraphLabScene extends Phaser.Scene {
     if (this.selectedStartNode) {
       const sx = this.selectedStartNode[1] * this.cellSize + half;
       const sy = this.selectedStartNode[0] * this.cellSize + half;
-      this.hoverGraphics.fillStyle(0x22c55e, 1.0);
+      this.hoverGraphics.fillStyle(0x34d399, 1.0);
       this.hoverGraphics.fillCircle(sx, sy, 8);
       this.hoverGraphics.lineStyle(2, 0xffffff, 1.0);
       this.hoverGraphics.strokeCircle(sx, sy, 8);
@@ -384,7 +408,7 @@ export class GraphLabScene extends Phaser.Scene {
     if (this.selectedGoalNode) {
       const gx = this.selectedGoalNode[1] * this.cellSize + half;
       const gy = this.selectedGoalNode[0] * this.cellSize + half;
-      this.hoverGraphics.fillStyle(0xef5350, 1.0);
+      this.hoverGraphics.fillStyle(0xfb7185, 1.0);
       this.hoverGraphics.fillCircle(gx, gy, 8);
       this.hoverGraphics.lineStyle(2, 0xffffff, 1.0);
       this.hoverGraphics.strokeCircle(gx, gy, 8);

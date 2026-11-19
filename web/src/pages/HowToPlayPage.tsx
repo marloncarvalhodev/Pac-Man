@@ -1,58 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import styles from './HowToPlayPage.module.css';
-interface Props { onStartPlaying: () => void }
-const topics=[['objetivo','Objetivo'],['terrenos','Terrenos'],['inimigos','Inimigos e poder'],['controles','Controles'],['grafos','Teoria dos grafos'],['buscas','Dijkstra e A*'],['laboratorio','Laboratório']];
-export const HowToPlayPage: React.FC<Props> = ({onStartPlaying}) => {
-  const [activeTopic, setActiveTopic] = useState(topics[0][0]);
 
-  useEffect(() => {
-    let frame = 0;
-    const updateTopic = () => {
-      frame = 0;
-      const threshold = Math.max(130, window.innerHeight * 0.3);
-      let current = topics[0][0];
-      for (const [id] of topics) {
-        const section = document.getElementById(id);
-        if (section && section.getBoundingClientRect().top <= threshold) current = id;
-      }
-      const lastTopic = topics[topics.length - 1][0];
-      const lastSection = document.getElementById(lastTopic);
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2 &&
-          lastSection && lastSection.getBoundingClientRect().top <= window.innerHeight * 0.7) {
-        current = lastTopic;
-      }
-      setActiveTopic(current);
-    };
-    const scheduleUpdate = () => {
-      if (!frame) frame = window.requestAnimationFrame(updateTopic);
-    };
-    updateTopic();
-    window.addEventListener('scroll', scheduleUpdate, { passive: true });
-    window.addEventListener('resize', scheduleUpdate);
-    return () => {
-      window.removeEventListener('scroll', scheduleUpdate);
-      window.removeEventListener('resize', scheduleUpdate);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
+interface Props { onStartPlaying: () => void; onOpenLaboratory?: () => void }
+const topics = [['objetivo', 'Como jogar'], ['labirinto', 'Entenda o labirinto'], ['algoritmos', 'Como os algoritmos decidem'], ['laboratorio', 'Experimente no Laboratório']];
 
-  return (
-  <div className={styles.layout}>
-    <aside className={styles.sidebar}><strong>Manual & teoria</strong><span>GUIA DE EXPLORAÇÃO</span><nav aria-label="Tópicos do manual">{topics.map(([id,label])=><a key={id} href={`#${id}`} className={activeTopic === id ? styles.activeTopic : undefined} aria-current={activeTopic === id ? 'location' : undefined}>{label}</a>)}</nav></aside>
-    <article className={styles.article}>
-      <header className={styles.header}><p>PARA JOGAR E ENTENDER</p><h1>Um guia para<br/><em>encontrar caminhos.</em></h1><div>As regras do arcade e os conceitos que dão forma ao labirinto.</div></header>
-      <section id="objetivo"><h2>O objetivo da partida</h2><p>Controle o Pac-Man, encontre todas as chaves douradas e alcance a saída. Desvie dos inimigos e sobreviva aos terrenos perigosos. Coletar todos os pontos não é necessário para vencer.</p></section>
-      <section id="terrenos"><h2>O terreno tem peso</h2><p>O custo de uma transição influencia a rota calculada e a velocidade de movimento. Um caminho com menos passos pode ter custo maior.</p>
-        <div className={styles.terrains}><div><i style={{background:'#52637b'}}/><strong>Normal <b>1.0</b></strong><span>Movimento padrão</span></div><div><i style={{background:'#36d5ed'}}/><strong>Esteira <b>0.3</b></strong><span>Movimento rápido</span></div><div><i style={{background:'#b98752'}}/><strong>Lama <b>4.0</b></strong><span>Movimento lento</span></div><div><i style={{background:'#ef6666'}}/><strong>Lava <b>8.0</b></strong><span>−10 de vida por entrada</span></div></div>
-        <div className={styles.example}><span>EXEMPLO DE CUSTO</span><strong>1.0 + 0.3 + 4.0 = 5.3</strong><p>A soma dos pesos é o custo acumulado da rota.</p></div>
-      </section>
-      <section id="inimigos"><h2>Inimigos e orbes de poder</h2><p>O <strong>Minotauro vermelho</strong> persegue o jogador. O <strong>Fantasma roxo</strong> mira à frente da direção atual para tentar uma emboscada.</p><p>Um orbe de poder ativa o modo assustado por sete segundos. Os inimigos escolhem localmente um vizinho mais distante; tocá-los nesse período os envia de volta ao ponto inicial e concede pontos.</p></section>
-      <section id="controles"><h2>Controles</h2><div className={styles.tableWrap}><table><tbody><tr><th>W A S D / setas</th><td>Mover Pac-Man</td></tr><tr><th>1 / 2</th><td>Visualizar Dijkstra / A*</td></tr><tr><th>P</th><td>Pausar ou retomar</td></tr><tr><th>G / T</th><td>Raio-X / rotas dos inimigos</td></tr><tr><th>R / N</th><td>Reiniciar / gerar novo mapa</td></tr></tbody></table></div></section>
-      <section id="grafos"><h2>Um labirinto, um grafo</h2><p>As células transitáveis são vértices. As conexões representam deslocamentos possíveis, e seus pesos descrevem custos. O grafo é dirigido e ponderado.</p><svg className={styles.diagram} viewBox="0 0 500 105" role="img" aria-label="Exemplo de vértices conectados por arestas, com uma conexão não local representada por linha pontilhada"><path d="M55 55 H160 H265 H370" stroke="#6dc5e0" strokeWidth="2" fill="none"/><path d="M55 55 Q210 -28 370 55" stroke="#b18af5" strokeWidth="2" strokeDasharray="5 6" fill="none"/><g fill="#101b2c" stroke="#8ed8eb" strokeWidth="2"><circle cx="55" cy="55" r="11"/><circle cx="160" cy="55" r="11"/><circle cx="265" cy="55" r="11"/><circle cx="370" cy="55" r="11"/></g><text x="390" y="60" fill="#c9d6e9" fontSize="13">portal</text></svg><p>Portais são conexões especiais não locais entre posições distantes. O cruzamento de linhas no desenho, por si só, <strong>não demonstra que o grafo é não planar</strong>.</p></section>
-      <section id="buscas"><h2>Comparando caminhos</h2><p>Dijkstra expande vértices considerando o custo acumulado. A* combina esse custo com uma estimativa heurística até o destino. No laboratório, compare os custos e a quantidade de expansões observadas na execução.</p><div className={styles.example}><span>FUNÇÃO DE A*</span><strong>f(n) = g(n) + h(n)</strong><p>g é o custo acumulado; h é a estimativa até o objetivo.</p></div><p>Na busca multiobjetivo, a aplicação avalia ordens de visita às chaves e combina os segmentos calculados até a saída.</p></section>
-      <section id="laboratorio"><h2>Explore no laboratório</h2><p>Escolha o algoritmo e o modo de visualização. Execute a busca, pause ou avance passo a passo. Clique em um vértice para escolher a origem e use Shift + clique para o destino; passe o cursor para inspecionar seus vizinhos e graus.</p><button className={styles.startBtn} onClick={onStartPlaying}>Ir para o Arcade <ArrowRight size={18}/></button></section>
-    </article>
-  </div>
-  );
+function GraphDiagram() {
+  const [view, setView] = useState<'maze' | 'graph' | 'both'>('both');
+  const nodes = [[90,65],[170,65],[250,65],[330,65],[410,65],[490,65],[570,65], [250,125],[410,125], [90,185],[170,185],[250,185],[330,185],[410,185],[490,185],[570,185]];
+  const corridors = 'M90 65 H570 M250 65 V185 M410 65 V185 M90 185 H570';
+  return <figure className={styles.figure}>
+    <div className={styles.diagramPanel}>
+      <div className={styles.viewControls} role="group" aria-label="Visualização do diagrama">{([['maze','Labirinto'],['graph','Grafo'],['both','Sobreposição']] as const).map(([id,label]) => <button key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}>{label}</button>)}</div>
+      <svg viewBox="0 0 660 250" role="img" aria-label="Exemplo de labirinto com dezesseis células transitáveis, passagens e uma conexão de portal entre extremos distantes.">
+        {view !== 'graph' && <><path d={corridors} fill="none" stroke="#2753a3" strokeWidth="48" strokeLinejoin="round" strokeLinecap="round"/><path d={corridors} fill="none" stroke="#101b2e" strokeWidth="40" strokeLinejoin="round" strokeLinecap="round"/><circle cx="90" cy="65" r="15" fill="none" stroke="#bd8cff" strokeWidth="3"/><circle cx="570" cy="185" r="15" fill="none" stroke="#bd8cff" strokeWidth="3"/></>}
+        {view !== 'maze' && <><path d={corridors} fill="none" stroke="#22d3ee" strokeWidth="2.5"/><path d="M90 65 C15 65 15 225 170 225 H500 Q570 225 570 185" fill="none" stroke="#bd8cff" strokeWidth="2.5" strokeDasharray="7 6"/>{nodes.map(([x,y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="6" fill="#101b2e" stroke="#22d3ee" strokeWidth="3"/>)}</>}
+        {view === 'maze' && nodes.map(([x,y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="3" fill="#ffd43b"/>)}
+      </svg>
+    </div><figcaption>As células livres formam vértices; as linhas cianas mostram passagens nos dois sentidos neste exemplo. A ligação roxa representa uma transição especial de portal, sem percurso pelas células intermediárias.</figcaption>
+  </figure>;
+}
+
+function GhostDiagram() {
+ return <figure className={styles.ghostFigure}><svg viewBox="0 0 800 250" role="img" aria-label="Exemplo esquemático: fantasma vermelho persegue a posição atual do Pac-Man, enquanto o roxo segue até um ponto à frente na rota provável.">
+  <path d="M55 125 H745 M225 35 V215 M575 35 V215" fill="none" stroke="#28519b" strokeWidth="42" strokeLinecap="round"/><path d="M55 125 H745 M225 35 V215 M575 35 V215" fill="none" stroke="#101b2e" strokeWidth="34" strokeLinecap="round"/>
+  <path d="M225 38 V125 H370" fill="none" stroke="#ff7777" strokeWidth="4" strokeDasharray="8 6"/><path d="M575 212 V125" fill="none" stroke="#bd8cff" strokeWidth="4" strokeDasharray="8 6"/><path d="M390 125 H575" fill="none" stroke="#ffd43b" strokeWidth="3" strokeDasharray="5 7"/>
+  <path d="M210 49 V34 A15 15 0 0 1 240 34 V49 L235 45 L230 49 L225 45 L220 49 L215 45 Z" fill="#ff7777"/><path d="M560 224 V209 A15 15 0 0 1 590 209 V224 L585 220 L580 224 L575 220 L570 224 L565 220 Z" fill="#bd8cff"/>
+  <path d="M390 125 L407 113 A21 21 0 1 0 407 137 Z" fill="#ffd43b"/><circle cx="575" cy="125" r="10" fill="#101b2e" stroke="#bd8cff" strokeWidth="3"/>
+  <text x="575" y="96" textAnchor="middle" fill="#e4d3ff" fontSize="14">interceptação provável</text>
+ </svg><figcaption>Exemplo esquemático: a linha amarela indica uma rota provável, não uma previsão garantida.</figcaption></figure>;
+}
+
+export const HowToPlayPage: React.FC<Props> = ({ onStartPlaying, onOpenLaboratory }) => {
+ const [activeTopic, setActiveTopic] = useState(topics[0][0]);
+ useEffect(() => { let frame = 0; const update = () => { frame = 0; let current = topics[0][0]; for (const [id] of topics) { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= Math.max(130, window.innerHeight * .3)) current = id; } if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) current = topics[topics.length - 1][0]; setActiveTopic(current); }; const schedule = () => { if (!frame) frame = requestAnimationFrame(update); }; update(); window.addEventListener('scroll', schedule, { passive: true }); window.addEventListener('resize', schedule); return () => { window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); if (frame) cancelAnimationFrame(frame); }; }, []);
+ return <div className={styles.container}><div className={styles.layout}>
+  <header className={styles.header}><div className={styles.headerArt} aria-hidden="true"/><h1>Manual &amp; <span>Teoria</span></h1><p>Aprenda a jogar, descubra como os grafos controlam os caminhos e entenda as decisões dos agentes.</p></header>
+  <aside className={styles.sidebar}><span className={styles.navTitle}>NESTE GUIA</span><nav aria-label="Tópicos do manual">{topics.map(([id,label]) => <a key={id} href={`#${id}`} className={activeTopic === id ? styles.active : undefined} aria-current={activeTopic === id ? 'location' : undefined}>{label}</a>)}</nav></aside>
+  <article className={styles.article}>
+   <section id="objetivo" className={styles.section}><div className={styles.sectionHeading}><h2>Como jogar</h2></div><p className={styles.lead}>Colete todas as chaves douradas e alcance a saída. Desvie dos fantasmas, escolha seus caminhos e sobreviva aos terrenos perigosos.</p>
+    <ol className={styles.steps}><li><b>01</b><strong>Explore o labirinto</strong><span>Leia o mapa e escolha seu caminho.</span></li><li><b>02</b><strong>Colete as chaves</strong><span>Todas são necessárias para abrir a saída.</span></li><li><b>03</b><strong>Alcance a saída</strong><span>Com as chaves, conclua a partida.</span></li></ol>
+    <p>Pac-Dots rendem <strong>10 pontos</strong>, chaves <strong>100</strong>, orbes <strong>50</strong>, fantasmas vulneráveis <strong>200</strong> e a vitória <strong>500</strong>. Não é preciso recolher todos os Pac-Dots para vencer.</p><p>Um orbe deixa os fantasmas vulneráveis por <strong>7 segundos simulados</strong>. Sem esse efeito, o contato com um fantasma encerra a partida; perder toda a vida na lava também. Na largada há 3 segundos de contagem com personagens parados, seguidos de 2 segundos simulados de espera e proteção contra captura.</p>
+    <h3>Controles do teclado</h3><table className={styles.controls}><tbody>{[[['W','A','S','D','ou','↑ ↓ ← →'],'Mover'],[['1','/','2'],'Visualizar Dijkstra / A*'],[['P'],'Pausar ou retomar'],[['G'],'Alternar raio-X do grafo'],[['T'],'Mostrar rotas dos inimigos'],[['R','/','N'],'Reiniciar / novo mapa']].map(([keys, action]) => <tr key={action as string}><td><span>{(keys as string[]).map((key,i) => key === 'ou' || key === '/' ? <small key={i}>{key}</small> : <kbd key={i}>{key}</kbd>)}</span></td><td>{action}</td></tr>)}</tbody></table>
+   </section>
+   <section id="labirinto" className={styles.section}><div className={styles.sectionHeading}><h2>Entenda o labirinto</h2></div><p className={styles.lead}>O caminho mais curto em número de células nem sempre tem o menor custo.</p><h3>O terreno muda o custo</h3><p>Cada terreno altera o peso da travessia. Para o Pac-Man, o intervalo base é de 200 ms por unidade de peso.</p>
+    <table className={styles.terrain}><thead><tr><th>Terreno</th><th>Peso</th><th>Efeito</th></tr></thead><tbody><tr><th><i className={styles.normal}/>Normal</th><td>1,0</td><td>Movimento padrão</td></tr><tr><th><i className={styles.boost}/>Esteira</th><td>0,3</td><td>Travessia mais rápida</td></tr><tr><th><i className={styles.mud}/>Lama</th><td>4,0</td><td>Travessia mais lenta</td></tr><tr><th><i className={styles.lava}/>Lava</th><td>8,0</td><td>Travessia lenta; −10 de vida por entrada</td></tr></tbody></table><p className={styles.costExample}><strong>Exemplo de custo:</strong> 1,0 + 0,3 + 4,0 = <strong>5,3</strong></p>
+    <h3>Do labirinto ao grafo</h3><p>Em <strong>G = (V, E, w)</strong>, células transitáveis são vértices; movimentos permitidos são arestas dirigidas, e seus pesos representam o custo de cada transição. Uma passagem pode existir nos dois sentidos com custos diferentes.</p><GraphDiagram/><p>Portais criam conexões entre regiões distantes: ao entrar em um, o movimento termina no outro extremo. O cruzamento de linhas em um desenho não demonstra que o grafo é não planar.</p>
+   </section>
+   <section id="algoritmos" className={styles.section}><div className={styles.sectionHeading}><h2>Como os algoritmos decidem</h2></div><p className={styles.lead}>Os agentes usam o grafo para planejar rotas, mas perseguem objetivos diferentes.</p>
+    <div className={styles.comparison}><div><h3>Dijkstra</h3><p>Prioriza o menor custo acumulado <strong>g(n)</strong> desde a origem. Com pesos não negativos, encontra uma rota de custo mínimo.</p></div><div><h3>A*</h3><p>Prioriza <strong>f(n) = g(n) + h(n)</strong>: ao custo acumulado soma uma estimativa até o destino. A heurística é ajustada ao grafo, inclusive aos portais, para não superestimar o custo.</p></div></div><p>Por exemplo, se chegar a um vértice custa 3 e a estimativa restante é 2, sua prioridade no A* é 5. A heurística pode reduzir a exploração, mas A* não é sempre mais rápido. O custo da rota é a soma dos pesos; o tempo de execução do algoritmo mede o processamento da busca.</p>
+    <h3>Dois fantasmas, duas estratégias</h3><GhostDiagram/><div className={styles.comparison}><div><h4 className={styles.red}>Vermelho / perseguição</h4><p>Usa A* para mirar a posição atual do Pac-Man e recalcula sua rota.</p></div><div><h4 className={styles.purple}>Roxo / interceptação</h4><p>Projeta uma rota provável e compara tempos estimados de chegada, priorizando uma bifurcação competitiva à frente. Se não encontrar uma, usa outros alvos disponíveis. A interceptação não é garantida.</p></div></div>
+    <h3>Pac-Man autônomo</h3><p>Na Demonstração, o agente controla o Pac-Man; em Máquina vs. Máquina, a partida permite acompanhar os agentes e suas decisões. O planejamento pode ser ajustado conforme a situação e a estratégia escolhida. Nenhuma estratégia garante a vitória; algumas usam aproximações.</p><dl className={styles.strategies}><div><dt>Menor custo</dt><dd>Busca minimizar o custo para coletar as chaves e chegar à saída.</dd></div><div><dt>Menor tempo</dt><dd>Busca minimizar o tempo de movimento. Como o tempo de cada passo é proporcional ao peso, seu objetivo equivale ao de menor custo nesse modelo.</dd></div><div><dt>Sobrevivência</dt><dd>Considera risco, inimigos e terrenos perigosos ao planejar.</dd></div><div><dt>Máxima pontuação</dt><dd>Busca oportunidades de pontuação, incluindo orbes e fantasmas vulneráveis; é uma aproximação, sem garantia de pontuação máxima.</dd></div><div><dt>Coleta completa</dt><dd>Procura coletar Pac-Dots antes de concluir os objetivos; usa uma aproximação e não garante coleta completa ou rota ótima.</dd></div></dl>
+   </section>
+   <section id="laboratorio" className={styles.section}><div className={styles.sectionHeading}><h2>Experimente no Laboratório</h2></div><p>Visualize o grafo, clique em um vértice para definir a origem e use <strong>Shift + clique</strong> para escolher o destino. Execute a busca, pause ou avance passo a passo; compare os resultados dos algoritmos e inspecione os custos e vizinhos.</p><button className={styles.cta} onClick={onOpenLaboratory ?? onStartPlaying}>Abrir Laboratório <span aria-hidden="true">→</span></button></section>
+  </article></div></div>;
 };

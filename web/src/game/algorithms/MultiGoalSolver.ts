@@ -4,27 +4,15 @@
  */
 
 import { Graph } from '../graph/Graph';
-import { Node } from '../graph/GraphTypes';
+import { Node, nodeToKey, keyToNode, nodeEquals } from '../graph/GraphTypes';
 import { PathfindingResult } from './PathfindingTypes';
 import { dijkstra } from './Dijkstra';
 import { aStar } from './AStar';
 
-function permutations<T>(arr: T[]): T[][] {
-  if (arr.length <= 1) return [arr];
-  const result: T[][] = [];
-  for (let i = 0; i < arr.length; i++) {
-    const current = arr[i];
-    const remaining = [...arr.slice(0, i), ...arr.slice(i + 1)];
-    for (const p of permutations(remaining)) {
-      result.push([current, ...p]);
-    }
-  }
-  return result;
-}
-
 export interface MultiGoalOptions {
   algorithm?: 'Dijkstra' | 'A*';
   portals?: Array<[Node, Node]>;
+  minWeight?: number;
 }
 
 export function solveMultiGoal(
@@ -37,77 +25,141 @@ export function solveMultiGoal(
   const startTime = performance.now();
   const algorithm = options.algorithm ?? 'A*';
 
-  const singleSearch = (s: Node, g: Node): PathfindingResult => {
-    if (algorithm === 'Dijkstra') {
-      return dijkstra(graph, s, g);
+  // 1. Elimina chaves duplicadas e chaves já coletadas no vértice inicial
+  const uniqueKeysMap = new Map<string, Node>();
+  for (const k of keys) {
+    const keyStr = nodeToKey(k);
+    if (!nodeEquals(k, start) && !uniqueKeysMap.has(keyStr)) {
+      uniqueKeysMap.set(keyStr, k);
     }
-    return aStar(graph, s, g, { portals: options.portals });
+  }
+  const uniqueKeys = Array.from(uniqueKeysMap.values());
+
+  // 2. Cache de trajetos entre pares direcionados de objetivos
+  const cache = new Map<string, PathfindingResult>();
+
+  const singleSearch = (s: Node, g: Node): PathfindingResult => {
+    const pairKey = `${nodeToKey(s)}->${nodeToKey(g)}`;
+    if (!cache.has(pairKey)) {
+      const res =
+        algorithm === 'Dijkstra'
+          ? dijkstra(graph, s, g)
+          : aStar(graph, s, g, {
+              portals: options.portals,
+              minWeight: options.minWeight,
+            });
+      cache.set(pairKey, res);
+    }
+    return cache.get(pairKey)!;
   };
 
-  // Caso base: sem chaves pendentes, vai direto ao destino
-  if (keys.length === 0) {
+  // Caso base: sem chaves pendentes, busca rota direta ao destino
+  if (uniqueKeys.length === 0) {
     const res = singleSearch(start, goal);
+    const elapsedMs = performance.now() - startTime;
     return {
       ...res,
+      executionTimeMs: elapsedMs,
       algorithmName: `${algorithm} (Direto)`,
+      totalNodesExpanded: res.nodesExpanded,
+      keyOrder: [],
+      segments: res.found ? [res] : [],
     };
   }
 
+  // 3. Enumeração exata com poda Branch-and-Bound para otimização do trajeto
+  // Limites computacionais:
+  // - Para m <= 8 chaves, o espaço de busca (<= 40.320 permutações) com matriz de distâncias
+  //   em cache executa em tempo sub-segundo (< 10ms) sem risco de travamento da UI.
+  // - A poda por limite superior (bestCost) descarta precocemente ramos subótimos.
   let bestTotalCost = Infinity;
-  let bestFullPath: Node[] = [];
-  let bestPermutation: Node[] = [];
+  let bestSegments: PathfindingResult[] = [];
 
-  const keyPerms = permutations(keys);
-
-  for (const perm of keyPerms) {
-    const waypoints = [start, ...perm, goal];
-    let currentPermCost = 0;
-    const currentPermPath: Node[] = [];
-    let possible = true;
-
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      const subRes = singleSearch(waypoints[i], waypoints[i + 1]);
-      if (!subRes.found) {
-        possible = false;
-        break;
-      }
-      currentPermCost += subRes.cost;
-      if (currentPermPath.length > 0) {
-        currentPermPath.push(...subRes.path.slice(1));
-      } else {
-        currentPermPath.push(...subRes.path);
-      }
+  const searchBranch = (
+    currentPos: Node,
+    remaining: Node[],
+    accumulatedCost: number,
+    currentSegments: PathfindingResult[]
+  ) => {
+    // Poda: se o custo acumulado já exceder a melhor rota conhecida, descarta o ramo
+    if (accumulatedCost >= bestTotalCost) {
+      return;
     }
 
-    if (possible && currentPermCost < bestTotalCost) {
-      bestTotalCost = currentPermCost;
-      bestFullPath = currentPermPath;
-      bestPermutation = perm;
+    if (remaining.length === 0) {
+      // Todos os objetivos intermediários visitados; busca rota final até a saída
+      const finalSeg = singleSearch(currentPos, goal);
+      if (!finalSeg.found) return;
+
+      const totalCost = accumulatedCost + finalSeg.cost;
+      if (totalCost < bestTotalCost) {
+        bestTotalCost = totalCost;
+        bestSegments = [...currentSegments, finalSeg];
+      }
+      return;
     }
+
+    for (let i = 0; i < remaining.length; i++) {
+      const nextTarget = remaining[i];
+      const seg = singleSearch(currentPos, nextTarget);
+      if (!seg.found) continue;
+
+      const nextRemaining = [...remaining.slice(0, i), ...remaining.slice(i + 1)];
+      searchBranch(
+        nextTarget,
+        nextRemaining,
+        accumulatedCost + seg.cost,
+        [...currentSegments, seg]
+      );
+    }
+  };
+
+  searchBranch(start, uniqueKeys, 0, []);
+
+  // 4. Concatena os caminhos e vértices expandidos dos segmentos selecionados
+  const fullPath: Node[] = [];
+  const visitedOrder: Node[] = [];
+
+  for (const seg of bestSegments) {
+    if (fullPath.length > 0) {
+      fullPath.push(...seg.path.slice(1));
+    } else {
+      fullPath.push(...seg.path);
+    }
+    visitedOrder.push(...seg.visitedOrder);
   }
 
-  // Compila os nós expandidos na ordem da melhor rota
-  const combinedVisitedOrder: Node[] = [];
-  let totalNodesExpanded = 0;
+  // 5. Contabilização real do esforço computacional:
+  // totalNodesExpanded reflete todas as buscas realmente executadas no cache
+  const totalWorkNodesExpanded = Array.from(cache.values()).reduce(
+    (sum, r) => sum + r.nodesExpanded,
+    0
+  );
 
-  if (bestFullPath.length > 0) {
-    const optimalWaypoints = [start, ...bestPermutation, goal];
-    for (let i = 0; i < optimalWaypoints.length - 1; i++) {
-      const subRes = singleSearch(optimalWaypoints[i], optimalWaypoints[i + 1]);
-      combinedVisitedOrder.push(...subRes.visitedOrder);
-      totalNodesExpanded += subRes.nodesExpanded;
+  // Ordem de primeira coleta de cada chave
+  const encountered = new Set<string>();
+  const keyOrder: Node[] = [];
+  for (const node of fullPath) {
+    const kStr = nodeToKey(node);
+    if (uniqueKeysMap.has(kStr) && !encountered.has(kStr)) {
+      encountered.add(kStr);
+      keyOrder.push(node);
     }
   }
 
   const elapsedMs = performance.now() - startTime;
 
   return {
-    path: bestFullPath,
+    path: fullPath,
     cost: bestTotalCost,
-    nodesExpanded: totalNodesExpanded,
-    visitedOrder: combinedVisitedOrder,
+    nodesExpanded: totalWorkNodesExpanded,
+    totalNodesExpanded: totalWorkNodesExpanded,
+    visitedOrder,
     executionTimeMs: elapsedMs,
-    algorithmName: `${algorithm} (Multi-Goal: ${keys.length} Chaves)`,
-    found: bestFullPath.length > 0 && bestTotalCost < Infinity,
+    algorithmName: `${algorithm} (Multi-Goal: ${uniqueKeys.length} Chaves)`,
+    found: fullPath.length > 0 && Number.isFinite(bestTotalCost),
+    moves: Math.max(0, fullPath.length - 1),
+    keyOrder,
+    segments: bestSegments,
   };
 }

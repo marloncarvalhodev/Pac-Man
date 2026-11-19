@@ -8,9 +8,10 @@ describe('conteúdo e navegação da interface', () => {
   it('mantém as três entradas principais na página inicial', () => {
     const html = renderToStaticMarkup(<HomePage onNavigate={() => {}} />);
     expect(html).toContain('Jogar Arcade');
-    expect(html).toContain('Abrir laboratório');
-    expect(html).toContain('Manual &amp; teoria');
-    expect(html).toContain('VISUALIZAÇÃO ILUSTRATIVA');
+    expect(html).toContain('Abrir Laboratório');
+    expect(html).toContain('Modo Arcade');
+    expect(html).toContain('Laboratório de Grafos');
+    expect(html).toContain('Manual &amp; Teoria');
   });
   it('aponta cada tópico do manual para uma seção existente', () => {
     const html = renderToStaticMarkup(<HowToPlayPage onStartPlaying={() => {}} />);

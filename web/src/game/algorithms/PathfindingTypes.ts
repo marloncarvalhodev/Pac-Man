@@ -8,10 +8,14 @@ export interface PathfindingResult {
   path: Node[];
   cost: number;
   nodesExpanded: number;
+  totalNodesExpanded?: number;
   visitedOrder: Node[];
   executionTimeMs: number;
   algorithmName: string;
   found: boolean;
+  moves?: number;
+  keyOrder?: Node[];
+  segments?: PathfindingResult[];
 }
 
 export type HeuristicFunction = (u: Node, v: Node) => number;

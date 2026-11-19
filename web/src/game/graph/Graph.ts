@@ -3,7 +3,7 @@
  * Implementado via Listas de Adjacência (Hash Map) para consultas O(1).
  */
 
-import { Node, NodeKey, nodeToKey, keyToNode } from './GraphTypes';
+import { Node, NodeKey, nodeToKey, keyToNode, nodeEquals } from './GraphTypes';
 
 export interface NeighborEdge {
   node: Node;
@@ -13,6 +13,17 @@ export interface NeighborEdge {
 export class Graph {
   // Mapeamento: uKey -> { vKey: weight }
   private _adj: Map<NodeKey, Map<NodeKey, number>> = new Map();
+  // Passos de transição ortogonal com teletransporte: "uKey->entryKey" -> destNode
+  private _steps: Map<string, Node> = new Map();
+  // Célula física atravessada na transição: "uKey->vKey" -> entryNode
+  private _entries: Map<string, Node> = new Map();
+
+  /**
+   * Verifica se o vértice u pertence a V.
+   */
+  hasVertex(u: Node): boolean {
+    return this._adj.has(nodeToKey(u));
+  }
 
   /**
    * Conjunto de vértices V do grafo.
@@ -36,14 +47,43 @@ export class Graph {
   }
 
   /**
-   * Tamanho do grafo |E| (total de conexões direcionadas ou pares).
+   * Tamanho do grafo |E|: número de arcos da representação direcionada.
    */
   get size(): number {
     let total = 0;
     for (const nbrs of this._adj.values()) {
       total += nbrs.size;
     }
-    return Math.floor(total / 2);
+    return total;
+  }
+
+  /**
+   * Pares conectados ignorando orientação.
+   */
+  get connectionCount(): number {
+    const pairs = new Set<string>();
+    for (const [uKey, nbrs] of this._adj.entries()) {
+      for (const vKey of nbrs.keys()) {
+        const sorted = [uKey, vKey].sort().join('--');
+        pairs.add(sorted);
+      }
+    }
+    return pairs.size;
+  }
+
+  /**
+   * Pares distintos com arcos em ambos os sentidos.
+   */
+  get bidirectionalCount(): number {
+    let count = 0;
+    for (const [uKey, nbrs] of this._adj.entries()) {
+      for (const vKey of nbrs.keys()) {
+        if (uKey < vKey && this._adj.get(vKey)?.has(uKey)) {
+          count++;
+        }
+      }
+    }
+    return count;
   }
 
   /**
@@ -60,6 +100,10 @@ export class Graph {
    * Adiciona uma aresta e = (u, v) com peso w(e) ao grafo.
    */
   addEdge(u: Node, v: Node, weight = 1.0, bidirectional = true): void {
+    if (typeof weight !== 'number' || !Number.isFinite(weight) || Number.isNaN(weight) || weight < 0) {
+      throw new Error('O peso deve ser finito e não negativo');
+    }
+
     this.addVertex(u);
     this.addVertex(v);
 
@@ -141,6 +185,60 @@ export class Graph {
    */
   clear(): void {
     this._adj.clear();
+    this._steps.clear();
+    this._entries.clear();
+  }
+
+  /**
+   * Registra a resolução de um passo físico de entrada para o destino estável.
+   */
+  addStep(u: Node, entry: Node, dest: Node): void {
+    const key = `${nodeToKey(u)}->${nodeToKey(entry)}`;
+    this._steps.set(key, dest);
+  }
+
+  /**
+   * Registra a célula física atravessada na transição de u para v.
+   */
+  setEntry(u: Node, v: Node, entry: Node): void {
+    const key = `${nodeToKey(u)}->${nodeToKey(v)}`;
+    this._entries.set(key, entry);
+  }
+
+  /**
+   * Destino estável de um comando ortogonal (dr, dc) a partir de u.
+   */
+  resolveStep(u: Node, dr: number, dc: number): Node | null {
+    if (Math.abs(dr) + Math.abs(dc) !== 1) return null;
+    const entry: Node = [u[0] + dr, u[1] + dc];
+    const key = `${nodeToKey(u)}->${nodeToKey(entry)}`;
+    return this._steps.get(key) ?? null;
+  }
+
+  /**
+   * Célula física atravessada antes de chegar a v a partir de u.
+   */
+  transitionEntry(u: Node, v: Node): Node {
+    const key = `${nodeToKey(u)}->${nodeToKey(v)}`;
+    return this._entries.get(key) ?? v;
+  }
+
+  /**
+   * Expande arcos compostos para desenho na interface, mantendo custos inalterados.
+   */
+  transitionPoints(path: Node[]): Node[] {
+    if (path.length === 0) return [];
+    const points: Node[] = [path[0]];
+    for (let i = 0; i < path.length - 1; i++) {
+      const u = path[i];
+      const v = path[i + 1];
+      const entry = this.transitionEntry(u, v);
+      if (!nodeEquals(entry, v)) {
+        points.push(entry);
+      }
+      points.push(v);
+    }
+    return points;
   }
 
   /**
