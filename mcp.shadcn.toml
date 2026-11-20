@@ -1,0 +1,5 @@
+# Add this server to the MCP configuration of your Codex client.
+# Launching the server requires access to registry.npmjs.org.
+[mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]

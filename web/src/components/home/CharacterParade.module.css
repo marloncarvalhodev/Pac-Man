@@ -1,0 +1,46 @@
+.track {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+}
+.parade {
+  animation: chase 6s linear infinite;
+  animation-delay: -1.6s;
+}
+.mouth {
+  fill: var(--parade-ground, #080a0f);
+  transform-origin: 0 0;
+  animation: chomp 180ms ease-in-out infinite alternate;
+}
+.track[data-paused='true'] *,
+.track[data-active='false'] * {
+  animation-play-state: paused;
+}
+@keyframes chase {
+  from {
+    transform: translateX(-60px);
+  }
+  to {
+    transform: translateX(600px);
+  }
+}
+@keyframes chomp {
+  from {
+    transform: scaleY(0.2);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parade {
+    animation: none;
+    transform: translateX(210px);
+  }
+  .mouth {
+    animation: none;
+  }
+}

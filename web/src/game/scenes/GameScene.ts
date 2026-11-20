@@ -1,3 +1,4 @@
+import { SCORE, createPacDots } from '../config/MatchRules';
 /**
  * Cena Principal do Jogo Pac-Man (Phaser 3).
  * Responsável pelo ciclo de simulação física, renderização contínua e IA.
@@ -251,26 +252,7 @@ export class GameScene extends Phaser.Scene {
     this.frightenedUntilTime = 0;
 
     // Popula Pac-Dots nos pisos normais livres
-    const reserved = new Set<string>([
-      nodeToKey(this.world.start),
-      nodeToKey(this.world.goal),
-      ...this.world.keys.map(nodeToKey),
-      ...this.world.powerPellets.map(nodeToKey),
-    ]);
-    for (const [p1, p2] of this.world.portalPairs) {
-      reserved.add(nodeToKey(p1));
-      reserved.add(nodeToKey(p2));
-    }
-
-    this.pacDots = new Set<string>(
-      this.world.graph.vertices
-        .filter(
-          (v) =>
-            !reserved.has(nodeToKey(v)) &&
-            this.world.terrains.get(nodeToKey(v)) === TerrainType.NORMAL
-        )
-        .map(nodeToKey)
-    );
+    this.pacDots = createPacDots(this.world);
 
     this.collectedKeys.clear();
     this.powerPellets = new Set<string>(this.world.powerPellets.map(nodeToKey));
@@ -395,9 +377,11 @@ export class GameScene extends Phaser.Scene {
 
     if (this.controlMode === 'AUTONOMOUS') {
       const agentMove = this.autonomousAgent.update(this.getPerceptionData(), this.gameStatus);
-      if (agentMove) {
-        this.nextPlayerFacing = agentMove;
+      if (!agentMove) {
+        this.isMoving = false;
+        return;
       }
+      this.nextPlayerFacing = agentMove;
     }
 
     // Tenta mover na direção desejada ou continua na atual
@@ -439,7 +423,7 @@ export class GameScene extends Phaser.Scene {
         // Coleta Pac-Dots
         if (this.pacDots.has(cKey)) {
           this.pacDots.delete(cKey);
-          this.score += 10;
+          this.score += SCORE.dot;
           soundManager.playDotSound();
         }
 
@@ -447,7 +431,7 @@ export class GameScene extends Phaser.Scene {
         const keyIdx = this.world.keys.findIndex((k) => nodeEquals(k, cell));
         if (keyIdx >= 0 && !this.collectedKeys.has(cKey)) {
           this.collectedKeys.add(cKey);
-          this.score += 100;
+          this.score += SCORE.key;
           soundManager.playKeySound();
         }
 
@@ -455,7 +439,7 @@ export class GameScene extends Phaser.Scene {
         if (this.powerPellets.has(cKey)) {
           this.powerPellets.delete(cKey);
           this.frightenedUntilTime = time + GAME_SPEED_CONFIG.FRIGHTENED_DURATION_MS;
-          this.score += 50;
+          this.score += SCORE.pellet;
           soundManager.playPowerPelletSound();
         }
       }
@@ -475,7 +459,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Condição de Vitória: Destino com todas as chaves
-      if (nodeEquals(this.playerPos, this.world.goal) && this.collectedKeys.size === this.world.keys.length) {
+      if (nodeEquals(this.playerPos, this.world.goal) && this.collectedKeys.size === this.world.keys.length &&
+          (this.controlMode !== 'AUTONOMOUS' || this.autonomousAgent.getStrategy() !== 'FULL_CLEAR' || !this.pacDots.size)) {
         this.triggerVictory();
         return;
       }
@@ -639,7 +624,7 @@ export class GameScene extends Phaser.Scene {
           enemy.renderX = enemy.pos[1] * this.cellSize + this.cellSize / 2;
           enemy.renderY = enemy.pos[0] * this.cellSize + this.cellSize / 2;
           enemy.path = [];
-          this.score += 200;
+          this.score += SCORE.ghost;
           soundManager.playEatGhostSound();
           this.emitGameState();
         } else {
@@ -1065,7 +1050,7 @@ export class GameScene extends Phaser.Scene {
 
   private triggerVictory(): void {
     this.gameStatus = 'WON';
-    this.score += 500;
+    this.score += SCORE.victory;
     if (this.countdownText) this.countdownText.setVisible(false);
     if (this.countdownBg) this.countdownBg.clear();
     soundManager.playVictorySound();

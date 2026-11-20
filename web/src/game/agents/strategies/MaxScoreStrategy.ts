@@ -1,4 +1,6 @@
 import { solveMultiGoal } from '../../algorithms/MultiGoalSolver';
+import { computeDistancesFrom } from '../GhostInterception';
+import { GAME_SPEED_CONFIG } from '../../config/GameConfig';
 import { aStar } from '../../algorithms/AStar';
 import { Node, NodeKey, nodeEquals, nodeToKey, keyToNode } from '../../graph/GraphTypes';
 import { AgentPerceptionData, AgentPlan, PlanningAlgorithm } from '../AgentTypes';
@@ -11,11 +13,11 @@ import { IAgentStrategy, StrategyType } from './StrategyTypes';
  * - Orbes de Poder (Power Pellets): 50 pts + ativação de vulnerabilidade nos fantasmas.
  * - Caça a Fantasmas Vulneráveis: 200 pts por inimigo interceptado antes do término do efeito.
  * - Pac-Dots e Chaves: 10 pts por dot, 100 pts por chave.
- * - Bônus de Vitória: 1000 pts ao finalizar a partida na saída.
+ * - Bônus de Vitória: 500 pts ao finalizar a partida na saída.
  *
  * Critérios de Encerramento e Equilíbrio de Risco:
  * - Se a vida estiver crítica (HP <= 25), encerra desvios de pontuação e corre para as chaves e saída.
- * - Quando as chaves forem obtidas e não houver alvos de alta pontuação próximos, encerra na saída para garantir o bônus de 1000 pts.
+ * - Quando as chaves forem obtidas e não houver alvos de alta pontuação próximos, encerra na saída para garantir o bônus de 500 pts.
  */
 export class MaxScoreStrategy implements IAgentStrategy {
   readonly type: StrategyType = 'MAX_SCORE';
@@ -54,7 +56,7 @@ export class MaxScoreStrategy implements IAgentStrategy {
     const searchGraph =
       riskMap && riskMap.size > 0 ? new RiskGraphWrapper(graph, riskMap) : graph;
 
-    // 1. Critério de Salvaguarda: com vida baixa, protege o bônus de 1000 pts da vitória
+    // 1. Critério de Salvaguarda: com vida baixa, protege o bônus de 500 pts da vitória
     if (health <= 25) {
       return this.planDirectObjectives(searchGraph, graph, currentPos, remainingKeys, goal, portalPairs, algorithm);
     }
@@ -62,10 +64,13 @@ export class MaxScoreStrategy implements IAgentStrategy {
     const targetList: Node[] = [];
 
     // 2. Oportunidade: Fantasmas Vulneráveis próximos (200 pts cada)
+    const travelDistances = enemies?.some(e => e.isVulnerable)
+      ? computeDistancesFrom(graph, currentPos) : undefined;
     const vulnerableGhost = (enemies ?? []).find(
       (e) =>
         e.isVulnerable &&
-        e.frightenedTimeRemaining > e.graphDistance * 0.7 + 1.2 &&
+        e.frightenedTimeRemaining > (travelDistances?.get(nodeToKey(e.pos)) ?? Infinity) *
+          GAME_SPEED_CONFIG.PLAYER_BASE_DELAY_MS / 1000 + 1.2 &&
         e.graphDistance <= 8
     );
 

@@ -1,3 +1,6 @@
+import { RiskAssessment } from '../agents/RiskAssessment';
+import { AgentPerception } from '../agents/AgentPerception';
+import { RiskGraphWrapper } from '../agents/AgentPlanner';
 /**
  * Cena Interativa do Laboratório de Teoria dos Grafos (Phaser 3).
  * Oferece visualização em 3 modos (Labirinto, Grafo Puro, Sobreposição),
@@ -65,6 +68,10 @@ export class GraphLabScene extends Phaser.Scene {
     this.rebuildWalls();
 
     // Eventos recebidos do React
+    EventBus.on('lab-ghost-risk', (active: boolean) => {
+      this.considerGhosts = active;
+      this.executeAlgorithm();
+    });
     EventBus.on('lab-set-mode', (mode: LabDisplayMode) => {
       this.displayMode = mode;
       this.renderStaticLayers();
@@ -76,11 +83,15 @@ export class GraphLabScene extends Phaser.Scene {
     });
 
     EventBus.on('lab-play', () => {
-      this.isPlaying = true;
+      const steps = this.searchResult?.visitedOrder.length ?? 0;
+      if (steps > 0 && this.currentStep >= steps) this.resetSearch();
+      this.isPlaying = steps > 0;
+      this.emitProgress();
     });
 
     EventBus.on('lab-pause', () => {
       this.isPlaying = false;
+      this.emitProgress();
     });
 
     EventBus.on('lab-step', () => {
@@ -206,35 +217,31 @@ export class GraphLabScene extends Phaser.Scene {
     }
   }
 
+  private considerGhosts = true;
+  private risk = new Map<string, number>();
+
   private executeAlgorithm(): void {
     if (!this.selectedStartNode || !this.selectedGoalNode) return;
 
-    if (this.currentAlgorithm === 'Dijkstra') {
-      this.searchResult = dijkstra(this.world.graph, this.selectedStartNode, this.selectedGoalNode);
-    } else if (this.currentAlgorithm === 'A*') {
-      this.searchResult = aStar(this.world.graph, this.selectedStartNode, this.selectedGoalNode, {
-        portals: this.world.portalPairs,
-        minWeight: 0.3,
-      });
-    } else {
-      this.searchResult = solveMultiGoal(
-        this.world.graph,
-        this.selectedStartNode,
-        this.world.keys,
-        this.selectedGoalNode,
-        {
-          algorithm: 'A*',
-          portals: this.world.portalPairs,
-        }
-      );
-    }
-
-    // Calcula também o comparativo simultâneo
-    const compD = dijkstra(this.world.graph, this.selectedStartNode, this.selectedGoalNode);
-    const compA = aStar(this.world.graph, this.selectedStartNode, this.selectedGoalNode, {
-      portals: this.world.portalPairs,
-      minWeight: 0.3,
-    });
+    const base = this.world.graph;
+    const enemies = [this.world.enemySpawn, this.world.enemySpawn2].map((pos, index) => ({
+      id: index === 0 ? 'red' : 'purple', name: 'Fantasma', pos, spawn: pos,
+      facing: [0, 1] as [number, number], path: [],
+    }));
+    const state = new AgentPerception().readState(this.selectedStartNode, base,
+      this.world.keys, new Set(), this.selectedGoalNode, this.world.portalPairs,
+      this.world.terrains, enemies);
+    this.risk = this.considerGhosts ? new RiskAssessment().buildRiskMap(base,
+      state.enemies ?? [], this.selectedStartNode) : new Map();
+    const graph = this.considerGhosts ? new RiskGraphWrapper(base, this.risk) : base;
+    const portals = this.world.portalPairs;
+    const start = this.selectedStartNode, goal = this.selectedGoalNode;
+    const multi = this.currentAlgorithm === 'Multi-Goal';
+    const compD = multi ? solveMultiGoal(graph, start, this.world.keys, goal,
+      { algorithm: 'Dijkstra', portals }) : dijkstra(graph, start, goal);
+    const compA = multi ? solveMultiGoal(graph, start, this.world.keys, goal,
+      { algorithm: 'A*', portals }) : aStar(graph, start, goal, { portals, minWeight: 0.3 });
+    this.searchResult = this.currentAlgorithm === 'Dijkstra' ? compD : compA;
 
     EventBus.emit('lab-comparison-ready', {
       dijkstra: compD,
@@ -248,7 +255,8 @@ export class GraphLabScene extends Phaser.Scene {
     });
 
     this.resetSearch();
-    this.isPlaying = true;
+    this.isPlaying = this.searchResult.visitedOrder.length > 0;
+    this.emitProgress();
   }
 
   private resetSearch(): void {
@@ -392,6 +400,21 @@ export class GraphLabScene extends Phaser.Scene {
             this.searchGraphics.lineStyle(4, 0xffd43b, 1.0);
           }
         }
+      }
+    }
+
+    if (this.considerGhosts) {
+      for (const [key, risk] of this.risk) {
+        if (risk < 4) continue;
+        const [row, col] = key.split(',').map(Number);
+        this.hoverGraphics.lineStyle(1, 0xff7564, 0.55);
+        this.hoverGraphics.strokeRect(col * this.cellSize + 3, row * this.cellSize + 3,
+          this.cellSize - 6, this.cellSize - 6);
+      }
+      for (const [index, ghost] of [this.world.enemySpawn, this.world.enemySpawn2].entries()) {
+        this.hoverGraphics.fillStyle(index === 0 ? 0xff7564 : 0xc8a1ff, 1);
+        this.hoverGraphics.fillCircle(ghost[1] * this.cellSize + half,
+          ghost[0] * this.cellSize + half, 6);
       }
     }
 

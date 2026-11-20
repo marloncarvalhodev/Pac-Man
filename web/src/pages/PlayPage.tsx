@@ -4,6 +4,7 @@ import { GameHUD } from '../components/game/GameHUD';
 import { EventBus } from '../game/core/EventBus';
 import { GameStateSnapshot } from '../game/core/GameState';
 import { Trophy, Skull, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import GlitchText from '../components/react-bits/GlitchText';
 import styles from './PlayPage.module.css';
 
 export const PlayPage: React.FC = () => {
@@ -41,14 +42,16 @@ export const PlayPage: React.FC = () => {
 
   return (
     <div className={styles.playContainer}>
-      <GameHUD state={gameState} onNewMaze={handleNewMaze} onRestartMaze={handleRestartMaze} />
+      <header className={styles.playHeader}><h1>Arcade</h1><p>Jogue ou alterne para o modo autônomo.</p></header>
+      <div className={styles.station}>
+      <div className={styles.board}>
       {/* Área do Labirinto (Canvas Phaser) */}
       <div className={styles.canvasWrapper}>
         <PhaserGame sceneType="GameScene" />
 
         {/* Modal de Vitória */}
         {gameState?.gameStatus === 'WON' && (
-          <div className={styles.overlayModal}>
+          <div className={styles.overlayModal} role="region" aria-label="Resultado da partida">
             <div className={styles.modalCardSuccess}>
               <Trophy size={48} className={styles.victoryIcon} />
               <h2 className={styles.modalTitle}>VITÓRIA!</h2>
@@ -70,7 +73,7 @@ export const PlayPage: React.FC = () => {
           <div className={styles.overlayModal}>
             <div className={styles.modalCardDanger}>
               <Skull size={48} className={styles.dangerIcon} />
-              <h2 className={styles.modalTitleDanger}>GAME OVER</h2>
+              <h2 className={styles.modalTitleDanger}><GlitchText trigger="hover" intensity={0.45} fontSize="inherit" color="inherit">GAME OVER</GlitchText></h2>
               <p className={styles.modalText}>
                 {gameState.health <= 0
                   ? 'Você sucumbiu à lava ardente (-10 HP repetidamente)!'
@@ -95,6 +98,11 @@ export const PlayPage: React.FC = () => {
           {directionButton('ArrowRight', 'Mover para direita', styles.right, <ChevronRight />)}
         </div>
       )}
+      </div>
+      <aside className={styles.console} aria-label="Placar e controles da partida">
+        <GameHUD state={gameState} onNewMaze={handleNewMaze} onRestartMaze={handleRestartMaze} />
+      </aside>
+      </div>
     </div>
   );
 };

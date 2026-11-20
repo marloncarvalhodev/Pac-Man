@@ -44,138 +44,75 @@ export class CharacterRenderer {
     graphics.arc(x, y, radius * 0.88, baseAngle + mouthRad + 0.2, baseAngle + Math.PI * 1.35, false);
     graphics.strokePath();
 
-    // Olho do Pac-Man
-    const eyeAngle = baseAngle + Math.PI / 2.3;
-    const eyeDist = radius * 0.55;
-    const ex = x + eyeDist * Math.cos(eyeAngle);
-    const ey = y + eyeDist * Math.sin(eyeAngle);
+    // Keep the eye above horizontal movement instead of mirroring it underneath.
+    const ex = x + radius * (dc !== 0 ? dc * 0.12 : 0.5);
+    const ey = y + radius * (dc !== 0 ? -0.52 : dr * 0.12);
 
     graphics.fillStyle(0x090d16, 1.0);
     graphics.fillCircle(ex, ey, Math.max(1.8, radius * 0.18));
   }
 
-  /**
-   * Renderiza o Minotauro Vermelho (Caçador Direto).
-   */
-  static drawMinotaur(
-    graphics: Phaser.GameObjects.Graphics,
-    x: number,
-    y: number,
-    radius: number,
-    facing: [number, number],
-    isFrightened: boolean,
-    remainingFrightSec: number,
-    time: number
+  private static reducedMotion = typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /** Classic rounded ghosts with directional eyes and an animated scalloped hem. */
+  private static drawClassicGhost(
+    graphics: Phaser.GameObjects.Graphics, x: number, y: number, radius: number,
+    facing: [number, number], frightened: boolean, remaining: number, time: number,
+    color: number,
   ): void {
-    let bodyColor = 0xef5350; // Vermelho carmesim
-
-    if (isFrightened) {
-      bodyColor = 0x2563eb; // Azul royal
-      if (remainingFrightSec < 2.0 && Math.floor(time / 200) % 2 === 0) {
-        bodyColor = 0xf5f7fb; // Pisca em branco
+    const clock = this.reducedMotion ? 0 : time;
+    const cy = y + Math.sin(clock * 0.006) * radius * 0.035;
+    const warning = frightened && remaining < 2 && Math.floor(clock / 350) % 2 === 1;
+    graphics.fillStyle(frightened ? (warning ? 0xf1edff : 0x3157d8) : color, 1);
+    graphics.beginPath();
+    graphics.moveTo(x - radius, cy + radius * 0.8);
+    graphics.lineTo(x - radius, cy);
+    graphics.arc(x, cy, radius, Math.PI, Math.PI * 2, false);
+    graphics.lineTo(x + radius, cy + radius * 0.8);
+    const phase = Math.floor(clock / 180) % 2;
+    for (let i = 1; i <= 6; i++) {
+      graphics.lineTo(x + radius - i * radius / 3,
+        cy + radius * ((i + phase) % 2 ? 0.52 : 0.8));
+    }
+    graphics.closePath(); graphics.fillPath();
+    if (frightened) {
+      graphics.fillStyle(warning ? 0x3157d8 : 0xffe7d0, 1);
+      for (const side of [-1, 1]) graphics.fillCircle(x + side * radius * 0.35, cy - radius * 0.1, radius * 0.12);
+      graphics.lineStyle(Math.max(1, radius * 0.1), warning ? 0x3157d8 : 0xffe7d0, 1);
+      graphics.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const px = x - radius * 0.45 + i * radius * 0.225;
+        const py = cy + radius * (i % 2 ? 0.25 : 0.4);
+        if (!i) graphics.moveTo(px, py); else graphics.lineTo(px, py);
       }
+      graphics.strokePath();
+      return;
     }
-
-    // Corpo do Minotauro
-    graphics.fillStyle(bodyColor, 1.0);
-    graphics.fillCircle(x, y, radius);
-
-    if (!isFrightened) {
-      // Chifres brancos estilizados
-      graphics.fillStyle(0xffffff, 1.0);
-      graphics.fillTriangle(
-        x - radius,
-        y,
-        x - radius - radius * 0.28,
-        y - 7,
-        x - radius + 2,
-        y - 3
-      );
-      graphics.fillTriangle(
-        x + radius,
-        y,
-        x + radius + radius * 0.28,
-        y - 7,
-        x + radius - 2,
-        y - 3
-      );
+    for (const side of [-1, 1]) {
+      const ex = x + side * radius * 0.38;
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillEllipse(ex, cy - radius * 0.16, radius * 0.57, radius * 0.76);
+      graphics.fillStyle(0x173b96, 1);
+      graphics.fillEllipse(ex + facing[1] * radius * 0.13,
+        cy - radius * 0.13 + facing[0] * radius * 0.16, radius * 0.27, radius * 0.38);
     }
-
-    graphics.lineStyle(1.2, isFrightened ? 0xb7e1ff : 0xffaaa2, 0.8);
-    graphics.strokeCircle(x, y, radius * 0.91);
-
-    // Olhos e pupilas
-    const eyeOffsetX = 3.5;
-    const eyeOffsetY = -2;
-    const eyeRadius = 3;
-
-    graphics.fillStyle(0xffffff, 1.0);
-    graphics.fillCircle(x - eyeOffsetX, y + eyeOffsetY, eyeRadius);
-    graphics.fillCircle(x + eyeOffsetX, y + eyeOffsetY, eyeRadius);
-
-    const pupilColor = isFrightened ? 0x1e3a8a : 0x991b1b;
-    const pupilDx = facing[1] * 1.2;
-    const pupilDy = facing[0] * 1.2;
-
-    graphics.fillStyle(pupilColor, 1.0);
-    graphics.fillCircle(x - eyeOffsetX + pupilDx, y + eyeOffsetY + pupilDy, 1.5);
-    graphics.fillCircle(x + eyeOffsetX + pupilDx, y + eyeOffsetY + pupilDy, 1.5);
   }
 
-  /**
-   * Renderiza o Fantasma Roxo (Espectro Emboscador).
-   */
-  static drawGhost(
-    graphics: Phaser.GameObjects.Graphics,
-    x: number,
-    y: number,
-    radius: number,
-    facing: [number, number],
-    isFrightened: boolean,
-    remainingFrightSec: number,
-    time: number
+  static drawMinotaur(
+    graphics: Phaser.GameObjects.Graphics, x: number, y: number, radius: number,
+    facing: [number, number], isFrightened: boolean, remainingFrightSec: number, time: number,
   ): void {
-    let bodyColor = 0xa66bff; // Roxo neon
+    this.drawClassicGhost(graphics, x, y, radius, facing, isFrightened,
+      remainingFrightSec, time, 0xff4b59);
+  }
 
-    if (isFrightened) {
-      bodyColor = 0x2563eb; // Azul royal
-      if (remainingFrightSec < 2.0 && Math.floor(time / 200) % 2 === 0) {
-        bodyColor = 0xf5f7fb; // Pisca
-      }
-    }
-
-    // Corpo arredondado superior com base ondulada
-    graphics.fillStyle(bodyColor, 1.0);
-    graphics.fillCircle(x, y - 2, radius);
-    graphics.fillRect(x - radius, y - 2, radius * 2, radius * 0.9);
-
-    // Ondulações na saia do fantasma
-    const skirtStep = (radius * 2) / 3;
-    for (let i = 0; i < 3; i++) {
-      const wave = Math.sin(time * 0.006 + i * Math.PI / 2) * radius * 0.045;
-      graphics.fillCircle(x - radius + skirtStep * i + skirtStep / 2, y + radius * 0.7 + wave, skirtStep / 2);
-    }
-
-    graphics.lineStyle(1.2, isFrightened ? 0xb7e1ff : 0xdac3ff, 0.8);
-    graphics.beginPath();
-    graphics.arc(x, y - 2, radius * 0.85, Math.PI * 1.1, Math.PI * 1.9, false);
-    graphics.strokePath();
-
-    // Olhos
-    const eyeOffsetX = 3.5;
-    const eyeOffsetY = -2.5;
-
-    graphics.fillStyle(0xffffff, 1.0);
-    graphics.fillCircle(x - eyeOffsetX, y + eyeOffsetY, 3);
-    graphics.fillCircle(x + eyeOffsetX, y + eyeOffsetY, 3);
-
-    const pupilColor = isFrightened ? 0x1e3a8a : 0x3b0764;
-    const pupilDx = facing[1] * 1.2;
-    const pupilDy = facing[0] * 1.2;
-
-    graphics.fillStyle(pupilColor, 1.0);
-    graphics.fillCircle(x - eyeOffsetX + pupilDx, y + eyeOffsetY + pupilDy, 1.5);
-    graphics.fillCircle(x + eyeOffsetX + pupilDx, y + eyeOffsetY + pupilDy, 1.5);
+  static drawGhost(
+    graphics: Phaser.GameObjects.Graphics, x: number, y: number, radius: number,
+    facing: [number, number], isFrightened: boolean, remainingFrightSec: number, time: number,
+  ): void {
+    this.drawClassicGhost(graphics, x, y, radius, facing, isFrightened,
+      remainingFrightSec, time, 0xb08aff);
   }
 
   /**

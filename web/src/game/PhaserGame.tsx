@@ -3,9 +3,10 @@
  * Responsável pelo ciclo de vida do canvas, redimensionamento e limpeza.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { GameScene } from './scenes/GameScene';
+import { LoadingState } from '../components/LoadingState';
 import { GraphLabScene } from './scenes/GraphLabScene';
 
 export interface PhaserGameProps {
@@ -15,11 +16,13 @@ export interface PhaserGameProps {
 }
 
 export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onSceneReady }) => {
+  const [ready,setReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
+    setReady(false);
 
     // Configuração do Phaser 3 Canvas
     const config: Phaser.Types.Core.GameConfig = {
@@ -33,7 +36,7 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
-      scene: [GameScene, GraphLabScene],
+      scene: [],
     };
 
     const game = new Phaser.Game(config);
@@ -41,8 +44,9 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
 
     // Inicia a cena solicitada passando dados iniciais
     game.events.once('ready', () => {
-      game.scene.start(sceneType, { seed });
-      const activeScene = game.scene.getScene(sceneType);
+      const Scene = sceneType === 'GameScene' ? GameScene : GraphLabScene;
+      const activeScene = game.scene.add(sceneType, Scene, true, { seed });
+      setReady(true);
       if (activeScene && onSceneReady) {
         onSceneReady(activeScene);
       }
@@ -55,6 +59,8 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
   }, [sceneType, seed]);
 
   return (
+    <div style={{position:'relative',width:'100%',height:'100%'}}>
+    {!ready&&<div style={{position:'absolute',inset:0,zIndex:2,background:'#090d16',overflow:'hidden'}}><LoadingState compact label="Preparando o mapa"/></div>}
     <div
       ref={containerRef}
       style={{
@@ -65,5 +71,6 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
         justifyContent: 'center',
       }}
     />
+    </div>
   );
 };

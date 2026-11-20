@@ -332,7 +332,8 @@ export class AutonomousAgent {
     // Se concluiu todas as chaves e chegou à saída
     if (
       this.execution.isComplete(perceptionData.currentPos) &&
-      perceptionData.remainingKeys.length === 0
+      perceptionData.remainingKeys.length === 0 &&
+      (this.strategy !== 'FULL_CLEAR' || !perceptionData.pacDots?.size)
     ) {
       this.state = 'COMPLETED';
       return null;
@@ -388,7 +389,7 @@ export class AutonomousAgent {
         minDistance <= RiskAssessment.CAUTION_THREAT_DISTANCE
       ) {
         const nowSim =
-          perceptionData.currentTime > 0 ? perceptionData.currentTime : Date.now();
+          perceptionData.currentTime;
         // Cooldown de replanejamento (anti-oscilação no tempo simulado)
         if (nowSim - this.lastReplanTimestamp >= GAME_SPEED_CONFIG.AGENT_REPLAN_COOLDOWN_MS) {
           const remainingPath = this.execution.getRemainingPath(perceptionData.currentPos);
@@ -425,7 +426,8 @@ export class AutonomousAgent {
     let move = this.execution.getNextMove(perceptionData.currentPos, perceptionData.graph);
 
     // Se o movimento for nulo mas ainda não completou os objetivos, tenta replanejar
-    if (move === null && !this.execution.isComplete(perceptionData.currentPos)) {
+    if (move === null && (!this.execution.isComplete(perceptionData.currentPos) ||
+      (this.strategy === 'FULL_CLEAR' && perceptionData.pacDots?.size))) {
       const ok = this.replan(perceptionData);
       if (ok) {
         move = this.execution.getNextMove(perceptionData.currentPos, perceptionData.graph);

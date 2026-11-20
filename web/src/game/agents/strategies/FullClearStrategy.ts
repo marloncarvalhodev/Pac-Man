@@ -1,3 +1,4 @@
+import { dijkstra } from '../../algorithms/Dijkstra';
 import { aStar } from '../../algorithms/AStar';
 import { solveMultiGoal } from '../../algorithms/MultiGoalSolver';
 import { Node, NodeKey, nodeEquals, nodeToKey, keyToNode } from '../../graph/GraphTypes';
@@ -100,11 +101,11 @@ export class FullClearStrategy implements IAgentStrategy {
       if (!bestDotNode) break;
 
       // Traça o segmento até o dot escolhido via A*
-      const segmentResult = aStar(searchGraph, current, bestDotNode, { portals: portalPairs });
+      const segmentResult = algorithm === 'Dijkstra'
+        ? dijkstra(searchGraph, current, bestDotNode)
+        : aStar(searchGraph, current, bestDotNode, { portals: portalPairs });
       if (!segmentResult.found || segmentResult.path.length <= 1) {
-        // Dot inalcançável, descarta
-        unvisitedDots.delete(nodeToKey(bestDotNode));
-        continue;
+        return null;
       }
 
       totalNodesExpanded += segmentResult.nodesExpanded;
@@ -122,7 +123,9 @@ export class FullClearStrategy implements IAgentStrategy {
       current = segmentResult.path[segmentResult.path.length - 1];
     }
 
-    // Após recolher todos os dots (ou os alcançáveis), coleta chaves restantes se houver
+    if (unvisitedDots.size > 0) return null;
+
+    // Após recolher todos os dots, coleta as chaves restantes.
     const remainingKeyNodes: Node[] = Array.from(unvisitedKeys).map(keyToNode);
 
     if (remainingKeyNodes.length > 0 || !nodeEquals(current, goal)) {
@@ -131,7 +134,8 @@ export class FullClearStrategy implements IAgentStrategy {
         portals: portalPairs,
       });
 
-      if (finalResult.found && finalResult.path.length > 1) {
+      if (!finalResult.found) return null;
+      if (finalResult.path.length > 1) {
         totalNodesExpanded += finalResult.totalNodesExpanded ?? finalResult.nodesExpanded;
         visitedOrder.push(...finalResult.visitedOrder);
 

@@ -1,0 +1,1533 @@
+{
+  "date": "2026-11-20T01:14:24.284Z",
+  "engine": 2,
+  "map": {
+    "rows": 25,
+    "cols": 25,
+    "loops": 0.1,
+    "portals": 1,
+    "keys": 2
+  },
+  "config": {
+    "id": "audit-final",
+    "seeds": [
+      42,
+      73,
+      101
+    ],
+    "repetitions": 2,
+    "strategies": [
+      "MIN_COST",
+      "MIN_TIME",
+      "SURVIVAL",
+      "MAX_SCORE",
+      "FULL_CLEAR"
+    ],
+    "algorithm": "A*",
+    "mode": "MVM",
+    "objective": "exit",
+    "limitMs": 120000
+  },
+  "results": [
+    {
+      "id": "audit-final/42/1/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:02.627Z",
+      "seed": 42,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 31000,
+      "processingMs": 883.2438,
+      "decisionMs": 351.53420000000006,
+      "cost": 156,
+      "score": 860,
+      "dots": 76,
+      "moves": 129,
+      "expanded": 2392,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/42/2/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:03.327Z",
+      "seed": 42,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 31000,
+      "processingMs": 684.4126000000001,
+      "decisionMs": 266.2639999999992,
+      "cost": 156,
+      "score": 860,
+      "dots": 76,
+      "moves": 129,
+      "expanded": 2392,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/73/1/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:03.557Z",
+      "seed": 73,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 230.24069999999983,
+      "decisionMs": 142.4780000000003,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 4107,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/73/2/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:03.839Z",
+      "seed": 73,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 281.8279,
+      "decisionMs": 176.08700000000022,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 4107,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/1/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:04.099Z",
+      "seed": 101,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 260.0573999999997,
+      "decisionMs": 151.29979999999978,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 2563,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/2/MIN_COST",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:04.330Z",
+      "seed": 101,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_COST",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 230.471,
+      "decisionMs": 136.22010000000182,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 2563,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/42/1/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:05.055Z",
+      "seed": 42,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 31000,
+      "processingMs": 724.9170999999997,
+      "decisionMs": 300.11530000000266,
+      "cost": 156,
+      "score": 860,
+      "dots": 76,
+      "moves": 129,
+      "expanded": 2392,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/42/2/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:05.751Z",
+      "seed": 42,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 31000,
+      "processingMs": 695.9796999999999,
+      "decisionMs": 270.06279999999924,
+      "cost": 156,
+      "score": 860,
+      "dots": 76,
+      "moves": 129,
+      "expanded": 2392,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/73/1/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:05.940Z",
+      "seed": 73,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 189.32490000000007,
+      "decisionMs": 123.57099999999627,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 4107,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/73/2/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:06.125Z",
+      "seed": 73,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 184.92300000000068,
+      "decisionMs": 114.09259999999722,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 4107,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/1/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:06.288Z",
+      "seed": 101,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 163.2531999999992,
+      "decisionMs": 90.81210000000192,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 2563,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/2/MIN_TIME",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:06.438Z",
+      "seed": 101,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MIN_TIME",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 150.10959999999977,
+      "decisionMs": 86.91820000000462,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 2563,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/42/1/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:07.044Z",
+      "seed": 42,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "WON",
+      "reason": "Saída alcançada com os objetivos cumpridos",
+      "simulatedMs": 35380,
+      "processingMs": 605.1277999999993,
+      "decisionMs": 359.97290000000976,
+      "cost": 177.89999999999998,
+      "score": 2120,
+      "dots": 112,
+      "moves": 174,
+      "expanded": 3963,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/42/2/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:07.466Z",
+      "seed": 42,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "WON",
+      "reason": "Saída alcançada com os objetivos cumpridos",
+      "simulatedMs": 35380,
+      "processingMs": 422.0497999999998,
+      "decisionMs": 194.7793000000056,
+      "cost": 177.89999999999998,
+      "score": 2120,
+      "dots": 112,
+      "moves": 174,
+      "expanded": 3963,
+      "replans": 4
+    },
+    {
+      "id": "audit-final/73/1/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:07.735Z",
+      "seed": 73,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 269.27000000000044,
+      "decisionMs": 191.02620000000297,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 7310,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/73/2/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:07.974Z",
+      "seed": 73,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 238.90809999999965,
+      "decisionMs": 162.85929999999644,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 7310,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/1/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:08.206Z",
+      "seed": 101,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 231.82360000000062,
+      "decisionMs": 150.15659999999662,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 4218,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/2/SURVIVAL",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:08.426Z",
+      "seed": 101,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "SURVIVAL",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 219.85909999999967,
+      "decisionMs": 140.85040000000026,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 4218,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/42/1/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:08.907Z",
+      "seed": 42,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 22332,
+      "processingMs": 481.6139000000003,
+      "decisionMs": 260.76859999999124,
+      "cost": 112.29999999999997,
+      "score": 990,
+      "dots": 84,
+      "moves": 114,
+      "expanded": 10282,
+      "replans": 6
+    },
+    {
+      "id": "audit-final/42/2/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:09.373Z",
+      "seed": 42,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 22332,
+      "processingMs": 465.85359999999946,
+      "decisionMs": 259.1814000000013,
+      "cost": 112.29999999999997,
+      "score": 990,
+      "dots": 84,
+      "moves": 114,
+      "expanded": 10282,
+      "replans": 6
+    },
+    {
+      "id": "audit-final/73/1/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:09.598Z",
+      "seed": 73,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 224.27669999999944,
+      "decisionMs": 166.77309999999216,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 13286,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/73/2/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:09.850Z",
+      "seed": 73,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 252.0551999999998,
+      "decisionMs": 188.7545999999984,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 13286,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/1/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:10.138Z",
+      "seed": 101,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 287.91359999999986,
+      "decisionMs": 207.8461000000052,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 10420,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/2/MAX_SCORE",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:10.535Z",
+      "seed": 101,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "MAX_SCORE",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 396.97390000000087,
+      "decisionMs": 287.2886999999955,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 10420,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/42/1/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:16.852Z",
+      "seed": 42,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 63714,
+      "processingMs": 6317.5212999999985,
+      "decisionMs": 5687.718500000001,
+      "cost": 318.6,
+      "score": 1740,
+      "dots": 139,
+      "moves": 295,
+      "expanded": 77582,
+      "replans": 33
+    },
+    {
+      "id": "audit-final/42/2/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:22.301Z",
+      "seed": 42,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            21,
+            21
+          ],
+          [
+            17,
+            6
+          ]
+        ],
+        "health": 100,
+        "dots": 275
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 63714,
+      "processingMs": 5449.050799999999,
+      "decisionMs": 4913.739200000002,
+      "cost": 318.6,
+      "score": 1740,
+      "dots": 139,
+      "moves": 295,
+      "expanded": 77582,
+      "replans": 33
+    },
+    {
+      "id": "audit-final/73/1/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:22.860Z",
+      "seed": 73,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 558.9366000000009,
+      "decisionMs": 509.9926999999989,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 11925,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/73/2/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:23.327Z",
+      "seed": 73,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            1,
+            15
+          ],
+          [
+            8,
+            21
+          ]
+        ],
+        "health": 100,
+        "dots": 276
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7200,
+      "processingMs": 466.58699999999953,
+      "decisionMs": 426.750499999991,
+      "cost": 37,
+      "score": 150,
+      "dots": 15,
+      "moves": 37,
+      "expanded": 11925,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/1/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:23.860Z",
+      "seed": 101,
+      "repetition": 1,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 532.697699999997,
+      "decisionMs": 486.1680000000051,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 9997,
+      "replans": 3
+    },
+    {
+      "id": "audit-final/101/2/FULL_CLEAR",
+      "batch": "audit-final",
+      "engine": 2,
+      "date": "2026-11-20T01:14:24.283Z",
+      "seed": 101,
+      "repetition": 2,
+      "map": {
+        "rows": 25,
+        "cols": 25,
+        "loops": 0.1,
+        "portals": 1,
+        "keys": 2
+      },
+      "strategy": "FULL_CLEAR",
+      "algorithm": "A*",
+      "mode": "MVM",
+      "objective": "exit",
+      "timeScale": 1,
+      "limitMs": 120000,
+      "initial": {
+        "player": [
+          1,
+          1
+        ],
+        "ghosts": [
+          [
+            2,
+            9
+          ],
+          [
+            10,
+            17
+          ]
+        ],
+        "health": 100,
+        "dots": 269
+      },
+      "outcome": "LOST",
+      "reason": "Captura",
+      "simulatedMs": 7600,
+      "processingMs": 423.6389999999992,
+      "decisionMs": 381.741399999999,
+      "cost": 39,
+      "score": 160,
+      "dots": 16,
+      "moves": 39,
+      "expanded": 9997,
+      "replans": 3
+    }
+  ]
+}

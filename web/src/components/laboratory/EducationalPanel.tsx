@@ -8,42 +8,15 @@ interface ConceptItem {
 }
 
 const CONCEPTS: ConceptItem[] = [
-  {
-    term: 'Vértice (v ∈ V)',
-    definition: 'Representa uma coordenada transitável (r, c) ∈ Z² no labirinto.',
-  },
-  {
-    term: 'Aresta (e ∈ E)',
-    definition: 'Conexão transitável ortogonal entre células livres ou conexão especial de teleporte.',
-  },
-  {
-    term: 'Grafo Ponderado G = (V, E, w)',
-    definition: 'Associa a cada transição um peso w(u, v) correspondente ao custo de atrito do terreno de destino.',
-  },
-  {
-    term: 'Portais (Conexões Não Locais)',
-    definition: 'Portais conectam posições distantes. O desenho dessas conexões não demonstra, por si só, que o grafo é não planar.',
-  },
-  {
-    term: 'Grau do Vértice deg(v)',
-    definition: 'Quantidade de arestas conectadas ao nó. Vértices com deg(v) ≥ 3 são bifurcações e decisões táticas de rota.',
-  },
-  {
-    term: 'Algoritmo de Dijkstra',
-    definition: 'Busca uniforme cega que expande em ondas isotropicamente ordenadas por custo acumulado g(u).',
-  },
-  {
-    term: 'Algoritmo A* (A-Star)',
-    definition: 'Busca heurística informada orientada pela função f(n) = g(n) + h(n), usando uma estimativa heurística para orientar a busca.',
-  },
-  {
-    term: 'Heurística Admissível',
-    definition: 'Cota inferior que nunca superestima o custo real (h(n) ≤ c*(n)), garantindo optimalidade matemática idêntica ao Dijkstra.',
-  },
-  {
-    term: 'Multi-Goal Pathfinding',
-    definition: 'Subproblema do Caixeiro Viajante: avalia permutações para ordenar a rota ótima passando por todas as chaves antes do destino final.',
-  },
+  {term:'Vértice',definition:'Cada célula transitável é um vértice, identificado por linha e coluna inteiras.'},
+  {term:'Aresta dirigida',definition:'É uma transição permitida entre células livres. Movimentos de ida e volta são arcos distintos e podem ter custos diferentes.'},
+  {term:'Peso da transição',definition:'O peso representa o custo da travessia e depende do terreno de entrada. O custo de uma rota é a soma dos pesos de seus arcos.'},
+  {term:'Portais',definition:'Conectam posições distantes sem atravessar as células intermediárias. Cruzamentos no desenho não provam que o grafo é não planar.'},
+  {term:'Graus de entrada e saída',definition:'O grau de entrada conta arcos que chegam; o de saída, arcos que saem. Mais saídas podem oferecer alternativas de rota.'},
+  {term:'Dijkstra',definition:'Prioriza o custo acumulado g(n). Com pesos não negativos, encontra caminhos de custo mínimo.'},
+  {term:'A*',definition:'Prioriza f(n) = g(n) + h(n), combinando custo acumulado com uma estimativa até o destino.'},
+  {term:'Heurística admissível',definition:'A estimativa h(n) nunca supera o custo mínimo restante. Com busca correta e pesos não negativos, preserva o custo mínimo; não garante menor tempo de processamento.'},
+  {term:'Multiobjetivo',definition:'Compara ordens de visita às chaves e combina segmentos até a saída. É diferente de cobrir todos os Pac-Dots, tarefa da estratégia de coleta completa.'},
 ];
 
 export const EducationalPanel: React.FC = () => {

@@ -1,3 +1,4 @@
+import { Graph } from '../game/graph/Graph';
 import { describe, expect, it } from 'vitest';
 import { MazeGenerator } from '../game/graph/MazeGenerator';
 import { Node, nodeEquals, nodeToKey } from '../game/graph/GraphTypes';
@@ -471,5 +472,17 @@ describe('Etapa 3 - Sistema de Estratégias Inteligentes do Pac-Man', () => {
         expect(agentMvm.getPlan()).not.toBeNull();
       }
     });
+  });
+});
+
+describe('Coleta completa com objetivos inviáveis', () => {
+  it('rejeita um ponto isolado em vez de declarar um plano parcial', () => {
+    const graph = new Graph();
+    graph.addEdge([0, 0], [0, 1], 1);
+    graph.addVertex([2, 2]);
+    const data = new AgentPerception().readState([0, 0], graph, [], new Set(),
+      [0, 1], [], new Map(), [], 0, 0, new Set(['2,2']));
+    expect(new FullClearStrategy().plan(data, 'Dijkstra')).toBeNull();
+    expect(new FullClearStrategy().plan(data, 'A*')).toBeNull();
   });
 });
