@@ -30,8 +30,8 @@ describe('Refinamento Técnico: Diagnóstico, Velocidades e Diferenciação dos 
     it('Os parâmetros de velocidade centralizados devem possuir os novos valores balanceados', () => {
       // Pac-Man: 200 ms (reduzido de 135 ms para maior legibilidade e reação)
       expect(GAME_SPEED_CONFIG.PLAYER_BASE_DELAY_MS).toBe(200);
-      // Fantasmas: 260 ms (reduzido de 340 ms para manter ameaça tática crível de ~77% da velocidade do Pac-Man)
-      expect(GAME_SPEED_CONFIG.GHOST_BASE_DELAY_MS).toBe(260);
+      // Fantasmas: 320 ms (balanceado para manter ameaça tática crível)
+      expect(GAME_SPEED_CONFIG.GHOST_BASE_DELAY_MS).toBe(320);
       // Multiplicador do modo Frightened: 1.4x de lentidão
       expect(GAME_SPEED_CONFIG.GHOST_FRIGHTENED_MULTIPLIER).toBe(1.4);
     });
@@ -42,19 +42,19 @@ describe('Refinamento Técnico: Diagnóstico, Velocidades e Diferenciação dos 
 
       // Normal (peso 1.0)
       expect(Math.floor(pBase * TERRAIN_COSTS[TerrainType.NORMAL])).toBe(200);
-      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.NORMAL])).toBe(260);
+      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.NORMAL])).toBe(320);
 
       // Boost / Gelo (peso 0.3)
       expect(Math.floor(pBase * TERRAIN_COSTS[TerrainType.BOOST])).toBe(60);
-      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.BOOST])).toBe(78);
+      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.BOOST])).toBe(96);
 
       // Mud / Lama (peso 4.0)
       expect(Math.floor(pBase * TERRAIN_COSTS[TerrainType.MUD])).toBe(800);
-      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.MUD])).toBe(1040);
+      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.MUD])).toBe(1280);
 
       // Lava (peso 8.0)
       expect(Math.floor(pBase * TERRAIN_COSTS[TerrainType.LAVA])).toBe(1600);
-      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.LAVA])).toBe(2080);
+      expect(Math.floor(gBase * TERRAIN_COSTS[TerrainType.LAVA])).toBe(2560);
 
       // Preservação matemática estrita: razão de tempo == razão de pesos
       const mudRatio =

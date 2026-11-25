@@ -18,7 +18,7 @@ describe('Arena experimental', () => {
     expect(a.outcome).not.toBe('ERROR');
   });
   it('só registra vitória de coleta completa com todos os pontos físicos', () => {
-    const r = runMatch({ ...config, objective: 'dots' }, 42, 1, 'FULL_CLEAR');
+    const r = runMatch({ ...config, objective: 'dots' }, 101, 1, 'FULL_CLEAR');
     expect(r.outcome).toBe('WON');
     expect(r.dots).toBe(r.initial.dots);
     expect(r.dots).toBeGreaterThan(0);

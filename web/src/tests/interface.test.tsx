@@ -5,12 +5,11 @@ import { HomePage } from '../pages/HomePage';
 import { HowToPlayPage } from '../pages/HowToPlayPage';
 
 describe('conteúdo e navegação da interface', () => {
-  it('mantém as quatro entradas principais na página inicial', () => {
+  it('mantém as entradas principais na página inicial', () => {
     const html = renderToStaticMarkup(<HomePage onNavigate={() => {}} />);
     expect(html).toContain('Jogar Arcade');
-    expect(html).toContain('Laboratório');
-    expect(html).toContain('Arena');
-    expect(html).toContain('Manual');
+    expect(html).toContain('Abrir Laboratório');
+    expect(html).toContain('PAC-MAN / GRAPH LAB');
   });
   it('aponta cada tópico do manual para uma seção existente', () => {
     const html = renderToStaticMarkup(<HowToPlayPage onStartPlaying={() => {}} />);

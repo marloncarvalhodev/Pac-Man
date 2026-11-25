@@ -221,7 +221,7 @@ describe('Pac-Man Autônomo - Etapa 2: Máquina vs. Máquina', () => {
       world.terrains,
       [farEnemy],
       0,
-      0
+      650
     );
 
     agent.update(dataSafe, 'PLAYING');
