@@ -1,6 +1,7 @@
 // Adapted from the supplied React Bits StaggeredMenu (see LICENSE.md).
 // Uses Web Animations in place of GSAP; timings follow the supplied component.
 import { useEffect, useLayoutEffect, useRef } from 'react';
+import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import './StaggeredMenu.css';
 
@@ -63,8 +64,7 @@ export default function StaggeredMenu({ open, onToggle, onClose, items, active, 
       </button>
       <button ref={toggle} className="sm-toggle" type="button" onClick={onToggle}
         aria-expanded={open} aria-controls="project-navigation" aria-label={open ? 'Recolher menu' : 'Abrir menu'}>
-        <span className="sm-toggle-textWrap"><span key={String(open)} className="sm-toggle-textInner">{open ? 'Fechar' : 'Menu'}</span></span>
-        <span className="sm-icon" aria-hidden="true"><i /><i /></span>
+        {open ? <PanelLeftClose size={20} aria-hidden="true" /> : <PanelLeftOpen size={20} aria-hidden="true" />}
       </button>
     </div>
     <div ref={panel} className="staggered-menu-panel" aria-hidden={!open}>
@@ -73,15 +73,20 @@ export default function StaggeredMenu({ open, onToggle, onClose, items, active, 
         <ul className="sm-panel-list">
           {items.map(({ id, label, Icon }) => <li className="sm-panel-itemWrap" key={id}>
             <button className="sm-panel-item" aria-label={label} aria-current={active === id ? 'page' : undefined} onClick={() => select(id)}>
-              <span className="sm-panel-itemLabel"><Icon size={21} aria-hidden /><span className="sm-label-copy">{label}<span className="sm-description" aria-hidden="true">{({home:'Seu ponto de partida',play:'Jogue ou observe os agentes',lab:'Explore rotas e decisões',arena:'Compare as estratégias','how-to-play':'Regras e fundamentos'} as Record<string,string>)[id]}</span></span></span>
+              <span className="sm-panel-itemLabel">
+                <Icon size={20} aria-hidden="true" />
+                <span>{label}</span>
+              </span>
             </button>
           </li>)}
         </ul>
       </nav>
-      <div className="sm-panel-footer"><span>LABORATÓRIO INTERATIVO</span><p>Jogar · explorar · comparar</p></div>
     </div>
-    {!open && <nav className="sm-rail" aria-label="Atalhos"><span className="sm-rail-indicator" aria-hidden="true" style={{transform:`translateY(${Math.max(0,items.findIndex(item=>item.id===active))*54}px)`}}/>
-      {items.map(({ id, label, Icon }) => <button key={id} title={label} aria-label={label} aria-current={active === id ? 'page' : undefined} onClick={() => select(id)}><Icon size={21} aria-hidden /></button>)}
+    {!open && <nav className="sm-rail" aria-label="Atalhos">
+      <span className="sm-rail-indicator" aria-hidden="true" style={{transform:`translateY(${Math.max(0,items.findIndex(item=>item.id===active))*50}px)`}}/>
+      {items.map(({ id, label, Icon }) => <button key={id} title={label} aria-label={label} aria-current={active === id ? 'page' : undefined} onClick={() => select(id)}>
+        <Icon size={20} aria-hidden="true" />
+      </button>)}
     </nav>}
   </header>;
 }

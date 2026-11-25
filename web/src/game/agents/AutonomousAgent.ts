@@ -231,6 +231,10 @@ export class AutonomousAgent {
     }
   }
 
+  resumeFromGamePause(): void {
+    if (this.pausedByGame) this.resume();
+  }
+
   stop(): void {
     this.state = 'IDLE';
     this.pausedByGame = false;

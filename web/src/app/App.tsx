@@ -51,7 +51,7 @@ export const App: React.FC = () => {
         {activeTab === 'lab' && <LaboratoryPage />}
         {activeTab === 'arena' && <ArenaPage />}
         {activeTab === 'how-to-play' && (
-          <HowToPlayPage onStartPlaying={() => setActiveTab('play')} onOpenLaboratory={() => setActiveTab('lab')} />
+          <HowToPlayPage onStartPlaying={() => setActiveTab('play')} onOpenLaboratory={() => setActiveTab('lab')} onOpenArena={() => setActiveTab('arena')} />
         )}
         </Suspense>
       </main>

@@ -137,10 +137,12 @@ export function ArenaPage() {
     return (value(b) - value(a)) || a.date.localeCompare(b.date) || a.id.localeCompare(b.id);
   });
 
-  return <div className={styles.arena}>
+  const mapCount = new Set(seedText.split(',').map(value => value.trim()).filter(Boolean).map(Number)).size;
+
+  return <div className={styles.arenaPage}><div className={styles.arena}>
     <header className={styles.header}>
       <h1>Arena de estratégias</h1>
-      <p>Rode as cinco estratégias sob as mesmas condições e compare os resultados por mapa.</p>
+      <p>Compare o desempenho dos agentes sob condições equivalentes.</p>
     </header>
     {notice && <p className={styles.runStatus} role="status">{notice}</p>}
     {total > 0 && <div className={styles.runStatus}><span role="status">{latest.length} de {total} partidas concluídas.</span>{running && <button type="button" onClick={cancel}><Square size={14} aria-hidden="true" /> Cancelar lote</button>}</div>}
@@ -151,44 +153,48 @@ export function ArenaPage() {
     </nav>
     <form id="arena-config" hidden={view !== 'config'} onSubmit={start} className={styles.config}>
       <fieldset disabled={running}>
-        <legend>Estratégias</legend>
+        <legend>Estratégias <span className={styles.selectedCount}>{selected.length} selecionadas</span></legend>
+        <div className={styles.strategyList}>
         {(Object.keys(strategies) as StrategyType[]).map(strategy => {
           const { Icon, hint } = strategyDetails[strategy];
           return <label key={strategy} className={styles.strategyOption} data-selected={selected.includes(strategy)}>
-            <Icon size={21} aria-hidden="true" />
-            <span><strong>{strategies[strategy]}</strong><small>{hint}</small></span>
             <input type="checkbox" aria-label={strategies[strategy]} checked={selected.includes(strategy)} onChange={e =>
               setSelected(e.target.checked ? [...selected, strategy] : selected.filter(s => s !== strategy))} />
+            <span><strong>{strategies[strategy]}</strong><small>{hint}</small></span>
+            <Icon size={18} aria-hidden="true" />
           </label>;
         })}
+        </div>
       </fieldset>
       <fieldset disabled={running} className={styles.scenario}>
-        <legend>Cenário</legend>
+        <legend>Cenário experimental</legend>
+        <div className={styles.scenarioFields}>
         <label>Sementes separadas por vírgula<input value={seedText} onChange={e => setSeedText(e.target.value)} required /></label>
-        <label>Repetições<input type="number" min="1" max="10" required value={reps} onChange={e => setReps(+e.target.value)} /></label>
         <label>Modo<select value={mode} onChange={e => setMode(e.target.value as typeof mode)}>
           <option value="MVM">Máquina × máquina</option><option value="DEMO">Demonstração</option>
+        </select></label>
+        <label>Algoritmo<select value={algorithm} onChange={e => setAlgorithm(e.target.value as typeof algorithm)}>
+          <option>A*</option><option>Dijkstra</option>
         </select></label>
         <label>Objetivo<select value={objective} onChange={e => {
           const next = e.target.value as typeof objective;
           setObjective(next); if (next === 'survival') setMode('MVM');
         }}>{Object.entries(objectives).map(([key, label]) => <option value={key} key={key}>{label}</option>)}</select></label>
-        <label>Algoritmo<select value={algorithm} onChange={e => setAlgorithm(e.target.value as typeof algorithm)}>
-          <option>A*</option><option>Dijkstra</option>
-        </select></label>
-        <label>Limite simulado em segundos<input type="number" min="5" max="300" value={limit}
+        <label>Repetições<input type="number" min="1" max="10" required value={reps} onChange={e => setReps(+e.target.value)} /></label>
+        <label>Limite temporal (segundos)<input type="number" min="5" max="300" value={limit}
           required onChange={e => setLimit(+e.target.value)} /></label>
+        </div>
       </fieldset>
+      <div className={styles.executionBar}>
       <div className={styles.batchPreview} aria-label="Resumo do lote">
-        <div><strong>{selected.length}</strong><span>estratégias</span></div>
-        <div><strong>{new Set(seedText.split(',').filter(value => value.trim())).size}</strong><span>mapas</span></div>
-        <div><strong>{selected.length * new Set(seedText.split(',').filter(value => value.trim())).size * reps}</strong><span>partidas previstas</span></div>
+        <div><strong>{selected.length * mapCount * reps} partidas previstas</strong><span>{selected.length} estratégias × {mapCount} mapas × {reps} repetições</span></div>
       </div>
       <div className={styles.actions}>
         <button className={styles.primary} disabled={running || (objective === 'survival' && mode !== 'MVM')}><Play size={17} /> Executar comparação</button>
         {latest.length > 0 && <button type="button" onClick={() => setView('results')}>Ver resultados</button>}
       </div>
-      <p>Menor custo e menor tempo podem coincidir quando a duração é proporcional ao peso. Coleta completa usa uma heurística gulosa sem garantia de ótimo global.</p>
+      </div>
+      <details className={styles.methodNote}><summary>Nota metodológica</summary><p>Menor custo e menor tempo podem coincidir quando a duração é proporcional ao peso. Coleta completa usa uma heurística gulosa sem garantia de ótimo global.</p></details>
       {running && <progress value={latest.length} max={total} aria-label="Andamento do experimento" />}
     </form>
     <section id="arena-resultados" hidden={view !== 'results'} className={styles.section}>
@@ -265,5 +271,5 @@ export function ArenaPage() {
         </div>
       </>}
     </section>
-  </div>;
+  </div></div>;
 }

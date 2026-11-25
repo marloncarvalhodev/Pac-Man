@@ -41,9 +41,17 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
 
     const game = new Phaser.Game(config);
     gameRef.current = game;
+    let resizeObserver: ResizeObserver | undefined;
 
     // Inicia a cena solicitada passando dados iniciais
     game.events.once('ready', () => {
+      if (sceneType === 'GraphLabScene' && containerRef.current) {
+        resizeObserver = new ResizeObserver(([entry]) => {
+          const { width, height } = entry.contentRect;
+          if (width > 0 && height > 0) game.scale.setParentSize(width, height);
+        });
+        resizeObserver.observe(containerRef.current);
+      }
       const Scene = sceneType === 'GameScene' ? GameScene : GraphLabScene;
       const activeScene = game.scene.add(sceneType, Scene, true, { seed });
       setReady(true);
@@ -53,6 +61,7 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
     });
 
     return () => {
+      resizeObserver?.disconnect();
       game.destroy(true);
       gameRef.current = null;
     };
@@ -66,7 +75,7 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({ sceneType, seed, onScene
       style={{
         width: '100%',
         height: '100%',
-        display: 'flex',
+        display: sceneType === 'GraphLabScene' ? 'block' : 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}

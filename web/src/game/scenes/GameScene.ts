@@ -321,6 +321,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
+    if (this.gameStatus === 'PAUSED') return;
+
     if (this.gameStatus === 'COUNTDOWN') {
       this.countdownRemainingMs = Math.max(0, this.countdownRemainingMs - delta);
       this.simulatedTime = 0; // O tempo simulado e o cronômetro não avançam na contagem
@@ -1013,11 +1015,13 @@ export class GameScene extends Phaser.Scene {
     if (this.gameStatus === 'PLAYING') {
       this.statusBeforePause = 'PLAYING';
       this.gameStatus = 'PAUSED';
+      if (this.controlMode === 'AUTONOMOUS') this.autonomousAgent.pause(true);
     } else if (this.gameStatus === 'COUNTDOWN') {
       this.statusBeforePause = 'COUNTDOWN';
       this.gameStatus = 'PAUSED';
     } else if (this.gameStatus === 'PAUSED') {
       this.gameStatus = this.statusBeforePause ?? 'PLAYING';
+      this.autonomousAgent.resumeFromGamePause();
       if (this.gameStatus === 'COUNTDOWN') {
         const secLeft = Math.ceil(this.countdownRemainingMs / 1000);
         this.renderCountdownVisual(secLeft);

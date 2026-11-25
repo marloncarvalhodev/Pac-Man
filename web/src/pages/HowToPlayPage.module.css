@@ -6,3 +6,134 @@
 @media(max-width:1000px){.layout{grid-template-columns:190px minmax(0,1fr);column-gap:24px}.definitions>div{grid-template-columns:1fr;gap:5px}.section .strategies>div{grid-template-columns:1fr;gap:4px}}
 @media(max-width:700px){.layout{display:flex}.sidebar{max-height:none;padding:14px 10px;width:100%;margin-bottom:28px}.sidebar nav{display:grid;grid-template-columns:1fr 1fr;overflow:visible;gap:5px}.sidebar a{max-width:none;padding:9px 7px;font-size:.69rem;align-items:start;border-bottom:1px solid transparent}.sidebar a.active{background:#2b291e;border-color:#656045}.sidebar a small{padding-top:2px}.guideTitle{margin-bottom:10px}.guideNote{display:none}.sidebar a:hover{transform:none}.definitions>div{padding-block:14px}.comparison>div{padding:15px}}
 @media(prefers-reduced-motion:reduce){.sidebar a{transition:none;transform:none}}
+
+.container {
+  min-height: 100dvh;
+  background: #090D18;
+  color: #F4F6FC;
+}
+.container * { box-sizing: border-box; }
+.layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 0 48px;
+}
+.header { padding: 0; margin: 0 0 40px; border: 0; }
+.header h1 { margin: 0; font: 600 28px/1.2 var(--font-family-sans); letter-spacing: normal; }
+.header h1::before { content: none; }
+.header h1 span { color: inherit; }
+.header p { margin: 8px 0 0; color: #C4CCDC; font-size: 14px; }
+
+.sidebar {
+  position: sticky;
+  top: 32px;
+  max-height: calc(100dvh - 64px);
+  overflow: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.guideTitle { margin: 0 12px 12px; color: #A5ADC0; font-size: 12px; letter-spacing: .08em; }
+.sidebar nav { display: grid; gap: 2px; }
+.sidebar a {
+  display: block;
+  padding: 9px 12px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #C4CCDC;
+  font-size: 14px;
+  line-height: 1.5;
+  transform: none;
+}
+.sidebar a.active, .sidebar a.active:hover { background: transparent; border-left-color: #FFDF29; color: #FFDF29; }
+.sidebar a:hover { background: #111725; color: #F4F6FC; transform: none; }
+.guideNote { margin: 16px 12px 0; padding: 0; border: 0; color: #A5ADC0; font-size: 12px; }
+
+.article { grid-column: 2; width: 100%; max-width: 800px; }
+.section { padding: 0; margin: 0 0 40px; border: 0; scroll-margin-top: 32px; }
+.section:last-child { margin-bottom: 0; }
+.sectionHeading { margin-bottom: 16px; }
+.section h2 { margin: 0; font: 600 24px/1.3 var(--font-family-sans); letter-spacing: normal; }
+.section h2::before { content: none; }
+.section h3 { margin: 28px 0 12px; color: #F4F6FC; font: 600 18px/1.4 var(--font-family-sans); }
+.section h4 { font-size: 15px; font-weight: 600; }
+.section p { max-width: none; margin: 0 0 16px; color: #C4CCDC; font-size: 15px; line-height: 1.7; overflow-wrap: break-word; }
+.section p strong { color: #F4F6FC; }
+.lead { max-width: none; }
+.steps { gap: 16px; margin: 24px 0; }
+.steps li { gap: 6px; padding: 0; border: 0; }
+.steps b { display: none; }
+.steps strong { color: #F4F6FC; font-size: 14px; }
+.steps span { color: #C4CCDC; font-size: 14px; line-height: 1.7; }
+
+.controls, .terrain { width: 100%; table-layout: auto; font-size: 14px; }
+.controls td, .terrain td, .terrain th { padding: 12px 8px; border-bottom: 1px solid #293448; color: #C4CCDC; font-size: 14px; }
+.terrain thead th { color: #A5ADC0; font-weight: 500; }
+.terrain tbody th { color: #F4F6FC; font-weight: 600; }
+.terrain td:nth-child(2) { color: #C4CCDC; }
+.controls small { color: #A5ADC0; font-size: 12px; }
+.container kbd { min-width: 26px; min-height: 26px; padding: 2px 6px; background: #111725; border: 1px solid #293448; border-radius: 4px; color: #F4F6FC; font: 600 12px/1.4 var(--font-family-sans); }
+.section p.costExample { padding: 14px; background: #111725; border: 1px solid #293448; border-radius: 8px; font-size: 15px; }
+
+.figure, .ghostFigure { width: 100%; margin: 24px 0; }
+.diagramPanel { padding: 12px; background: #111725; border: 1px solid #293448; border-radius: 8px; }
+.diagramPanel svg, .ghostFigure svg { display: block; width: 100%; height: auto; }
+.ghostFigure svg { background: #111725; border: 1px solid #293448; border-radius: 8px; }
+.viewControls { position: static; max-width: none; gap: 4px; margin-bottom: 8px; }
+.viewControls button { min-height: 36px; padding: 6px 10px; background: transparent; border: 1px solid #293448; border-radius: 6px; color: #C4CCDC; font-size: 13px; }
+.viewControls button[aria-pressed=true] { background: transparent; border-color: #FFDF29; color: #FFDF29; }
+.figure figcaption, .ghostFigure figcaption { color: #A5ADC0; font-size: 13px; line-height: 1.6; }
+.comparison { gap: 16px; }
+.comparison > div { padding: 16px; background: #111725; border: 1px solid #293448; border-radius: 8px; }
+.comparison h3 { margin-top: 0; }
+.section .comparison p { font-size: 15px; }
+.definitions > div, .section .strategies > div { grid-template-columns: 160px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-color: #293448; }
+.definitions dt, .section .strategies dt { color: #F4F6FC; font-size: 14px; font-weight: 600; }
+.definitions dd, .section .strategies dd { max-width: none; margin: 0; color: #C4CCDC; font-size: 15px; line-height: 1.7; }
+.cta { min-height: 44px; background: #FFDF29; color: #090D18; font-size: 14px; border-radius: 8px; }
+.container :focus-visible { outline: 2px solid #FFDF29; outline-offset: 3px; }
+
+@media (max-width: 850px) {
+  .layout { display: flex; flex-direction: column; }
+  .sidebar { position: static; width: 100%; max-height: none; margin: 0 0 32px; }
+  .sidebar nav { display: flex; flex-wrap: wrap; gap: 2px; overflow: visible; }
+  .sidebar a { flex: none; max-width: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px; }
+  .sidebar a.active, .sidebar a.active:hover { border-bottom-color: #FFDF29; }
+  .guideNote { display: block; }
+}
+@media (max-width: 600px) {
+  .layout { padding: 32px; }
+  .steps, .comparison { grid-template-columns: 1fr; }
+  .steps li { padding: 0; border: 0; }
+  .definitions > div, .section .strategies > div { grid-template-columns: 1fr; gap: 4px; }
+  .controls td:first-child { width: auto; }
+}
+
+.layout { grid-template-columns: 200px minmax(0, 1fr); column-gap: 40px; }
+.header h1 { font-size: 32px; }
+.article { max-width: 880px; }
+.sidebar a { display: flex; align-items: center; min-height: 36px; padding: 7px 12px; font-size: 14px; }
+.section { margin-bottom: 48px; }
+.section:last-child { margin-bottom: 0; }
+.section p, .definitions dd, .section .strategies dd { color: #D0D7E4; font-size: 15px; line-height: 1.7; }
+.steps li { align-content: start; }
+.steps li > svg { color: #A5ADC0; margin-bottom: 4px; }
+.steps strong { font-size: 15px; font-weight: 600; }
+.steps span { color: #D0D7E4; }
+.comparison > div { padding: 20px; }
+.comparison h3, .comparison h4 { margin-top: 0; }
+.section .formula { color: #F4F6FC; font-weight: 600; background: #1C2638; border-radius: 4px; padding: 2px 5px; }
+.terrain thead th { color: #F4F6FC; font-weight: 600; }
+.controls tr, .terrain tr { height: 44px; }
+.controls td, .terrain td, .terrain th { padding: 12px; }
+.cta { justify-content: center; gap: 10px; padding: 0 18px; font-weight: 600; }
+
+@media (max-width: 850px) {
+  .sidebar a { min-height: 36px; padding: 7px 10px; }
+}
