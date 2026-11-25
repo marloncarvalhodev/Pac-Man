@@ -1,517 +1,150 @@
-# 🟡 Pac-Man: Graph Lab
+<p align="center">
+  <img src="web/src/assets/pacs.jpeg" alt="Fliperama inspirado em Pac-Man, com labirinto e fantasmas" width="100%">
+</p>
 
-### Um jogo arcade e laboratório interativo de Teoria dos Grafos
+<h1 align="center">Pac-Man: Graph Lab</h1>
 
-[![Jogar Online](https://img.shields.io/badge/🎮_JOGAR_ONLINE-PAC--MAN_GRAPH_LAB-FFD43B?style=for-the-badge&labelColor=101827)](https://marloncarvalhodev.github.io/Pac-Man/)
+<p align="center">Visualização e análise experimental de algoritmos em grafos ponderados e direcionados.</p>
 
-> 🌐 **[ACESSAR O JOGO ONLINE](https://marloncarvalhodev.github.io/Pac-Man/)**
->
-> Jogue diretamente pelo navegador, sem precisar instalar nada. Explore o **Modo Arcade** e o **Laboratório Interativo de Grafos**.
-
----
-
-O **Pac-Man: Graph Lab** é uma aplicação web interativa inspirada no clássico Pac-Man, desenvolvida para demonstrar a aplicação da **Teoria dos Grafos** na construção de jogos digitais.
-
-O projeto combina jogabilidade arcade, geração procedural de labirintos, inteligência artificial para inimigos e algoritmos de busca de caminhos mínimos.
-
-Além do jogo, a aplicação oferece um **Laboratório de Grafos**, no qual é possível visualizar estruturas matemáticas, acompanhar a execução de algoritmos e comparar os resultados de **Dijkstra** e **A* (A-Star)**.
-
-Desenvolvido como projeto acadêmico da disciplina de **Matemática Discreta II**, do Instituto Federal da Bahia (IFBA).
+<p align="center">
+  <a href="https://marloncarvalhodev.github.io/Pac-Man/">Jogar online</a> ·
+  <a href="web/README.md">Documentação</a> ·
+  <a href="VALIDACAO.md">Validação</a>
+</p>
 
 ---
 
-## 🎮 Sobre o projeto
+## Modos de Operação
 
-O objetivo é demonstrar como a Teoria dos Grafos pode ser aplicada à modelagem de ambientes, à movimentação de personagens e à tomada de decisões em jogos digitais.
+A página **Arcade** (`PlayPage`) suporta três modos de execução sobre o mesmo motor (`GameScene`):
 
-Diferentemente de um labirinto convencional, no qual todos os deslocamentos possuem custos iguais, o Graph Lab utiliza um **grafo direcionado e ponderado**.
-
-Cada posição transitável representa um vértice, enquanto as conexões representam as transições permitidas entre posições.
-
-Os custos variam conforme o terreno atravessado, permitindo que os algoritmos encontrem trajetos considerando não apenas a distância, mas também o custo acumulado.
-
-A aplicação possui duas experiências principais:
-
-- **Modo Arcade:** experiência jogável em que o usuário controla o Pac-Man, coleta itens, utiliza portais e enfrenta inimigos autônomos.
-- **Laboratório de Grafos:** ambiente acadêmico interativo para estudar a representação do labirinto, executar algoritmos e analisar caminhos mínimos.
+- **Modo Humano (`HUMAN`)**: Controle direto via teclado (`WASD` ou `Setas`, `P` para pausar) ou controles táteis em dispositivos móveis. Os fantasmas possuem carência inicial de `2000 ms` antes de iniciar a perseguição.
+- **Modo Demonstração (`DEMO`)**: O agente autônomo executa o planejamento de rotas sem perseguição ativa dos fantasmas, permitindo observar a coleta de chaves, o desvio de terrenos custosos e o uso de portais.
+- **Modo Máquina vs. Máquina (`MVM`)**: O agente autônomo enfrenta dois fantasmas ativos em tempo real (Perseguidor e Interceptor), com carência inicial de `500 ms` e replanejamento dinâmico diante de ameaças.
 
 ---
 
-## ✨ Funcionalidades
+## Estratégias Autônomas
 
-### 🎮 Modo Arcade
+O módulo `web/src/game/agents/strategies/` implementa seis estratégias selecionáveis no Arcade e comparáveis na Arena Experimental:
 
-- Labirintos gerados proceduralmente.
-- Movimentação por teclado.
-- Sistema de pontuação e vida.
-- Terrenos com custos distintos.
-- Portais de teletransporte.
-- Coleta de chaves para desbloquear a saída.
-- Orbes de poder que tornam os inimigos vulneráveis.
-- Dois inimigos com comportamentos diferentes.
-- Animações e efeitos sonoros.
-- Condições de vitória e derrota.
-- Visualização opcional das rotas dos inimigos.
+| Estratégia | Objetivo Principal | Comportamento e Limitações |
+| :--- | :--- | :--- |
+| `MIN_COST` | Menor custo ponderado | Minimiza o somatório dos pesos das arestas até o objetivo atual. |
+| `MIN_TIME` | Menor tempo de percurso | Minimiza o tempo físico de travessia (`peso × PLAYER_BASE_DELAY_MS`). Como o atraso base é constante (`200 ms`), `MIN_TIME` e `MIN_COST` são **matematicamente equivalentes**, produzindo custos e rotas idênticos. |
+| `SURVIVAL` | Sobrevivência com fuga ativa | Prioriza rotas seguras afastadas dos fantasmas, aceitando desvios maiores para evitar captura. |
+| `MAX_SURVIVAL_TIME` | Permanência máxima | Busca maximizar o tempo de sobrevivência no labirinto até o limite temporal da partida (`TIMEOUT`). |
+| `MAX_SCORE` | Maior pontuação | Pondera a coleta de Pac-Dots e Power Pellets para maximizar a pontuação, buscando fantasmas vulneráveis durante o modo *Frightened*. |
+| `FULL_CLEAR` | Coleta completa | Planeja a coleta integral dos itens disponíveis antes de seguir para a saída. |
 
-### 🧠 Laboratório de Grafos
-
-- Representação visual de vértices e arestas.
-- Visualização do grafo sobre o labirinto.
-- Algoritmos Dijkstra e A*.
-- Execução das buscas passo a passo.
-- Controle da velocidade de visualização.
-- Identificação dos vértices explorados.
-- Destaque do caminho encontrado.
-- Seleção de origem e destino.
-- Inspeção de vértices e suas conexões.
-- Comparação das métricas dos algoritmos.
-- Geração de labirintos com sementes reproduzíveis.
+> **Nota sobre otimalidade:** As estratégias baseadas em heurísticas e tomada de decisão reativa em ambiente dinâmico não garantem otimalidade global nem vitória determinística em `MVM`, especialmente sob pressão simultânea dos dois fantasmas ou presença de terrenos de alto custo (Lama e Lava).
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+## Fundamentação Matemática
 
-### Aplicação web
+O labirinto (`25 × 25`) é modelado como um grafo ponderado e direcionado `G = (V, E)`:
 
-| Tecnologia | Utilização |
-|---|---|
-| **TypeScript** | Linguagem principal |
-| **React** | Interface e navegação |
-| **Phaser 3** | Motor de renderização do jogo |
-| **Vite** | Desenvolvimento e build |
-| **CSS Modules** | Estilização da interface |
-| **Vitest** | Testes automatizados |
-| **Web Audio API** | Efeitos sonoros |
-
-### Implementação original
-
-| Tecnologia | Utilização |
-|---|---|
-| **Python** | Algoritmos e regras do jogo |
-| **Pygame** | Interface gráfica e jogabilidade |
-| **unittest** | Testes automatizados |
-
-A versão Python foi preservada como implementação original e referência para a migração.
-
-**A versão web é a principal interface do projeto.**
+- **Geração e Conectividade (DFS)**: `MazeGenerator` utiliza Busca em Profundidade (DFS) determinística a partir de uma semente numérica para gerar o labirinto, garantindo conectividade, rotas alternativas próximas ao spawn e distância inicial segura dos fantasmas.
+- **Pesos de Terreno**: Cada célula transitável possui um multiplicador de custo (`NORMAL = 1.0`, `BOOST = 0.3`, `MUD = 4.0`, `LAVA = 8.0` com dano de `-10 HP` por entrada).
+- **Dijkstra (`dijkstra.ts`)**: Explora o grafo em ordem crescente de custo acumulado real `g(n)`, garantindo o caminho de menor custo entre dois vértices.
+- **A\* (`aStar.ts`)**: Combina o custo real `g(n)` com uma heurística admissível `h(n)` (distância de Manhattan ponderada pelo menor custo possível de terreno), reduzindo expansões sem perder admissibilidade.
+- **Portais**: Pares de vértices conectados por arestas de teleporte instantâneo com custo definido, considerados diretamente nos algoritmos de busca.
+- **Múltiplos Objetivos**: Quando há múltiplas chaves restantes, o agente avalia a sequência de coleta por aproximação gulosa/combinada antes de seguir para a saída.
 
 ---
 
-## 🧠 Teoria dos Grafos aplicada
+## Inteligência dos Agentes e Prevenção de Oscilações
 
-O labirinto é representado matematicamente por um grafo ponderado:
-
-**G = (V, E, w)**
-
-Onde:
-
-- **V:** conjunto de vértices, representando posições transitáveis.
-- **E:** conjunto de arcos direcionados, representando transições permitidas.
-- **w:** função que associa um custo a cada arco.
-
-A representação computacional utiliza **listas de adjacência**.
-
-### 1. Grafos direcionados e ponderados
-
-Cada posição transitável do labirinto é identificada por uma coordenada `(linha, coluna)`.
-
-Os movimentos permitidos são representados por conexões entre vértices.
-
-O custo pode variar conforme o terreno de destino da transição.
-
-#### Pesos dos terrenos
-
-| Terreno | Peso | Característica |
-|---|---:|---|
-| Normal | 1,0 | Deslocamento padrão |
-| Esteira | 0,3 | Baixo custo de travessia |
-| Lama | 4,0 | Movimento mais lento |
-| Lava | 8,0 | Alto custo e dano ao jogador |
-
-Essa modelagem permite demonstrar uma propriedade importante:
-
-> **O caminho com menos movimentos nem sempre é o caminho de menor custo.**
-
-Um percurso mais longo pode ser matematicamente mais vantajoso quando utiliza terrenos com pesos menores.
-
-### 2. Geração procedural com DFS
-
-Os labirintos são gerados utilizando uma abordagem baseada em **busca em profundidade (Depth-First Search — DFS)**.
-
-O algoritmo percorre o espaço disponível e constrói corredores conectados.
-
-Após a geração inicial, podem ser introduzidas conexões adicionais, criando ciclos e caminhos alternativos.
-
-A versão web utiliza um gerador pseudoaleatório com sementes, permitindo reproduzir cenários para testes.
-
-### 3. Algoritmo de Dijkstra
-
-O algoritmo de Dijkstra encontra caminhos mínimos em grafos com pesos não negativos.
-
-Seu funcionamento considera o menor custo acumulado a partir do vértice inicial.
-
-A implementação utiliza uma fila de prioridade (*Min-Heap*) para selecionar os próximos vértices a serem processados.
-
-**Aplicações no jogo:**
-
-- Consideração dos custos dos terrenos.
-- Respeito à direção das conexões.
-- Utilização de portais.
-- Cálculo de caminhos mínimos.
-- Comparação com A*.
-
-### 4. Algoritmo A* (A-Star)
-
-O algoritmo A* utiliza uma busca informada por heurística.
-
-Sua função de avaliação é:
-
-**f(n) = g(n) + h(n)**
-
-Onde:
-
-- **g(n):** custo acumulado desde a origem.
-- **h(n):** estimativa do custo restante até o objetivo.
-- **f(n):** prioridade utilizada na exploração.
-
-A implementação utiliza uma heurística ponderada para considerar os custos mínimos de deslocamento e as conexões especiais do grafo.
-
-A heurística deve respeitar as condições necessárias para preservar a otimalidade.
-
-#### Comparação com Dijkstra
-
-| Métrica | Significado |
-|---|---|
-| Custo final | Soma dos pesos do caminho |
-| Vértices expandidos | Quantidade de expansões durante a busca |
-| Comprimento | Número de movimentos do percurso |
-| Tempo de execução | Tempo necessário para calcular o resultado |
-| Caminho encontrado | Indica se existe solução válida |
-
-A* pode explorar menos vértices que Dijkstra em determinados cenários.
-
-Entretanto, isso **não significa que A* seja necessariamente mais rápido em todas as situações**.
-
-### 5. Portais e conexões não locais
-
-O jogo possui portais que conectam posições distantes do labirinto.
-
-Ao entrar em um portal, o personagem é transferido para sua extremidade correspondente.
-
-Essas conexões são consideradas durante a busca de caminhos.
-
-**Observação matemática:** conexões entre vértices distantes não tornam necessariamente um grafo não planar. A planaridade depende da estrutura matemática do grafo.
-
-### 6. Busca com múltiplos objetivos
-
-Além de encontrar caminhos entre dois vértices, o projeto implementa uma busca que considera objetivos intermediários.
-
-O Pac-Man precisa coletar as chaves necessárias antes de alcançar a saída.
-
-O sistema avalia diferentes ordens de coleta e seleciona uma rota de menor custo acumulado.
-
-**Limitação:** a busca minimiza os custos de deslocamento. Ela não prevê necessariamente a movimentação futura dos inimigos nem otimiza o risco de perder vida.
+- **Perseguidor (Fantasma Vermelho)**: Calcula a rota mínima diretamente até a posição atual do Pac-Man (`playerPos`).
+- **Interceptor (Fantasma Roxo)**: Implementado em `GhostInterception.ts`, projeta a trajetória provável do jogador (`getPacmanProbablePath`) e calcula distâncias ponderadas (`computeDistancesFrom`) para escolher um ponto de interceptação à frente, recorrendo à perseguição ativa quando não há candidato competitivo ou ao atingir o alvo sem encontrar o jogador.
+- **Avaliação de Risco (`RiskAssessment.ts`)**: Avalia a proximidade ponderada dos fantasmas, penalizando becos sem saída e priorizando bifurcações e rotas de fuga futuras.
+- **Histerese e Anti-Oscilação (`AutonomousAgent.ts`)**:
+  - Exige permanência mínima de `600 ms` no estado `ESCAPING` e margem de segurança de `+2.5` antes de retomar `COLLECTING`.
+  - Mantém memória dos últimos `6` vértices visitados durante a fuga, aplicando penalidade (`-45`) a revisitas para evitar vai-e-vem e travessias repetitivas de portais.
 
 ---
 
-## 👻 Inteligência artificial dos inimigos
+## Laboratório de Grafos
 
-### 🔴 Minotauro vermelho — Perseguidor
+A página **Laboratório** (`LaboratoryPage` + `GraphLabScene`) permite inspecionar o funcionamento interno dos algoritmos:
 
-Utiliza A* para calcular uma rota em direção à posição atual do Pac-Man.
-
-Seu comportamento prioriza a perseguição direta.
-
-### 🟣 Espectro roxo — Emboscador
-
-Busca antecipar a movimentação do jogador, definindo como alvo uma posição à frente da direção atual do Pac-Man.
-
-A partir desse alvo, calcula uma rota utilizando os algoritmos de busca.
-
-### 🔵 Modo assustado
-
-Ao coletar um orbe de poder, os inimigos entram temporariamente em um estado vulnerável.
-
-Durante esse período, utilizam uma estratégia local de fuga, selecionando movimentos que aumentam a distância em relação ao jogador.
-
-Essa estratégia não equivale necessariamente à determinação de um caminho globalmente mais longo.
+- **Modos de visualização**: `Labirinto`, `Grafo` (vértices e arestas ponderadas) e `Sobreposição`.
+- **Execução controlada**: Controles de `Executar`/`Pausar`, `Próximo passo`, `Reiniciar`, velocidade ajustável e contador de passos (`atual / total`).
+- **Análise sob demanda**: Comparação direta entre **Dijkstra** e **A\*** (custo, nós expandidos e ganho percentual), inspeção individual de vértices por clique ou coordenadas `(linha, coluna)` e painel conceitual de ajuda.
 
 ---
 
-## 🎯 Regras do jogo
+## Arena Experimental
 
-### Objetivo
+A página **Arena** (`ArenaPage` + `Experiment.ts`) executa baterias experimentais em segundo plano via Web Worker (`experiment.worker.ts`):
 
-Para vencer, o jogador deve:
-
-1. Explorar o labirinto.
-2. Coletar as chaves douradas.
-3. Desbloquear a saída.
-4. Alcançar o destino sem ser derrotado.
-
-A coleta de todos os pontos não é obrigatória para concluir a partida.
-
-### Condições de derrota
-
-A partida termina quando:
-
-- O Pac-Man é capturado por um inimigo fora do modo vulnerável.
-- A vida do jogador chega a zero.
-
-### Pontuação
-
-| Ação | Pontos |
-|---|---:|
-| Coletar ponto comum | +10 |
-| Coletar chave | +100 |
-| Coletar orbe de poder | +50 |
-| Capturar inimigo vulnerável | +200 |
-| Concluir a partida | +500 |
+- **Reprodutibilidade**: Execuções determinísticas controladas por sementes (`seeds`) e repetições configuráveis.
+- **Métricas coletadas**: Desfecho (`WON`, `LOST`, `TIMEOUT`, `BLOCKED`), custo percorrido, movimentos, nós expandidos, Pac-Dots, chaves, tempo simulado (invariante à velocidade de visualização) e tempo real.
+- **Ranking e Gráficos**: Consolidação comparativa entre as estratégias com cálculo de medianas e visualização gráfica (`ExperimentCharts`).
 
 ---
 
-## 🚀 Instalação e execução
+## Manual e Teoria
 
-### 🌐 Opção 1 — Jogar online
-
-Acesse diretamente:
-
-**[🎮 Pac-Man: Graph Lab — GitHub Pages](https://marloncarvalhodev.github.io/Pac-Man/)**
-
-Não é necessário instalar nenhuma dependência para utilizar a versão publicada.
-
-### 💻 Opção 2 — Executar localmente
-
-#### 1. Clonar o repositório
-
-```bash
-git clone https://github.com/marloncarvalhodev/Pac-Man.git
-cd Pac-Man
-```
-
-#### 2. Acessar a aplicação web
-
-```bash
-cd web
-```
-
-#### 3. Instalar as dependências
-
-```bash
-npm install
-```
-
-#### 4. Iniciar o servidor de desenvolvimento
-
-```bash
-npm run dev
-```
-
-Abra o endereço exibido no terminal, normalmente:
-
-```text
-http://localhost:5173/
-```
-
-#### 5. Gerar build de produção
-
-```bash
-npm run build
-```
-
-Os arquivos compilados serão gerados em `web/dist/`.
+A página **Manual** (`HowToPlayPage`) documenta as regras do jogo, controles, terrenos, comportamento dos fantasmas e os fundamentos teóricos de grafos aplicados no projeto.
 
 ---
 
-## 🐍 Executar a versão Python
-
-A versão original utiliza Python e Pygame.
-
-A partir da raiz do repositório:
-
-```bash
-pip install -r requirements.txt
-```
-
-Execute:
-
-```bash
-python -m src.main
-```
-
-Essa versão abre uma janela local do Pygame.
-
----
-
-## ⌨️ Controles
-
-### Modo Arcade
-
-| Tecla | Ação |
-|---|---|
-| `W`, `A`, `S`, `D` | Movimentar Pac-Man |
-| `↑`, `↓`, `←`, `→` | Movimentar Pac-Man |
-| `P` | Pausar a partida |
-| `R` | Reiniciar o labirinto |
-| `N` | Gerar novo labirinto |
-
-As demais opções estão disponíveis pelos controles da interface.
-
-### Laboratório de Grafos
-
-O laboratório disponibiliza controles para:
-
-- Selecionar Dijkstra ou A*.
-- Iniciar uma busca.
-- Pausar a visualização.
-- Avançar um passo.
-- Reiniciar a demonstração.
-- Ajustar a velocidade.
-- Alternar os modos de visualização.
-- Selecionar origem e destino.
-- Inspecionar vértices.
-
----
-
-## 🧪 Testes automatizados
-
-### Versão web
-
-Acesse a pasta `web` e execute:
-
-```bash
-npx vitest run
-```
-
-### Versão Python
-
-Na raiz do projeto:
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-### Benchmark
-
-```bash
-python tests/benchmark.py
-```
-
-Os resultados devem ser interpretados considerando as características dos cenários utilizados.
-
-Os testes não substituem a validação das mecânicas por meio de partidas completas.
-
----
-
-## 📁 Estrutura do projeto
+## Arquitetura e Estrutura de Diretórios
 
 ```text
 Pac-Man/
-│
-├── src/                         # Implementação Python
-│   ├── __init__.py
-│   ├── graph.py
-│   ├── pathfinding.py
-│   └── main.py
-│
-├── tests/                       # Testes Python
-│   ├── benchmark.py
-│   ├── test_game.py
-│   └── test_math.py
-│
-├── web/                         # Aplicação React + Phaser
-│   ├── public/
-│   ├── src/
-│   │   ├── app/
-│   │   ├── components/
-│   │   ├── game/
-│   │   │   ├── algorithms/
-│   │   │   ├── core/
-│   │   │   ├── graph/
-│   │   │   ├── rendering/
-│   │   │   ├── scenes/
-│   │   │   └── systems/
-│   │   ├── pages/
-│   │   ├── styles/
-│   │   └── tests/
-│   ├── package.json
-│   └── vite.config.ts
-│
 ├── README.md
-├── VALIDACAO.md
-├── requirements.txt
-└── .gitignore
+├── INTERFACE_E_VALIDACAO.md
+└── web/
+    ├── package.json
+    ├── index.html
+    └── src/
+        ├── app/            # Shell da aplicação, roteamento e layout principal (App.tsx)
+        ├── assets/         # Assets estáticos (ex.: pacs.jpeg)
+        ├── components/     # HUD do jogo, controles do laboratório, gráficos e sidebar (StaggeredMenu)
+        ├── game/
+        │   ├── agents/     # AutonomousAgent, RiskAssessment, GhostInterception e strategies/
+        │   ├── algorithms/ # Dijkstra, A* e tipos de pathfinding
+        │   ├── config/     # GAME_SPEED_CONFIG e MatchRules
+        │   ├── core/       # EventBus e GameState
+        │   ├── experiment/ # Motor experimental (Experiment.ts), worker e agregação de resultados
+        │   ├── graph/      # Graph, MazeGenerator e Terrain
+        │   ├── rendering/  # Renderização de personagens
+        │   └── scenes/     # GameScene e GraphLabScene (Phaser 3)
+        ├── pages/          # HomePage, PlayPage, LaboratoryPage, ArenaPage e HowToPlayPage
+        ├── styles/         # Tokens e estilos globais
+        └── tests/          # Suíte de testes automatizados (Vitest)
 ```
 
 ---
 
-## 📊 Convenções matemáticas e métricas
+## Tecnologias, Instalação e Comandos
 
-| Conceito | Definição |
-|---|---|
-| Ordem do grafo | Quantidade de vértices |
-| Tamanho do grafo direcionado | Quantidade de arcos |
-| Grau de entrada | Quantidade de arcos que chegam a um vértice |
-| Grau de saída | Quantidade de arcos que partem de um vértice |
-| Custo do caminho | Soma dos pesos das transições |
-| Comprimento | Quantidade de movimentos ou transições |
-| Caminho mínimo | Percurso com menor custo acumulado |
+- **Stack**: React 18, TypeScript 5, Phaser 3.88, Vite 6, Vitest 3 e Lucide React.
 
-A redução percentual de expansões pode ser calculada por:
-
-```text
-R = ((E_D - E_A) / E_D) × 100
+```bash
+cd web
+npm install
 ```
 
-Onde:
-
-- **E_D:** expansões realizadas por Dijkstra.
-- **E_A:** expansões realizadas por A*.
-
-A expressão é aplicável quando `E_D > 0`.
-
-Valores negativos indicam que A* realizou mais expansões.
-
-**Menos expansões não significa necessariamente menor tempo de execução.**
+| Comando | Finalidade |
+| :--- | :--- |
+| `npm run dev` | Inicia o servidor de desenvolvimento Vite |
+| `npm run build` | Executa verificação TypeScript (`tsc`) e gera o build de produção (`vite build`) |
+| `npm run preview` | Pré-visualiza localmente o build de produção |
+| `npm test` | Executa a suíte de testes automatizados (`vitest run`) |
 
 ---
 
-## 🎓 Objetivo acadêmico
+## Limitações e Documentação Complementar
 
-O Pac-Man: Graph Lab foi desenvolvido para demonstrar aplicações práticas dos conceitos estudados na disciplina de **Matemática Discreta II / Teoria dos Grafos**.
-
-O projeto explora principalmente:
-
-- Modelagem matemática de ambientes.
-- Grafos direcionados.
-- Grafos ponderados.
-- Listas de adjacência.
-- Busca em profundidade.
-- Caminhos mínimos.
-- Algoritmos Dijkstra e A*.
-- Busca com múltiplos objetivos.
-- Aplicações de grafos na inteligência artificial de jogos.
-
-O Laboratório permite que esses conceitos sejam observados interativamente, associando a fundamentação teórica ao funcionamento de um jogo digital.
+- As estratégias heurísticas operam sobre decisões locais/temporais e não garantem vitória em todas as sementes no modo `MVM`.
+- Documentação adicional de validação encontra-se em [INTERFACE_E_VALIDACAO.md](INTERFACE_E_VALIDACAO.md).
 
 ---
 
-## 📚 Documentação complementar
+## Contexto Acadêmico
 
-- [`VALIDACAO.md`](VALIDACAO.md) — Relatório de correções, testes e limitações.
-- [`web/README.md`](web/README.md) — Documentação técnica da aplicação web.
-
----
-
-## 👨‍💻 Desenvolvimento
-
-Projeto acadêmico desenvolvido no **Instituto Federal da Bahia (IFBA)**, no contexto da disciplina de Matemática Discreta II.
-
-**Repositório:** [Pac-Man — GitHub](https://github.com/marloncarvalhodev/Pac-Man)
-
----
-
-<p align="center">
-  <strong>Pac-Man: Graph Lab</strong><br>
-  Aprenda grafos explorando caminhos.
-</p>
+Projeto desenvolvido para a disciplina de **Teoria dos Grafos**, integrando visualização interativa, simulação em tempo real e experimentação comparativa de algoritmos de busca.
