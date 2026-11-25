@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
+  <title id="title">Pac-Man: Graph Lab</title>
+  <desc id="desc">Labirinto azul com Pac-Man e fantasmas em um caminho pontilhado.</desc>
+  <rect width="1200" height="300" fill="#090D18"/>
+  <g fill="none" stroke="#2458B4" stroke-width="6" stroke-linejoin="miter" shape-rendering="crispEdges">
+    <path d="M0 26H120V58H40V106H0 M0 202H40V250H120V274H0"/>
+    <path d="M1200 26H1080V58H1160V106H1200 M1200 202H1160V250H1080V274H1200"/>
+    <path d="M162 26H636V58H674V26H1038 M162 274H636V242H674V274H1038"/>
+    <path d="M680 85V65H746V85 M680 215V235H746V215 M1040 85V65H1106V85 M1040 215V235H1106V215"/>
+    <path d="M756 0V26H818V0 M940 0V26H1002V0 M756 300V274H818V300 M940 300V274H1002V300"/>
+  </g>
+  <g font-family="monospace" font-weight="900" letter-spacing="3">
+    <text x="165" y="137" font-size="68" fill="#FFDF29">PAC-MAN</text>
+    <text x="168" y="202" font-size="48" fill="#F4F6FC">GRAPH LAB</text>
+  </g>
+  <g fill="#F4F6FC" shape-rendering="crispEdges">
+    <rect x="757" y="145" width="8" height="8"/><rect x="793" y="145" width="8" height="8"/>
+    <rect x="829" y="145" width="8" height="8"/><rect x="865" y="145" width="8" height="8"/>
+    <rect x="901" y="145" width="8" height="8"/><rect x="937" y="145" width="8" height="8"/>
+    <rect x="973" y="145" width="8" height="8"/><rect x="1009" y="145" width="8" height="8"/>
+    <animate attributeName="opacity" values="0.65;1;0.65" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+  <g shape-rendering="crispEdges">
+    <path fill="#FFDF29" d="M698 116H726V122H736V132H741V141H724V147H715V153H724V159H741V168H736V178H726V184H698V178H688V168H683V132H688V122H698Z">
+      <animate attributeName="d" dur="0.55s" repeatCount="indefinite" values="M698 116H726V122H736V132H741V141H724V147H715V153H724V159H741V168H736V178H726V184H698V178H688V168H683V132H688V122H698Z;M698 116H726V122H736V132H741V147H725V153H741V168H736V178H726V184H698V178H688V168H683V132H688V122H698Z;M698 116H726V122H736V132H741V141H724V147H715V153H724V159H741V168H736V178H726V184H698V178H688V168H683V132H688V122H698Z"/>
+    </path>
+    <g>
+      <path fill="#F87171" d="M1045 184V133H1050V123H1060V117H1080V123H1090V133H1095V184H1085V178H1075V184H1065V178H1055V184Z"/>
+      <path fill="#F4F6FC" d="M1055 135H1067V149H1055Z M1075 135H1087V149H1075Z"/>
+      <path fill="#2458B4" d="M1055 141H1061V149H1055Z M1075 141H1081V149H1075Z"/>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="2s" repeatCount="indefinite"/>
+    </g>
+    <g>
+      <path fill="#B794F4" d="M1120 184V133H1125V123H1135V117H1155V123H1165V133H1170V184H1160V178H1150V184H1140V178H1130V184Z"/>
+      <path fill="#F4F6FC" d="M1130 135H1142V149H1130Z M1150 135H1162V149H1150Z"/>
+      <path fill="#2458B4" d="M1130 141H1136V149H1130Z M1150 141H1156V149H1150Z"/>
+      <animateTransform attributeName="transform" type="translate" values="0 -3;0 1;0 -3" dur="2.2s" repeatCount="indefinite"/>
+    </g>
+  </g>
+</svg>

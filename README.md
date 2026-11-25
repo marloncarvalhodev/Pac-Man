@@ -1,15 +1,11 @@
 <p align="center">
-  <img src="web/src/assets/pacs.jpeg" alt="Fliperama inspirado em Pac-Man, com labirinto e fantasmas" width="100%">
+  <img src="docs/banner.svg" alt="Pac-Man: Graph Lab — labirinto, Pac-Man e fantasmas" width="100%">
 </p>
-
-<h1 align="center">Pac-Man: Graph Lab</h1>
 
 <p align="center">Visualização e análise experimental de algoritmos em grafos ponderados e direcionados.</p>
 
 <p align="center">
-  <a href="https://marloncarvalhodev.github.io/Pac-Man/">Jogar online</a> ·
-  <a href="web/README.md">Documentação</a> ·
-  <a href="VALIDACAO.md">Validação</a>
+  <a href="https://marloncarvalhodev.github.io/Pac-Man/"><img src="docs/play-button.svg" alt="Jogar online" width="190" height="44"></a>
 </p>
 
 ---
