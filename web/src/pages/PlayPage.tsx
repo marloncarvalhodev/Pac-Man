@@ -88,6 +88,25 @@ export const PlayPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Modal de Limite Temporal (MAX_SURVIVAL_TIME) */}
+        {gameState?.gameStatus === 'TIMEOUT' && (
+          <div className={styles.overlayModal} role="region" aria-label="Resultado da partida">
+            <div className={styles.modalCardSuccess}>
+              <Trophy size={48} className={styles.victoryIcon} />
+              <h2 className={styles.modalTitle}>LIMITE TEMPORAL</h2>
+              <p className={styles.modalText}>
+                O agente sobreviveu até o limite temporal de {((gameState.agentStatus?.matchMetrics?.simulatedTime ?? 120)).toFixed(1)} s!
+              </p>
+              <div className={styles.scoreHighlight}>
+                Pontuação Final: <strong>{gameState.score} pts</strong>
+              </div>
+              <button className={styles.modalBtnSuccess} onClick={handleNewMaze}>
+                <RotateCcw size={16} /> Jogar Novamente
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {gameState?.controlMode !== 'AUTONOMOUS' && (

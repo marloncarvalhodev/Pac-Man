@@ -332,6 +332,11 @@ export class MazeGenerator {
     const endCell: Node = [this.rows - 2, this.cols - 2];
     grid[startCell[0]][startCell[1]] = 0;
     grid[endCell[0]][endCell[1]] = 0;
+    // Garante rotas alternativas imediatas a partir do spawn do jogador (evita beco deg=1 em [1, 1])
+    if (this.rows > 3 && this.cols > 3) {
+      grid[1][2] = 0;
+      grid[2][1] = 0;
+    }
 
     // Todas as células livres
     const openCells: Node[] = [];
@@ -513,8 +518,9 @@ export class MazeGenerator {
       nodeToKey(endCell),
     ]);
 
-    const cornerNE: Node = [1, this.cols - 2];
-    const cornerSW: Node = [this.rows - 2, 1];
+    // Power Pellets posicionadas em regiões intermediárias para acesso razoável no primeiro confronto
+    const pelletTarget1: Node = [Math.floor(this.rows / 3), Math.floor(this.cols / 3)];
+    const pelletTarget2: Node = [Math.floor((this.rows * 2) / 3), Math.floor((this.cols * 2) / 3)];
 
     const findClosestOpen = (target: Node): Node => {
       const sorted = openCells
@@ -531,9 +537,9 @@ export class MazeGenerator {
       return sorted[0] ?? target;
     };
 
-    const pellet1 = findClosestOpen(cornerNE);
+    const pellet1 = findClosestOpen(pelletTarget1);
     reservedForPellets.add(nodeToKey(pellet1));
-    const pellet2 = findClosestOpen(cornerSW);
+    const pellet2 = findClosestOpen(pelletTarget2);
     reservedForPellets.add(nodeToKey(pellet2));
     const powerPellets: Node[] = [pellet1, pellet2];
 
@@ -565,10 +571,10 @@ export class MazeGenerator {
     const maxReachTimeMs = maxWeightedCost * GAME_SPEED_CONFIG.GHOST_BASE_DELAY_MS;
 
     // Critérios combinados:
-    // 1. Distância topológica mínima em arestas (BFS): 12 a 20 arestas
-    // 2. Tempo mínimo ponderado de percurso: pelo menos 3500ms (até 5500ms)
-    let minSafeHops = Math.max(12, Math.min(20, Math.floor(maxHops * 0.50)));
-    let minSafeTimeMs = Math.max(3500, Math.min(5500, Math.floor(maxReachTimeMs * 0.45)));
+    // 1. Distância topológica mínima em arestas (BFS): referência de 35 arestas
+    // 2. Tempo mínimo ponderado de percurso: pelo menos 6000ms (até 9000ms)
+    let minSafeHops = Math.max(35, Math.min(45, Math.floor(maxHops * 0.55)));
+    let minSafeTimeMs = Math.max(6000, Math.min(9000, Math.floor(maxReachTimeMs * 0.50)));
 
     const reservedCells = new Set<NodeKey>([
       ...Array.from(reservedForPellets),
@@ -591,9 +597,9 @@ export class MazeGenerator {
       });
 
     let safeCandidates = getSafeCandidates(minSafeHops, minSafeTimeMs);
-    while (safeCandidates.length < 2 && (minSafeTimeMs > 2500 || minSafeHops > 8)) {
-      if (minSafeTimeMs > 2500) minSafeTimeMs -= 250;
-      if (minSafeHops > 8) minSafeHops -= 1;
+    while (safeCandidates.length < 2 && (minSafeTimeMs > 3000 || minSafeHops > 20)) {
+      if (minSafeTimeMs > 3000) minSafeTimeMs -= 300;
+      if (minSafeHops > 20) minSafeHops -= 1;
       safeCandidates = getSafeCandidates(minSafeHops, minSafeTimeMs);
     }
 

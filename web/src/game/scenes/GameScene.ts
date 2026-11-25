@@ -290,7 +290,10 @@ export class GameScene extends Phaser.Scene {
     this.resetState();
     this.gameStatus = 'COUNTDOWN';
     this.countdownRemainingMs = GAME_SPEED_CONFIG.COUNTDOWN_DURATION_SEC * 1000;
-    this.ghostGraceUntilSimTime = GAME_SPEED_CONFIG.GHOST_INITIAL_SPAWN_DELAY_MS;
+    this.ghostGraceUntilSimTime =
+      this.controlMode === 'AUTONOMOUS' && this.autonomousAgent.getAutonomousMode() === 'MVM'
+        ? GAME_SPEED_CONFIG.MVM_GHOST_INITIAL_SPAWN_DELAY_MS
+        : GAME_SPEED_CONFIG.GHOST_INITIAL_SPAWN_DELAY_MS;
     this.simulatedTime = 0;
     this.realElapsedTime = 0;
     this.renderCountdownVisual(GAME_SPEED_CONFIG.COUNTDOWN_DURATION_SEC);
@@ -345,6 +348,18 @@ export class GameScene extends Phaser.Scene {
       const simDelta = delta * this.simulationSpeed;
       this.simulatedTime += simDelta;
       this.realElapsedTime += delta;
+
+      if (
+        this.controlMode === 'AUTONOMOUS' &&
+        this.autonomousAgent.getStrategy() === 'MAX_SURVIVAL_TIME' &&
+        this.simulatedTime >= GAME_SPEED_CONFIG.MAX_SURVIVAL_TIME_LIMIT_MS
+      ) {
+        this.simulatedTime = GAME_SPEED_CONFIG.MAX_SURVIVAL_TIME_LIMIT_MS;
+        this.triggerTimeout();
+        this.interpolatePositions(0);
+        this.renderFrame(this.simulatedTime);
+        return;
+      }
 
       if (this.controlMode === 'HUMAN') {
         this.handlePlayerInput();
@@ -458,9 +473,12 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
-      // Condição de Vitória: Destino com todas as chaves
-      if (nodeEquals(this.playerPos, this.world.goal) && this.collectedKeys.size === this.world.keys.length &&
-          (this.controlMode !== 'AUTONOMOUS' || this.autonomousAgent.getStrategy() !== 'FULL_CLEAR' || !this.pacDots.size)) {
+      // Condição de Vitória: Destino com todas as chaves (MAX_SURVIVAL_TIME nunca vence pela saída)
+      const activeStrategy = this.controlMode === 'AUTONOMOUS' ? this.autonomousAgent.getStrategy() : null;
+      const canWinByExit =
+        activeStrategy !== 'MAX_SURVIVAL_TIME' &&
+        (activeStrategy !== 'FULL_CLEAR' || !this.pacDots.size);
+      if (nodeEquals(this.playerPos, this.world.goal) && this.collectedKeys.size === this.world.keys.length && canWinByExit) {
         this.triggerVictory();
         return;
       }
@@ -1065,6 +1083,14 @@ export class GameScene extends Phaser.Scene {
     this.emitGameState();
   }
 
+  private triggerTimeout(): void {
+    this.gameStatus = 'TIMEOUT';
+    if (this.countdownText) this.countdownText.setVisible(false);
+    if (this.countdownBg) this.countdownBg.clear();
+    this.autonomousAgent.update(this.getPerceptionData(), this.gameStatus);
+    this.emitGameState();
+  }
+
   private getPerceptionData(): AgentPerceptionData {
     const now = this.simulatedTime;
     return this.agentPerception.readState(
@@ -1075,24 +1101,26 @@ export class GameScene extends Phaser.Scene {
       this.world.goal,
       this.world.portalPairs,
       this.world.terrains,
-      [
-        {
-          id: 'red',
-          name: 'Fantasma Vermelho (Perseguidor)',
-          pos: this.redEnemy.pos,
-          spawn: this.redEnemy.spawn,
-          facing: this.redEnemy.facing,
-          path: this.redEnemy.path,
-        },
-        {
-          id: 'purple',
-          name: 'Fantasma Roxo (Interceptor)',
-          pos: this.purpleEnemy.pos,
-          spawn: this.purpleEnemy.spawn,
-          facing: this.purpleEnemy.facing,
-          path: this.purpleEnemy.path,
-        },
-      ],
+      now < this.ghostGraceUntilSimTime
+        ? []
+        : [
+            {
+              id: 'red',
+              name: 'Fantasma Vermelho (Perseguidor)',
+              pos: this.redEnemy.pos,
+              spawn: this.redEnemy.spawn,
+              facing: this.redEnemy.facing,
+              path: this.redEnemy.path,
+            },
+            {
+              id: 'purple',
+              name: 'Fantasma Roxo (Interceptor)',
+              pos: this.purpleEnemy.pos,
+              spawn: this.purpleEnemy.spawn,
+              facing: this.purpleEnemy.facing,
+              path: this.purpleEnemy.path,
+            },
+          ],
       this.frightenedUntilTime,
       now,
       this.pacDots,
@@ -1112,10 +1140,16 @@ export class GameScene extends Phaser.Scene {
     if (mode === 'AUTONOMOUS') {
       const isMvM = this.autonomousAgent.getAutonomousMode() === 'MVM';
       this.enemiesActive = isMvM;
+      if (isMvM && this.simulatedTime === 0) {
+        this.ghostGraceUntilSimTime = GAME_SPEED_CONFIG.MVM_GHOST_INITIAL_SPAWN_DELAY_MS;
+      }
       this.autonomousAgent.start(this.getPerceptionData());
     } else {
       // Retorno ao Modo Humano: restaura os inimigos do Arcade tradicional
       this.enemiesActive = true;
+      if (this.simulatedTime === 0) {
+        this.ghostGraceUntilSimTime = GAME_SPEED_CONFIG.GHOST_INITIAL_SPAWN_DELAY_MS;
+      }
       this.autonomousAgent.stop();
     }
     this.emitGameState();

@@ -18,7 +18,7 @@ function validResult(value: unknown): value is ExperimentResult {
     typeof r.date === 'string' && Number.isFinite(Date.parse(r.date)) && r.engine === ENGINE_VERSION &&
     r.map?.rows === MAP.rows && r.map?.cols === MAP.cols && r.map?.loops === MAP.loops &&
     r.map?.keys === MAP.keys && r.map?.portals === MAP.portals &&
-    ['MIN_COST', 'MIN_TIME', 'SURVIVAL', 'MAX_SCORE', 'FULL_CLEAR'].includes(r.strategy) &&
+    ['MIN_COST', 'MIN_TIME', 'SURVIVAL', 'MAX_SURVIVAL_TIME', 'MAX_SCORE', 'FULL_CLEAR'].includes(r.strategy) &&
     ['Dijkstra', 'A*'].includes(r.algorithm) && ['DEMO', 'MVM'].includes(r.mode) &&
     ['exit', 'dots', 'survival', 'score', 'time'].includes(r.objective) &&
     ['WON', 'LOST', 'TIMEOUT', 'BLOCKED', 'ERROR'].includes(r.outcome) &&

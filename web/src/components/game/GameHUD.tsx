@@ -5,7 +5,7 @@ import { EventBus } from '../../game/core/EventBus';
 import styles from './GameHUD.module.css';
 
 interface Props { state: GameStateSnapshot | null; onNewMaze: () => void; onRestartMaze: () => void }
-const strategies = { MIN_COST: 'Menor custo', MIN_TIME: 'Menor tempo', SURVIVAL: 'Sobrevivência', MAX_SCORE: 'Maior pontuação', FULL_CLEAR: 'Coleta completa' };
+const strategies = { MIN_COST: 'Menor custo', MIN_TIME: 'Menor tempo', SURVIVAL: 'Sobrevivência', MAX_SURVIVAL_TIME: 'Permanência máxima', MAX_SCORE: 'Maior pontuação', FULL_CLEAR: 'Coleta completa' };
 const states: Record<string, string> = { IDLE:'Pronto para iniciar', PLANNING:'Planejando rota', MOVING:'Em movimento', PAUSED:'Agente pausado', COMPLETED:'Objetivo concluído', FAILED:'Rota interrompida' };
 const decisions: Record<string, string> = { COLLECTING:'Coletando chaves', ESCAPING:'Evitando ameaça', REPLANNING:'Recalculando caminho', FINISHING:'Seguindo para a saída' };
 export const GameHUD: React.FC<Props> = ({ state, onNewMaze, onRestartMaze }) => {
@@ -65,7 +65,7 @@ export const GameHUD: React.FC<Props> = ({ state, onNewMaze, onRestartMaze }) =>
         </div>
         <dl className={styles.liveMetrics}><div><dt>Próximo objetivo</dt><dd>{agent?.targetDescription || 'Aguardando plano'}</dd></div><div><dt>Decisão atual</dt><dd>{decisions[agent?.strategicState ?? ''] ?? 'Aguardando'}</dd></div><div><dt>Ameaça mais próxima</dt><dd>{agent?.mostDangerousEnemy ? `${agent.mostDangerousEnemy.name} · ${agent.mostDangerousEnemy.distance.toFixed(1)} no grafo` : 'Nenhuma ativa'}</dd></div><div><dt>Progresso da rota</dt><dd>{agent?.currentStepIndex ?? 0} / {agent?.totalSteps ?? 0}</dd></div></dl>
         <details className={styles.telemetry}><summary>Métricas da execução</summary><dl className={styles.liveMetrics}>
-          {Object.entries({ 'Semente': state.seed, 'Replanejamentos': agent?.replanCount ?? 0, 'Custo percorrido':metrics?.traversedCost.toFixed(2) ?? '0,00', 'Movimentos':metrics?.moves ?? 0, 'Vértices expandidos':metrics?.nodesExpanded ?? 0, 'Pac-Dots':metrics?.pacDots ?? 0, 'Chaves':`${metrics?.keys ?? 0} / ${state.totalKeys}`, 'Tempo simulado':`${(metrics?.simulatedTime ?? metrics?.time ?? 0).toFixed(1)} s`, 'Tempo real':`${(metrics?.realTime ?? metrics?.time ?? 0).toFixed(1)} s`, 'Resultado':metrics?.outcome === 'WON' ? 'Vitória' : metrics?.outcome === 'LOST' ? 'Derrota' : 'Em andamento' }).map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+          {Object.entries({ 'Semente': state.seed, 'Replanejamentos': agent?.replanCount ?? 0, 'Custo percorrido':metrics?.traversedCost.toFixed(2) ?? '0,00', 'Movimentos':metrics?.moves ?? 0, 'Vértices expandidos':metrics?.nodesExpanded ?? 0, 'Pac-Dots':metrics?.pacDots ?? 0, 'Chaves':`${metrics?.keys ?? 0} / ${state.totalKeys}`, 'Tempo simulado':`${(metrics?.simulatedTime ?? metrics?.time ?? 0).toFixed(1)} s`, 'Tempo real':`${(metrics?.realTime ?? metrics?.time ?? 0).toFixed(1)} s`, 'Resultado':metrics?.outcome === 'WON' ? 'Vitória' : metrics?.outcome === 'LOST' ? 'Derrota' : metrics?.outcome === 'TIMEOUT' ? 'Limite temporal' : 'Em andamento' }).map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
         </dl></details>
       </section>
       </>}

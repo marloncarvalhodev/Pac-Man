@@ -26,10 +26,10 @@ export const GAME_SPEED_CONFIG = {
 
   /**
    * Intervalo base de movimento dos Fantasmas (em milissegundos por unidade de peso de aresta).
-   * Anterior: 340 ms (~2.94 células/s, 2.5x mais lento que o Pac-Man).
-   * Novo: 260 ms (~3.85 células/s em terreno normal, oferecendo pressão tática realista).
+   * Anterior: 260 ms (~3.85 células/s em terreno normal).
+   * Balanceado para pesquisa e paridade: 320 ms (~3.12 células/s), permitindo margem de manobra viável em MVM.
    */
-  GHOST_BASE_DELAY_MS: 260,
+  GHOST_BASE_DELAY_MS: 320,
 
   /**
    * Multiplicador de velocidade quando os fantasmas estão assustados (modo Frightened).
@@ -60,6 +60,11 @@ export const GAME_SPEED_CONFIG = {
   GHOST_INITIAL_SPAWN_DELAY_MS: 2000,
 
   /**
+   * Janela inicial reduzida exclusivamente para o modo Máquina vs. Máquina (MVM).
+   */
+  MVM_GHOST_INITIAL_SPAWN_DELAY_MS: 500,
+
+  /**
    * Cooldown de anti-oscilação para replanejamento do agente autônomo (em milissegundos simulados).
    */
   AGENT_REPLAN_COOLDOWN_MS: 350,
@@ -73,6 +78,11 @@ export const GAME_SPEED_CONFIG = {
    * Velocidade padrão da simulação (1.0x).
    */
   DEFAULT_SIMULATION_SPEED: 1.0,
+
+  /**
+   * Limite temporal simulado padrão para a estratégia MAX_SURVIVAL_TIME no modo visual (120 s).
+   */
+  MAX_SURVIVAL_TIME_LIMIT_MS: 120000,
 } as const;
 
 export type SimulationSpeed = (typeof GAME_SPEED_CONFIG.SIMULATION_SPEEDS)[number];

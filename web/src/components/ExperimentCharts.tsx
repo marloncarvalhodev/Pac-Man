@@ -4,7 +4,14 @@ import { mean, median, percent } from '../game/experiment/results';
 import styles from './ExperimentCharts.module.css';
 
 type Metric = 'wins' | 'time' | 'cost' | 'score' | 'dots';
-const labels = { MIN_COST:'Menor custo', MIN_TIME:'Menor tempo', SURVIVAL:'Sobrevivência', MAX_SCORE:'Maior pontuação', FULL_CLEAR:'Coleta completa' };
+const labels: Record<string, string> = {
+  MIN_COST: 'Menor custo',
+  MIN_TIME: 'Menor tempo',
+  SURVIVAL: 'Sobrevivência',
+  MAX_SURVIVAL_TIME: 'Permanência máxima',
+  MAX_SCORE: 'Maior pontuação',
+  FULL_CLEAR: 'Coleta completa'
+};
 const outcomes = { WON:'Vitória', LOST:'Derrota', TIMEOUT:'Tempo excedido', BLOCKED:'Rota inviável', ERROR:'Erro técnico' };
 const metrics: Record<Metric,{ label:string; unit:string; note:string }> = {
   wins:{label:'Taxa de vitória',unit:'%',note:'Vitórias divididas por todas as partidas de cada estratégia.'},

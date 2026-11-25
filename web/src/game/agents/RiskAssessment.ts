@@ -136,7 +136,8 @@ export class RiskAssessment {
     pacmanPos: Node,
     enemies: EnemyPerception[],
     lastFacing: [number, number] | null,
-    terrains: Map<string, TerrainType>
+    terrains: Map<string, TerrainType>,
+    recentPositions: NodeKey[] = []
   ): EscapeDecision {
     const pacDistances = this.computeTopologicalDistances(graph, pacmanPos);
     const activeEnemies = enemies
@@ -213,18 +214,27 @@ export class RiskAssessment {
         score -= 500.0; // Risco de colisão direta imediata
       }
 
-      // 2. Grau de conectividade (evitar becos sem saída)
+      // 2. Grau de conectividade e rotas de fuga futuras (evitar becos sem saída e encurralamento)
       const degree = graph.degree(cand);
       if (degree <= 1) {
-        score -= 35.0;
+        score -= 180.0;
       } else if (degree >= 3) {
         // Bifurcação/Cruzamento oferece rotas de fuga alternativas
-        score += 15.0;
+        score += 45.0;
       }
 
-      // 3. Portais são excelentes rotas de fuga se afastam o Pac-Man do perigo
+      const futureEscapeRoutes = graph
+        .neighbors(cand)
+        .filter((n) => !nodeEquals(n.node, pacmanPos) && graph.degree(n.node) >= 2).length;
+      score += futureEscapeRoutes * 18.0;
+
+      // 3. Portais são excelentes rotas de fuga se afastam o Pac-Man do perigo, mas evita vai-e-vem repetitivo
       if (!nodeEquals(entryCell, cand)) {
-        score += 25.0;
+        if (recentPositions.includes(candKey) || recentPositions.includes(nodeToKey(entryCell))) {
+          score -= 45.0;
+        } else {
+          score += 25.0;
+        }
       }
 
       // 4. Custo de Terreno
@@ -237,9 +247,12 @@ export class RiskAssessment {
         score += 15.0; // Boost acelera o Pac-Man
       }
 
-      // 5. Anti-oscilação (Hysteresis): penaliza levemente reversão imediata de 180°
+      // 5. Anti-oscilação (Hysteresis) e memória de vértices recentes
       if (lastFacing && dr === -lastFacing[0] && dc === -lastFacing[1]) {
         score -= 8.0;
+      }
+      if (recentPositions.includes(candKey)) {
+        score -= 45.0;
       }
 
       if (score > bestScore) {

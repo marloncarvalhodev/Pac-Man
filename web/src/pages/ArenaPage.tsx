@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Download, Play, Square, Route, Timer, Shield, Trophy, Scan, BarChart3 } from 'lucide-react';
+import { Download, Play, Square, Route, Timer, Shield, Trophy, Scan, BarChart3, Hourglass } from 'lucide-react';
 import type { StrategyType } from '../game/agents/strategies';
 import type { ExperimentConfig, ExperimentResult } from '../game/experiment/Experiment';
 import { clearHistory, mean, median, percent, readHistory, saveHistory } from '../game/experiment/results';
@@ -8,12 +8,14 @@ import { ExperimentCharts } from '../components/ExperimentCharts';
 
 const strategies: Record<StrategyType, string> = {
   MIN_COST: 'Menor custo', MIN_TIME: 'Menor tempo', SURVIVAL: 'Sobrevivência',
+  MAX_SURVIVAL_TIME: 'Permanência máxima',
   MAX_SCORE: 'Maior pontuação', FULL_CLEAR: 'Coleta completa',
 };
 const strategyDetails = {
   MIN_COST: { Icon: Route, hint: 'Prioriza o custo da rota.' },
   MIN_TIME: { Icon: Timer, hint: 'Busca concluir mais rápido.' },
   SURVIVAL: { Icon: Shield, hint: 'Considera risco e ameaças.' },
+  MAX_SURVIVAL_TIME: { Icon: Hourglass, hint: 'Evasão contínua para maximizar tempo vivo.' },
   MAX_SCORE: { Icon: Trophy, hint: 'Busca oportunidades de pontos.' },
   FULL_CLEAR: { Icon: Scan, hint: 'Tenta recolher todos os pontos.' },
 };
@@ -22,7 +24,7 @@ const objectives = { exit: 'Saída com chaves', time: 'Tempo de conclusão', sur
 const outcomes = { WON: 'Vitória', LOST: 'Derrota', TIMEOUT: 'Tempo excedido',
   BLOCKED: 'Rota inviável', ERROR: 'Erro técnico' };
 const number = (n: number | null) => n === null ? '—' : n.toLocaleString('pt-BR', { maximumFractionDigits: 2 });
-type Metric = 'time' | 'cost' | 'score' | 'dots' | 'wins';
+type Metric = 'time' | 'survival_time' | 'cost' | 'score' | 'dots' | 'wins';
 
 export function ArenaPage() {
   const [view, setView] = useState<'config' | 'results' | 'ranking'>('config');
@@ -99,14 +101,23 @@ export function ArenaPage() {
   const scenario = (r: ExperimentResult) => [r.objective, r.seed, r.mode, r.limitMs].join('/');
   const groups = new Map(history.map(r => [scenario(r), r]));
   const activeGroup = groups.has(group) ? group : groups.keys().next().value;
-  const candidateRows = history.filter(r => scenario(r) === activeGroup && r.outcome !== 'ERROR');
+  const candidateRows = history.filter(r => scenario(r) === activeGroup && r.outcome !== 'ERROR' && r.outcome !== 'BLOCKED');
   const batches = new Map(candidateRows.map(r => [r.batch, r.date]));
   const comparable = batches.has(batchFilter)
     ? candidateRows.filter(r => r.batch === batchFilter)
     : candidateRows;
-  const ranked = comparable.filter(r => !['time', 'cost'].includes(metric) || r.outcome === 'WON');
-  const value = (r: ExperimentResult) => ({ time: r.simulatedMs / 1000, cost: r.cost, score: r.score,
-    dots: percent(r) })[metric as Exclude<Metric, 'wins'>];
+  const ranked = comparable.filter(r => {
+    if (metric === 'survival_time') return r.outcome === 'WON' || r.outcome === 'LOST' || r.outcome === 'TIMEOUT';
+    if (['time', 'cost'].includes(metric)) return r.outcome === 'WON';
+    return true;
+  });
+  const value = (r: ExperimentResult) => ({
+    time: r.simulatedMs / 1000,
+    survival_time: r.simulatedMs / 1000,
+    cost: r.cost,
+    score: r.score,
+    dots: percent(r)
+  })[metric as Exclude<Metric, 'wins'>];
   const byAgent = new Map<string, ExperimentResult[]>();
   for (const r of comparable) {
     const key = r.strategy + '/' + r.algorithm;
@@ -118,9 +129,13 @@ export function ArenaPage() {
     label: strategies[rows[0].strategy] + ' · ' + rows[0].algorithm,
     wins: rows.filter(r => r.outcome === 'WON').length, total: rows.length,
   })).sort((a, b) => b.wins / b.total - a.wins / a.total || a.label.localeCompare(b.label));
-  const displayRows = [...ranked].sort((a, b) =>
-    (['time', 'cost'].includes(metric) ? value(a) - value(b) : value(b) - value(a)) ||
-    a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const displayRows = [...ranked].sort((a, b) => {
+    if (metric === 'time' || metric === 'cost') {
+      return (value(a) - value(b)) || a.date.localeCompare(b.date) || a.id.localeCompare(b.id);
+    }
+    // Para survival_time, score, dots: maior valor primeiro
+    return (value(b) - value(a)) || a.date.localeCompare(b.date) || a.id.localeCompare(b.id);
+  });
 
   return <div className={styles.arena}>
     <header className={styles.header}>
@@ -228,6 +243,7 @@ export function ArenaPage() {
             </option>)}
           </select></label>
           <label>Classificar por<select value={metric} onChange={e => setMetric(e.target.value as Metric)}>
+            <option value="survival_time">Maior tempo de permanência (inclusive derrotas/limites)</option>
             <option value="time">Menor tempo entre vitórias</option><option value="cost">Menor custo entre vitórias</option>
             <option value="score">Maior pontuação</option><option value="dots">Maior coleta (%)</option><option value="wins">Taxa de vitória</option>
           </select></label>
@@ -237,7 +253,7 @@ export function ArenaPage() {
             <tbody>{metric === 'wins' ? winRanking.map(r => <tr key={r.label}><th scope="row">{r.label}</th>
               <td>{r.wins}/{r.total} vitórias</td><td>{number(100 * r.wins / r.total)}%</td></tr>) :
               displayRows.slice(0, 20).map(r => <tr key={r.id}><th scope="row">{strategies[r.strategy]} · {r.algorithm}</th>
-                <td>{outcomes[r.outcome]}</td><td>{number(value(r))}{metric === 'dots' ? '%' : metric === 'time' ? ' s' : ''}</td></tr>)}</tbody></table>
+                <td>{outcomes[r.outcome]}{r.outcome === 'TIMEOUT' ? ' (Limite temporal)' : ''}</td><td>{number(value(r))}{metric === 'dots' ? '%' : (metric === 'time' || metric === 'survival_time') ? ' s' : ''}</td></tr>)}</tbody></table>
           {metric !== 'wins' && displayRows.length === 0 && <p>Sem partidas elegíveis para este critério.</p>}
         </div>
         <div className={styles.actions}>

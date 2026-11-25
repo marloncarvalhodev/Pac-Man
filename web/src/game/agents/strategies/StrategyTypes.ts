@@ -4,7 +4,7 @@ import { AgentPerceptionData, AgentPlan, PlanningAlgorithm } from '../AgentTypes
 /**
  * Tipos de estratégias de inteligência para o Pac-Man Autônomo.
  */
-export type StrategyType = 'MIN_COST' | 'MIN_TIME' | 'SURVIVAL' | 'MAX_SCORE' | 'FULL_CLEAR';
+export type StrategyType = 'MIN_COST' | 'MIN_TIME' | 'SURVIVAL' | 'MAX_SURVIVAL_TIME' | 'MAX_SCORE' | 'FULL_CLEAR';
 
 /**
  * Métricas reais coletadas por partida para análise e depuração.
@@ -24,7 +24,7 @@ export interface MatchMetrics {
   moves: number; // Quantidade de passos físicos executados
   nodesExpanded: number; // Total cumulativo de nós expandidos pelos algoritmos de busca
   replanCount: number; // Quantidade de replanejamentos executados
-  outcome: 'IN_PROGRESS' | 'WON' | 'LOST'; // Resultado final da partida
+  outcome: 'IN_PROGRESS' | 'WON' | 'LOST' | 'TIMEOUT'; // Resultado final da partida
 }
 
 /**

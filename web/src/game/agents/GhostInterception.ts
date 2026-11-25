@@ -220,8 +220,10 @@ export function calculateInterceptionTarget(
   // Tolerância temporal para intercepção (margem competitiva de ~350ms)
   const TOLERANCE_MS = 350;
 
-  // Filtra candidatos competitivos onde T_ghost <= T_pac + TOLERANCIA
-  const competitiveCandidates = candidates.filter((c) => c.ghostTime <= c.pacTime + TOLERANCE_MS);
+  // Filtra candidatos competitivos onde T_ghost <= T_pac + TOLERANCIA, excluindo a posição atual do fantasma
+  const competitiveCandidates = candidates.filter(
+    (c) => !nodeEquals(c.node, ghostPos) && c.ghostTime <= c.pacTime + TOLERANCE_MS
+  );
 
   let chosenTarget: Node | null = null;
   let bestPacTime = 0;
@@ -247,38 +249,30 @@ export function calculateInterceptionTarget(
 
   // Se nenhum nó do percurso imediato for competitivo (Pac-Man mais rápido ou correndo em direção oposta)
   if (!chosenTarget) {
-    // 4. Analisa os objetivos principais do Pac-Man (chaves ou saída)
-    for (const obj of remainingObjectives) {
-      const ghostCostToObj = ghostDistances.get(nodeToKey(obj));
-      if (ghostCostToObj !== undefined && Number.isFinite(ghostCostToObj)) {
-        // O fantasma corta caminho para emboscar o Pac-Man no objetivo
-        chosenTarget = obj;
-        bestGhostTime = ghostCostToObj * ghostBaseDelay;
-        bestPacTime = cumPacTime;
-        break;
-      }
-    }
-
-    // 5. Se ainda assim não encontrar, escolhe a junção mais próxima ou o ponto mais avançado do caminho
-    if (!chosenTarget) {
-      const forwardJunction = candidates.find((c) => c.isJunction);
-      if (forwardJunction) {
-        chosenTarget = forwardJunction.node;
-        bestGhostTime = forwardJunction.ghostTime;
-        bestPacTime = forwardJunction.pacTime;
-      } else if (pacPath.length > 1) {
-        chosenTarget = pacPath[pacPath.length - 1];
-      } else {
-        chosenTarget = playerPos;
-      }
+    // Retoma perseguição ativa pela junção à frente ou diretamente pela posição do jogador
+    const forwardJunction = candidates.find((c) => c.isJunction && !nodeEquals(ghostPos, c.node));
+    if (forwardJunction) {
+      chosenTarget = forwardJunction.node;
+      bestGhostTime = forwardJunction.ghostTime;
+      bestPacTime = forwardJunction.pacTime;
+    } else {
+      chosenTarget = playerPos;
     }
   }
 
   // 6. Calcula a rota ótima do Fantasma Roxo até o alvo escolhido via A*
-  const searchResult = aStar(graph, ghostPos, chosenTarget, {
+  let searchResult = aStar(graph, ghostPos, chosenTarget, {
     portals,
     minWeight: 0.3,
   });
+
+  if ((!searchResult.found || searchResult.path.length <= 1) && !nodeEquals(ghostPos, playerPos)) {
+    chosenTarget = playerPos;
+    searchResult = aStar(graph, ghostPos, playerPos, {
+      portals,
+      minWeight: 0.3,
+    });
+  }
 
   return {
     target: chosenTarget,

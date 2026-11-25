@@ -51,6 +51,8 @@ export class AutonomousAgent {
   private replanCount = 0;
   private lastReplanTimestamp = 0;
   private currentRiskMap = new Map<NodeKey, number>();
+  private recentPositions: NodeKey[] = [];
+  private escapeStartedAtSimTime: number | null = null;
 
   // Métricas reais da partida
   private traversedCost = 0;
@@ -59,7 +61,7 @@ export class AutonomousAgent {
   private lastPosition: Node | null = null;
   private initialPacDotsCount = 0;
   private matchSeed = 0;
-  private matchOutcome: 'IN_PROGRESS' | 'WON' | 'LOST' = 'IN_PROGRESS';
+  private matchOutcome: 'IN_PROGRESS' | 'WON' | 'LOST' | 'TIMEOUT' = 'IN_PROGRESS';
 
   constructor(
     defaultAlgorithm: PlanningAlgorithm = 'A*',
@@ -163,6 +165,8 @@ export class AutonomousAgent {
     this.lastSimulatedTime = currentTime;
     this.replanCount = 0;
     this.lastReplanTimestamp = currentTime;
+    this.recentPositions = [nodeToKey(perceptionData.currentPos)];
+    this.escapeStartedAtSimTime = null;
 
     // Inicialização das métricas reais da partida
     this.traversedCost = 0;
@@ -239,6 +243,8 @@ export class AutonomousAgent {
     this.totalPausedSimulatedMs = 0;
     this.totalPausedRealMs = 0;
     this.currentRiskMap.clear();
+    this.recentPositions = [];
+    this.escapeStartedAtSimTime = null;
   }
 
   replan(perceptionData: AgentPerceptionData, useRisk = true): boolean {
@@ -296,6 +302,12 @@ export class AutonomousAgent {
       return null;
     }
 
+    if (gameStatus === 'TIMEOUT') {
+      this.state = 'COMPLETED';
+      this.matchOutcome = 'TIMEOUT';
+      return null;
+    }
+
     if (gameStatus === 'PAUSED') {
       if (this.state === 'MOVING') {
         this.pause(true);
@@ -320,17 +332,22 @@ export class AutonomousAgent {
       return null;
     }
 
-    // Monitora deslocamento físico real para métricas da partida
+    // Monitora deslocamento físico real para métricas da partida e memória de vértices recentes
     if (this.lastPosition && !nodeEquals(this.lastPosition, perceptionData.currentPos)) {
       this.movesCount++;
       const edgeWeight =
         perceptionData.graph.getEdgeWeight(this.lastPosition, perceptionData.currentPos) ?? 1.0;
       this.traversedCost += edgeWeight;
       this.lastPosition = [perceptionData.currentPos[0], perceptionData.currentPos[1]];
+      this.recentPositions.push(nodeToKey(perceptionData.currentPos));
+      if (this.recentPositions.length > 6) {
+        this.recentPositions.shift();
+      }
     }
 
-    // Se concluiu todas as chaves e chegou à saída
+    // Se concluiu todas as chaves e chegou à saída (exceto MAX_SURVIVAL_TIME que busca permanência contínua)
     if (
+      this.strategy !== 'MAX_SURVIVAL_TIME' &&
       this.execution.isComplete(perceptionData.currentPos) &&
       perceptionData.remainingKeys.length === 0 &&
       (this.strategy !== 'FULL_CLEAR' || !perceptionData.pacDots?.size)
@@ -357,6 +374,9 @@ export class AutonomousAgent {
 
       // 1. CONDICIONAL DE FUGA IMINENTE (ESCAPING)
       if (closestEnemy && minDistance <= RiskAssessment.IMMEDIATE_THREAT_DISTANCE) {
+        if (this.strategicState !== 'ESCAPING') {
+          this.escapeStartedAtSimTime = perceptionData.currentTime;
+        }
         this.strategicState = 'ESCAPING';
 
         const escapeDecision = this.riskAssessment.calculateEscapeDecision(
@@ -364,7 +384,8 @@ export class AutonomousAgent {
           perceptionData.currentPos,
           perceptionData.enemies,
           this.execution.getLastFacing(),
-          perceptionData.terrains
+          perceptionData.terrains,
+          this.recentPositions
         );
 
         if (escapeDecision.nextMove) {
@@ -373,11 +394,29 @@ export class AutonomousAgent {
         }
       }
 
-      // 2. RETOMADA DE COLETA/FINALIZAÇÃO APÓS AMEAÇA DIMINUIR
+      // 2. RETOMADA DE COLETA/FINALIZAÇÃO APÓS AMEAÇA DIMINUIR (com margem +2.5 e permanência >= 600ms)
       if (this.strategicState === 'ESCAPING') {
-        if (!closestEnemy || minDistance > RiskAssessment.IMMEDIATE_THREAT_DISTANCE + 1.2) {
+        const escapeElapsed =
+          this.escapeStartedAtSimTime === null
+            ? 600
+            : perceptionData.currentTime - this.escapeStartedAtSimTime;
+        if (
+          escapeElapsed >= 600 &&
+          (!closestEnemy || minDistance > RiskAssessment.IMMEDIATE_THREAT_DISTANCE + 2.5)
+        ) {
           this.execution.clearEscapePath();
-          this.replan(perceptionData);
+          this.replan(perceptionData, true);
+          const nextSteps = this.execution.getRemainingPath(perceptionData.currentPos).slice(1, 3);
+          const leadsIntoThreat = nextSteps.some((step) =>
+            activeEnemies.some(
+              (e) =>
+                Math.abs(step[0] - e.pos[0]) + Math.abs(step[1] - e.pos[1]) <=
+                RiskAssessment.IMMEDIATE_THREAT_DISTANCE
+            )
+          );
+          if (!leadsIntoThreat) {
+            this.escapeStartedAtSimTime = null;
+          }
         }
       }
 
@@ -426,7 +465,7 @@ export class AutonomousAgent {
     let move = this.execution.getNextMove(perceptionData.currentPos, perceptionData.graph);
 
     // Se o movimento for nulo mas ainda não completou os objetivos, tenta replanejar
-    if (move === null && (!this.execution.isComplete(perceptionData.currentPos) ||
+    if (move === null && (this.strategy === 'MAX_SURVIVAL_TIME' || !this.execution.isComplete(perceptionData.currentPos) ||
       (this.strategy === 'FULL_CLEAR' && perceptionData.pacDots?.size))) {
       const ok = this.replan(perceptionData);
       if (ok) {

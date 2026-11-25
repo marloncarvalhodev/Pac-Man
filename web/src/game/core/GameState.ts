@@ -3,7 +3,7 @@ import { TerrainType } from '../graph/Terrain';
 import { PathfindingResult } from '../algorithms/PathfindingTypes';
 import { ControlMode, AgentStatusReport } from '../agents/AgentTypes';
 
-export type GameStatus = 'READY' | 'COUNTDOWN' | 'PLAYING' | 'PAUSED' | 'WON' | 'LOST';
+export type GameStatus = 'READY' | 'COUNTDOWN' | 'PLAYING' | 'PAUSED' | 'WON' | 'LOST' | 'TIMEOUT';
 
 export interface VertexInspectionData {
   node: Node;

@@ -42,10 +42,13 @@ export function runMatch(config: ExperimentConfig, seed: number, repetition: num
   const dots = createPacDots(world);
   const pellets = new Set(world.powerPellets.map(nodeToKey));
   const keys = new Set<string>();
+  const ghostInitialDelayMs =
+    config.mode === 'MVM' ? speed.MVM_GHOST_INITIAL_SPAWN_DELAY_MS : speed.GHOST_INITIAL_SPAWN_DELAY_MS;
   const ghosts = (config.mode === 'MVM' ? [world.enemySpawn, world.enemySpawn2] : [])
-    .map((spawn, index): RawEnemyData & { due: number } => ({
+    .map((spawn, index): RawEnemyData & { due: number; lastRecalcTime: number } => ({
       id: index === 0 ? 'red' : 'purple', name: index === 0 ? 'Perseguidor' : 'Interceptor',
-      pos: spawn, spawn, facing: [0, -1], path: [], due: speed.GHOST_INITIAL_SPAWN_DELAY_MS,
+      pos: spawn, spawn, facing: [0, -1], path: [], due: ghostInitialDelayMs,
+      lastRecalcTime: 0,
     }));
   const initial = { player: world.start, ghosts: ghosts.map(g => g.spawn), health: 100, dots: dots.size };
   const agent = new AutonomousAgent(config.algorithm, config.mode, strategy);
@@ -54,10 +57,10 @@ export function runMatch(config: ExperimentConfig, seed: number, repetition: num
   let health = initial.health, score = 0, cost = 0, moves = 0, decisionMs = 0;
   let outcome: Outcome = 'TIMEOUT', reason = 'Limite de tempo simulado';
   const observe = () => perception.readState(player, graph, world.keys, keys, goal,
-    portalPairs, terrains, time < speed.GHOST_INITIAL_SPAWN_DELAY_MS ? [] : ghosts,
+    portalPairs, terrains, time < ghostInitialDelayMs ? [] : ghosts,
     powerUntil, time, dots, pellets, health, score, seed);
   const collision = () => {
-    if (time < speed.GHOST_INITIAL_SPAWN_DELAY_MS) return false;
+    if (time < ghostInitialDelayMs) return false;
     for (const ghost of ghosts) {
       if (!nodeEquals(ghost.pos, player)) continue;
       if (time >= powerUntil) return true;
@@ -103,7 +106,8 @@ export function runMatch(config: ExperimentConfig, seed: number, repetition: num
         if (health <= 0) { outcome = 'LOST'; reason = 'Lava'; break; }
         if (collision()) { outcome = 'LOST'; reason = 'Captura'; break; }
         const needsDots = config.objective === 'dots' || strategy === 'FULL_CLEAR';
-        if (nodeEquals(player, goal) && keys.size === world.keys.length && (!needsDots || !dots.size)) {
+        const avoidsExit = strategy === 'MAX_SURVIVAL_TIME';
+        if (!avoidsExit && nodeEquals(player, goal) && keys.size === world.keys.length && (!needsDots || !dots.size)) {
           outcome = 'WON'; reason = 'Saída alcançada com os objetivos cumpridos'; score += SCORE.victory;
           break;
         }
@@ -117,13 +121,22 @@ export function runMatch(config: ExperimentConfig, seed: number, repetition: num
           const distance = (p: Node) => Math.abs(p[0] - player[0]) + Math.abs(p[1] - player[1]);
           ghost.path = [ghost.pos, ...neighbors.sort((a, b) => distance(b.node) - distance(a.node))
             .slice(0, 1).map(edge => edge.node)];
-        } else if (index === 0) {
-          ghost.path = aStar(graph, ghost.pos, player, { portals: portalPairs }).path;
         } else {
-          const objectives = world.keys.filter(k => !keys.has(nodeToKey(k)));
-          ghost.path = calculateInterceptionTarget(graph, ghost.pos, player, facing,
-            agent.getRemainingPath(player), objectives.length ? objectives : [goal], portalPairs,
-            speed.PLAYER_BASE_DELAY_MS, speed.GHOST_BASE_DELAY_MS).path;
+          const needsRecalc =
+            ghost.path.length <= 1 ||
+            time - ghost.lastRecalcTime >= speed.GHOST_RECALC_INTERVAL_MS ||
+            graph.degree(ghost.pos) >= 3;
+          if (needsRecalc) {
+            if (index === 0) {
+              ghost.path = aStar(graph, ghost.pos, player, { portals: portalPairs }).path;
+            } else {
+              const objectives = world.keys.filter(k => !keys.has(nodeToKey(k)));
+              ghost.path = calculateInterceptionTarget(graph, ghost.pos, player, facing,
+                agent.getRemainingPath(player), objectives.length ? objectives : [goal], portalPairs,
+                speed.PLAYER_BASE_DELAY_MS, speed.GHOST_BASE_DELAY_MS).path;
+            }
+            ghost.lastRecalcTime = time;
+          }
         }
         const next = ghost.path[1];
         let weight = 1;
